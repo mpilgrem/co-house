@@ -1,0 +1,9 @@
+# The Haskell Tool Stack-related
+.stack-work/
+*~
+
+# Haddock-related
+docs/
+
+# Testing-related
+test/

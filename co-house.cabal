@@ -1,0 +1,80 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.33.0.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 717cca4d9c9ab961334cb22ffd40dde6fa5e05ecf60321d506a91e744a2b72ae
+
+name:           co-house
+version:        0.1.0.0
+synopsis:       Haskell bindings to the UK Companies House's APIs.
+description:    Please see the README on GitHub at <https://github.com/mpilgrem/co-house#readme>
+category:       Web, Test
+homepage:       https://github.com/mpilgrem/co-house#readme
+bug-reports:    https://github.com/mpilgrem/co-house/issues
+author:         Mike Pilgrem
+maintainer:     public@pilgrem.com
+copyright:      Copyright 2021 Mike Pilgrem
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    ChangeLog.md
+
+source-repository head
+  type: git
+  location: https://github.com/mpilgrem/co-house
+
+library
+  exposed-modules:
+      Web.CoHouse
+      Web.CoHouse.Types
+  other-modules:
+      Paths_co_house
+  hs-source-dirs:
+      src
+  build-depends:
+      aeson
+    , base >=4.7 && <5
+    , bytestring
+    , directory
+    , filepath
+    , http-client
+    , http-client-tls
+    , http-media
+    , http-types
+    , modern-uri
+    , optparse-applicative
+    , servant
+    , servant-client
+    , text
+    , time
+  default-language: Haskell2010
+
+executable co-house
+  main-is: Main.hs
+  other-modules:
+      Paths_co_house
+  hs-source-dirs:
+      app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      aeson
+    , base >=4.7 && <5
+    , bytestring
+    , co-house
+    , directory
+    , filepath
+    , http-client
+    , http-client-tls
+    , http-media
+    , http-types
+    , modern-uri
+    , optparse-applicative
+    , servant
+    , servant-client
+    , text
+    , time
+  default-language: Haskell2010
