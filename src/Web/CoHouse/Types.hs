@@ -16,22 +16,29 @@ This module has no connection with the UK's Companies House or its affiliates.
 -}
 module Web.CoHouse.Types where
 
-import Data.Aeson (FromJSON(..), Options(fieldLabelModifier), genericParseJSON
-                 , defaultOptions, camelTo2)
+import Data.Aeson ((.:), FromJSON(..), Options(fieldLabelModifier),
+  genericParseJSON, defaultOptions, camelTo2, withObject)
 import Data.Aeson.Types (withText)
 import Data.ByteString.Lazy (ByteString)
-import qualified Data.ByteString.Lazy as B
 import Data.Text (Text)
 import qualified Data.Text as T (unpack)
 import Data.Time (Day, UTCTime)
 import GHC.Generics (Generic)
 import Network.HTTP.Media.MediaType ((//))
-import Servant.API (type (:>), (:<|>), Accept (..), BasicAuth, BasicAuthData,
-  Capture, Get, JSON, QueryParam, ToHttpApiData (..), MimeUnrender (..), Headers, Header)
+import Servant.API (type (:>), (:<|>), Accept (..), BasicAuth,
+  Capture, Get, JSON, QueryParam, ToHttpApiData (..), MimeUnrender (..))
 
 type DayOfMonth = Int
 type MonthOfYear = Int
-type DayMonth = (DayOfMonth, MonthOfYear)
+
+newtype DayMonth = DayMonth (DayOfMonth, MonthOfYear)
+  deriving (Eq, Show)
+
+instance FromJSON DayMonth where
+  parseJSON = withObject "DayMonth" $ \obj -> do
+    day   <- obj .: "day"
+    month <- obj .: "month"
+    pure $ DayMonth (read day, read month)
 
 data PDF
 
@@ -48,7 +55,7 @@ type CoHousePublicDataApi
   =    BasicAuth "" ()
   :>   "company"
   :>   Capture "companyNumber" Text
-  :>   Get '[JSON] CompanyProfileResponse
+  :>   Get '[JSON] CompanyProfile
   :<|> BasicAuth "" ()
   :>   "search"
   :>   "companies"
@@ -76,8 +83,33 @@ type CoHouseDocumentApi
   :>   "content"
   :>   Get '[PDF] ByteString
 
-newtype CompanyProfile = CompanyProfile
-  { cpCompanyName :: Text
+data CompanyProfile = CompanyProfile
+  { cpAccounts                             :: !(Maybe AccountsProfile)
+  , cpAnnualReturn                         :: !(Maybe AnnualReturnProfile)
+  , cpBranchCompanyDetails                 :: !(Maybe BranchCoProfile)
+  , cpCanFile                              :: !Bool
+  , cpCompanyName                          :: !Text
+  , cpCompanyNumber                        :: !Text
+  , cpCompanyStatus                        :: !Text
+  , cpCompanyStatusDetail                  :: !(Maybe Text)
+  , cpConfirmationStatement                :: !(Maybe ConfirmationStatementProfile)
+  , cpDateOfCessation                      :: !(Maybe Day)
+  , cpDateOfCreation                       :: !Day
+  , cpEtag                                 :: !(Maybe Text)
+  , cpForeignCompanyDetails                :: !(Maybe ForeignCoProfile)
+  , cpHasBeenLiquidated                    :: !(Maybe Bool)
+  , cpHasCharges                           :: !(Maybe Bool)
+  , cpHasInsolvencyHistory                 :: !(Maybe Bool)
+  , cpIsCommunityInterestCompany           :: !(Maybe Bool)
+  , cpJurisdiction                         :: !Text
+  , cpLastFullMembersListDate              :: !(Maybe Day)
+  , cpLinks                                :: !Links
+  , cpPreviousCompanyNames                 :: !(Maybe [PreviousCompanyName])
+  , cpRegisteredOfficeAddress              :: !(Maybe Address)
+  , cpRegisteredOfficeIsInDispute          :: !(Maybe Bool)
+  , cpSicCodes                             :: !(Maybe [Text])
+  , cpType                                 :: !Text
+  , cpUndeliverableRegisteredOfficeAddress :: !(Maybe Bool)
   } deriving (Eq, Generic, Show)
 
 instance FromJSON CompanyProfile where
@@ -86,8 +118,139 @@ instance FromJSON CompanyProfile where
       defaultOptions
       { fieldLabelModifier = camelTo2 '_' . drop 2 }
 
-newtype CompanyProfileResponse = CompanyProfileResponse CompanyProfile
-  deriving (Eq, FromJSON, Show)
+data AccountsProfile = AccountsProfile
+  { apAccountingReferenceDate :: !DayMonth
+  , apLastAccounts            :: !(Maybe LastAccounts)
+  , apNextDue                 :: !(Maybe Day)
+  , apNextMadeUpTo            :: !Day
+  , apOverdue                 :: !Bool
+  } deriving (Eq, Generic, Show)
+
+instance FromJSON AccountsProfile where
+  parseJSON =
+    genericParseJSON
+      defaultOptions
+      { fieldLabelModifier = camelTo2 '_' . drop 2 }
+
+data LastAccounts = LastAccounts
+  { laPeriodStartOn :: !Day
+  , laMadeUpTo      :: !Day
+  , laPeriodEndOn   :: !Day
+  , laType          :: !Text
+  } deriving (Eq, Generic, Show)
+
+instance FromJSON LastAccounts where
+  parseJSON =
+    genericParseJSON
+      defaultOptions
+      { fieldLabelModifier = camelTo2 '_' . drop 2 }
+
+data AnnualReturnProfile = AnnualReturnProfile
+  { arLastMadeUpTo :: !(Maybe Day)
+  , arNextDue      :: !(Maybe Day)
+  , arNextMadeUpTo :: !(Maybe Day)
+  , arOverdue      :: !(Maybe Bool)
+  } deriving (Eq, Generic, Show)
+
+instance FromJSON AnnualReturnProfile where
+  parseJSON =
+    genericParseJSON
+      defaultOptions
+      { fieldLabelModifier = camelTo2 '_' . drop 2 }
+
+data BranchCoProfile = BranchCoProfile
+  { bcBusinessActivity    :: !(Maybe Text)
+  , bcParentCompanyName   :: !(Maybe Text)
+  , bcParentCompanyNumber :: !(Maybe Text)
+  } deriving (Eq, Generic, Show)
+
+instance FromJSON BranchCoProfile where
+  parseJSON =
+    genericParseJSON
+      defaultOptions
+      { fieldLabelModifier = camelTo2 '_' . drop 2 }
+
+data ConfirmationStatementProfile = ConfirmationStatementProfile
+  { csLastMadeUpTo :: !(Maybe Day)
+  , csNextDue      :: !Day
+  , csNextMadeUpTo :: !Day
+  , csOverdue      :: !(Maybe Bool)
+  } deriving (Eq, Generic, Show)
+
+instance FromJSON ConfirmationStatementProfile where
+  parseJSON =
+    genericParseJSON
+      defaultOptions
+      { fieldLabelModifier = camelTo2 '_' . drop 2 }
+
+data ForeignCoProfile = ForeignCoProfile
+  { fcAccountingRequirement       :: !(Maybe AccountingRequirement)
+  , fcAccounts                    :: !(Maybe ForeignAccountsProfile)
+  , fcBusinessActivity            :: !(Maybe Text)
+  , fcCompanyType                 :: !(Maybe Text)
+  , fcGovernedBy                  :: !(Maybe Text)
+  , fcIsACreditFinanceInstitution :: !(Maybe Bool)
+  , fcOriginatingRegistry         :: !(Maybe OriginatingRegistry)
+  , fcRegistrationNumber          :: !(Maybe Text)
+  } deriving (Eq, Generic, Show)
+
+instance FromJSON ForeignCoProfile where
+  parseJSON =
+    genericParseJSON
+      defaultOptions
+      { fieldLabelModifier = camelTo2 '_' . drop 2 }
+
+data AccountingRequirement = AccountingRequirement
+  { arForeignAccountType        :: !(Maybe Text)
+  , arTermsOfAccountPublication :: !(Maybe Text)
+  } deriving (Eq, Generic, Show)
+
+instance FromJSON AccountingRequirement where
+  parseJSON =
+    genericParseJSON
+      defaultOptions
+      { fieldLabelModifier = camelTo2 '_' . drop 2 }
+
+data ForeignAccountsProfile = ForeignAccountsProfile
+  { faAccountPeriodFrom :: !(Maybe DayMonth)
+  , faAccountPeriodTo   :: !(Maybe DayMonth)
+  , faMustFileWithin    :: !(Maybe Int)
+  } deriving (Eq, Generic, Show)
+
+instance FromJSON ForeignAccountsProfile where
+  parseJSON = withObject "ForeignAccountsProfile" $ \obj -> do
+    faAccountPeriodFrom' <- obj .: "account_period_from"
+    faAccountPeriodTo'   <- obj .: "account_period_to"
+    mustFileWithinObj    <- obj .: "must_file_within"
+    faMustFileWithin'    <- mustFileWithinObj .: "month"
+    pure $ ForeignAccountsProfile
+      { faAccountPeriodFrom = faAccountPeriodFrom'
+      , faAccountPeriodTo   = faAccountPeriodTo'
+      , faMustFileWithin    = faMustFileWithin'
+      }
+
+data OriginatingRegistry = OriginatingRegistry
+  { orCountry :: !Text
+  , orName    :: !Text
+  } deriving (Eq, Generic, Show)
+
+instance FromJSON OriginatingRegistry where
+  parseJSON =
+    genericParseJSON
+      defaultOptions
+      { fieldLabelModifier = camelTo2 '_' . drop 2 }
+
+data PreviousCompanyName = PreviousCompanyName
+  { pcnCeasedOn      :: !Day
+  , pcnEffectiveFrom :: !Day
+  , pcnName          :: !Text
+  } deriving (Eq, Generic, Show)
+
+instance FromJSON PreviousCompanyName where
+  parseJSON =
+    genericParseJSON
+      defaultOptions
+      { fieldLabelModifier = camelTo2 '_' . drop 3 }
 
 data CompanySearchResponse = CompanySearchResponse
   { csrEtag         :: !(Maybe Text)
@@ -128,7 +291,7 @@ instance FromJSON CompanySearch where
       { fieldLabelModifier = camelTo2 '_' . drop 2 }
 
 data Address = Address
-  { aPremises       :: !Text
+  { aPremises      :: !(Maybe Text)
   , aAddressLine_1 :: !(Maybe Text)
   , aAddressLine_2 :: !(Maybe Text)
   , aCareOf        :: !(Maybe Text)

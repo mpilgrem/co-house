@@ -13,24 +13,22 @@ This module has no connection with the UK's Companies House or its affiliates.
 -}
 module Main (main) where
 
-import qualified Data.List.NonEmpty as NE (tail, last)
+import qualified Data.List.NonEmpty as NE (last)
 import Data.Maybe (fromMaybe, isJust)
-import System.Environment (getEnv, lookupEnv)
+import System.Environment (lookupEnv)
 
 import Data.Text (Text)
 import qualified Data.Text as T (concat, pack, unpack)
 import qualified Data.Text.IO as T
 import Options.Applicative (Parser, (<**>), auto, command, execParser, fullDesc,
-  header, help, helper, hsubparser, info, long, metavar, option, progDesc,
-  short, strOption, subparser, value, switch)
+  header, help, helper, info, long, metavar, option, progDesc, short, strOption,
+  subparser, switch, value)
 import Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as B (pack)
 import qualified Data.ByteString.Lazy as BL (writeFile)
-import Network.HTTP.Client (Manager, Request (redirectCount), applyBasicAuth,
-  httpLbs, newManager, parseRequest,  )
+import Network.HTTP.Client (Manager, newManager)
 import Network.HTTP.Client.TLS (tlsManagerSettings)
-import Servant.API (BasicAuthData(BasicAuthData), Headers (..),
-  ResponseHeader (..), lookupResponseHeader)
+import Servant.API (BasicAuthData(BasicAuthData))
 import System.FilePath ((<.>), (</>), takeExtension, dropExtension)
 import Text.URI (URI(uriPath), mkURI, unRText)
 
@@ -39,7 +37,7 @@ import Web.CoHouse (companyProfile, companySearch, docMetadata, docPdf,
 import Web.CoHouse.Types (Address (..), Category (..), CompanyProfile (..),
   CompanySearch (..), CompanySearchResponse (..), DescriptionValue (..),
   DocumentMetaDataResponse (..), FilingHistory (..), FilingHistoryResponse (..),
-  Links (..), Resources (..), CompanyProfileResponse (..))
+  Links (..), Resources (..), LastAccounts (..), AccountsProfile (apLastAccounts))
 import System.Directory (doesFileExist, createDirectoryIfMissing)
 import Control.Applicative (optional, Alternative ((<|>)))
 import Control.Monad (when)
@@ -51,6 +49,7 @@ data Options = Options
 
 data Command
   = Search !SearchOptions
+  | Profile !ProfileOptions
   | Accounts !AccountsOptions
   deriving (Eq, Show)
 
@@ -58,6 +57,10 @@ data SearchOptions = SearchOptions
   { soQ            :: !Text
   , soItemsPerPage :: !Int
   , soStartIndex   :: !Int
+  } deriving (Eq, Show)
+
+data ProfileOptions = ProfileOptions
+  { poCoNo :: !Text
   } deriving (Eq, Show)
 
 data AccountsOptions = AccountsOptions
@@ -84,9 +87,12 @@ options apiKey = Options . (<|> apiKey)
       ( command "search" ( info (searchOptions <**> helper)
         ( fullDesc
        <> progDesc "Perform company search." ) )
+     <> command "profile" ( info (profileOptions <**> helper)
+        ( fullDesc
+       <> progDesc "Obtain company profile." ) )
      <> command "accounts" ( info (accountsOptions <**> helper)
         ( fullDesc
-       <> progDesc "Download accounts") ) )
+       <> progDesc "Download accounts.") ) )
 
 searchOptions :: Parser Command
 searchOptions = Search <$> (SearchOptions
@@ -103,6 +109,14 @@ searchOptions = Search <$> (SearchOptions
       ( long "start-index"
      <> short 'i'
      <> value 0 ))
+
+profileOptions :: Parser Command
+profileOptions = Profile <$> (ProfileOptions
+  <$> strOption
+      ( long "co-no"
+     <> short 'c'
+     <> metavar "CO_NUMBER"
+     <> help "Company number." ))
 
 accountsOptions :: Parser Command
 accountsOptions = Accounts <$> (AccountsOptions
@@ -145,9 +159,13 @@ main' opts = do
                                  (Just $ soItemsPerPage searchOpts)
                                  (Just $ soStartIndex searchOpts) >>= \case
             Right result -> do
-              T.putStr $ "Total items available: " <> maybe "n/a" (T.pack . show)
+              T.putStrLn $ "Total items available: " <> maybe "n/a" (T.pack . show)
                 (csrTotalResults result)
               T.putStr (T.concat $ map display (csrItems result))
+            Left err -> print err
+        Profile profileOpts -> do
+          companyProfile mgr auth (poCoNo profileOpts) >>= \case
+            Right result -> T.putStr $ display result
             Left err -> print err
         Accounts accsOpts -> do
           let coNo       = aoCoNo accsOpts
@@ -156,7 +174,7 @@ main' opts = do
           when (outputPath /= "") $ do
             createDirectoryIfMissing True (T.unpack outputPath)
           companyProfile mgr auth coNo >>= \case
-            Right (CompanyProfileResponse cp) -> do
+            Right cp -> do
               let coName = cpCompanyName cp
               fhs <- fetchFilingHistory mgr auth
                                         coNo
@@ -169,17 +187,34 @@ main' opts = do
 class Display a where
   display :: a -> Text
 
+instance Display CompanyProfile where
+  display cp
+    =  cpCompanyName cp <> " (" <> cpCompanyNumber cp <> ")\n"
+    <> maybe "" display (cpRegisteredOfficeAddress cp)
+    <> maybe "" display (cpAccounts cp)
+
 instance Display Address where
   display address
     =  maybe "" (<> "\n") (aCareOf address)
     <> maybe "" (<> "\n") (aPoBox address)
-    <> aPremises address <> "\n"
+    <> maybe "" (<> " ") (aPremises address)
     <> maybe "" (<> "\n") (aAddressLine_1 address)
     <> maybe "" (<> "\n") (aAddressLine_2 address)
     <> maybe "" (<> "\n") (aLocality address)
     <> maybe "" (<> "\n") (aRegion address)
     <> maybe "" (<> "\n") (aPostalCode address)
     <> maybe "" (<> "\n") (aCountry address)
+
+instance Display AccountsProfile where
+  display ap
+    = maybe "" (\la -> "Last accounts: " <> display la) (apLastAccounts ap)
+
+instance Display LastAccounts where
+  display la
+    =  (T.pack . show) (laMadeUpTo la) <> " (" <>
+       (T.pack . show) (laPeriodStartOn la) <> " to " <>
+       (T.pack . show) (laPeriodEndOn la) <> ") " <>
+       laType la <> "\n"
 
 instance Display CompanySearch where
   display cs
@@ -271,8 +306,9 @@ getPdf mgr auth oPath coName overwrite fh = do
                   T.putStrLn $ "Writing file: " <> T.pack fn'
                   BL.writeFile fn' bs
                 Left err' -> print err'
-            else T.putStrLn "No PDF!"
+            else T.putStrLn "No PDF available."
         Left err -> print err
+    Nothing -> T.putStrLn "No document available."
 
 uniqueFilePath :: FilePath
                -> IO FilePath

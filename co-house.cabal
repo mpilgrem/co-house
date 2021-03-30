@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 717cca4d9c9ab961334cb22ffd40dde6fa5e05ecf60321d506a91e744a2b72ae
+-- hash: 6a9170b395bde9d3ed791480668ae9da1bea6e5ced455cff88865fe71879ac2e
 
 name:           co-house
 version:        0.1.0.0
@@ -35,6 +35,7 @@ library
       Paths_co_house
   hs-source-dirs:
       src
+  ghc-options: -Wall
   build-depends:
       aeson
     , base >=4.7 && <5
@@ -59,7 +60,7 @@ executable co-house
       Paths_co_house
   hs-source-dirs:
       app
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -Wall -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
     , base >=4.7 && <5

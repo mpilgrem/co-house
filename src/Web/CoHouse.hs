@@ -30,17 +30,16 @@ module Web.CoHouse
 import Data.ByteString.Lazy (ByteString)
 import Data.Proxy (Proxy (..))
 import Data.Text (Text)
-import Network.HTTP.Client (Manager, Request (redirectCount,
-  shouldStripHeaderOnRedirect))
+import Network.HTTP.Client (Manager, Request (shouldStripHeaderOnRedirect))
 import Network.HTTP.Types.Header (HeaderName)
-import Servant.API (BasicAuthData(BasicAuthData), Header, Headers)
+import Servant.API (BasicAuthData)
 import Servant.API.Alternative ((:<|>)((:<|>)))
 import Servant.Client (BaseUrl (BaseUrl), ClientEnv (ClientEnv), ClientError,
   ClientM, Scheme (Https), client, defaultMakeClientRequest, runClientM)
 
 import Web.CoHouse.Types (Category, CoHouseDocumentApi, CoHousePublicDataApi,
-  CompanyProfile, CompanyProfileResponse, CompanySearchResponse,
-  FilingHistoryResponse, DocumentMetaDataResponse)
+  CompanyProfile, CompanySearchResponse, FilingHistoryResponse,
+  DocumentMetaDataResponse)
 
 dataApi :: Proxy CoHousePublicDataApi
 dataApi = Proxy
@@ -51,7 +50,7 @@ docApi = Proxy
 companyProfile'
   :: BasicAuthData
   -> Text
-  -> ClientM CompanyProfileResponse
+  -> ClientM CompanyProfile
 
 companySearch'
   :: BasicAuthData
@@ -94,7 +93,7 @@ companyProfile
   :: Manager
   -> BasicAuthData
   -> Text  -- ^ Company number.
-  -> IO (Either ClientError CompanyProfileResponse)
+  -> IO (Either ClientError CompanyProfile)
 companyProfile mgr auth coNo =
   runClientM
     (companyProfile' auth coNo)
