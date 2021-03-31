@@ -13,12 +13,14 @@ This module has no connection with the UK's Companies House or its affiliates.
 -}
 module Main (main) where
 
+import Control.Applicative (optional, Alternative ((<|>)))
+import Control.Monad (when)
 import qualified Data.List.NonEmpty as NE (last)
 import Data.Maybe (fromMaybe, isJust)
 import System.Environment (lookupEnv)
 
 import Data.Text (Text)
-import qualified Data.Text as T (concat, pack, unpack)
+import qualified Data.Text as T (concat, intercalate, pack, unpack)
 import qualified Data.Text.IO as T
 import Options.Applicative (Parser, (<**>), auto, command, execParser, fullDesc,
   header, help, helper, info, infoOption, long, metavar, option, progDesc,
@@ -29,18 +31,17 @@ import qualified Data.ByteString.Lazy as BL (writeFile)
 import Network.HTTP.Client (Manager, newManager)
 import Network.HTTP.Client.TLS (tlsManagerSettings)
 import Servant.API (BasicAuthData(BasicAuthData))
+import System.Directory (doesFileExist, createDirectoryIfMissing)
 import System.FilePath ((<.>), (</>), takeExtension, dropExtension)
 import Text.URI (URI(uriPath), mkURI, unRText)
 
 import Web.CoHouse (companyProfile, companySearch, docMetadata, docPdf,
   filingHistory)
-import Web.CoHouse.Types (Address (..), Category (..), CompanyProfile (..),
-  CompanySearch (..), CompanySearchResponse (..), DescriptionValue (..),
+import Web.CoHouse.Types (AccountsProfile (..), Address (..),
+  BranchCoProfile (..), Category (..), CompanyProfile (..), CompanySearch (..),
+  CompanySearchResponse (..), DayMonth (..), DescriptionValue (..),
   DocumentMetaDataResponse (..), FilingHistory (..), FilingHistoryResponse (..),
-  Links (..), Resources (..), LastAccounts (..), AccountsProfile (apLastAccounts))
-import System.Directory (doesFileExist, createDirectoryIfMissing)
-import Control.Applicative (optional, Alternative ((<|>)))
-import Control.Monad (when)
+  Links (..), LastAccounts (..), Resources (..), PreviousCompanyName (pcnName, pcnEffectiveFrom, pcnCeasedOn))
 
 data Options = Options
   { optApiKey  :: !(Maybe ByteString)
@@ -195,8 +196,20 @@ class Display a where
 instance Display CompanyProfile where
   display cp
     =  cpCompanyName cp <> " (" <> cpCompanyNumber cp <> ")\n"
+    <> "Created: " <> (T.pack . show) (cpDateOfCreation cp)
+    <> maybe "" ((" Ceased: " <>) . (T.pack . show)) (cpDateOfCessation cp)
+    <> "\n"
+    <> maybe "" ((\pcn -> "Formerly " <> pcn <> "\n") . T.intercalate ", " . map display)
+                (cpPreviousCompanyNames cp)
     <> maybe "" display (cpRegisteredOfficeAddress cp)
+    <> maybe "" (\p -> if p then "disputed\n" else "")
+                (cpRegisteredOfficeIsInDispute cp)
+    <> maybe "" (\p -> if p then "undeliverable\n" else "")
+                (cpUndeliverableRegisteredOfficeAddress cp)
     <> maybe "" display (cpAccounts cp)
+    <> maybe "" (\bc -> "Branch: " <> display bc) (cpBranchCompanyDetails cp)
+    <> cpCompanyStatus cp
+    <> maybe "\n" (\d -> " (" <> d <> ")\n") (cpCompanyStatusDetail cp)
 
 instance Display Address where
   display address
@@ -212,14 +225,36 @@ instance Display Address where
 
 instance Display AccountsProfile where
   display ap
-    = maybe "" (\la -> "Last accounts: " <> display la) (apLastAccounts ap)
+    = "ARD: " <> display (apAccountingReferenceDate ap) <> "\n"
+   <> maybe "" (\la -> "Last accounts: " <> display la) (apLastAccounts ap)
+   <> "Next accounts: " <> (T.pack . show) (apNextMadeUpTo ap)
+   <> maybe "\n" (\d -> " (" <> od <> " " <> (T.pack . show) d <> ")\n") (apNextDue ap)
+   where
+    od = if apOverdue ap
+           then "overdue"
+           else "due"
+
+instance Display DayMonth where
+  display (DayMonth (d, m))
+    = (T.pack . show) d <> "/" <> (T.pack . show) m
 
 instance Display LastAccounts where
   display la
-    =  (T.pack . show) (laMadeUpTo la) <> " (" <>
-       (T.pack . show) (laPeriodStartOn la) <> " to " <>
-       (T.pack . show) (laPeriodEndOn la) <> ") " <>
-       laType la <> "\n"
+    = (T.pack . show) (laMadeUpTo la) <> " (" <>
+      (T.pack . show) (laPeriodStartOn la) <> " to " <>
+      (T.pack . show) (laPeriodEndOn la) <> ") " <>
+      laType la <> "\n"
+
+instance Display BranchCoProfile where
+  display bc
+    = fromMaybe "" (bcBusinessActivity bc)
+   <> maybe "" (" Parent: " <>) (bcParentCompanyName bc)
+   <> maybe "\n" (\n -> " (" <> n <> ")\n") (bcParentCompanyNumber bc)
+
+instance Display PreviousCompanyName where
+  display pcn
+    = pcnName pcn <> " (" <> (T.pack . show) (pcnEffectiveFrom pcn) <> " to "
+   <> (T.pack . show) (pcnCeasedOn pcn) <> ")"
 
 instance Display CompanySearch where
   display cs

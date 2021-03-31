@@ -269,12 +269,12 @@ instance FromJSON CompanySearchResponse where
 
 data CompanySearch = CompanySearch
   { csAddress               :: !Address
-  , csAddressSnippet        :: !Text
+  , csAddressSnippet        :: !(Maybe Text)
   , csCompanyNumber         :: !Text
-  , csCompanyStatus         :: !Text
+  , csCompanyStatus         :: !(Maybe Text)
   , csCompanyType           :: !Text
   , csDateOfCessation       :: !(Maybe Day)
-  , csDateOfCreation        :: !Day
+  , csDateOfCreation        :: !(Maybe Day)
   , csDescription           :: !(Maybe Text)
   , csDescriptionIdentifier :: ![Text]
   , csKind                  :: !Text
