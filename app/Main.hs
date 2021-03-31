@@ -21,8 +21,8 @@ import Data.Text (Text)
 import qualified Data.Text as T (concat, pack, unpack)
 import qualified Data.Text.IO as T
 import Options.Applicative (Parser, (<**>), auto, command, execParser, fullDesc,
-  header, help, helper, info, long, metavar, option, progDesc, short, strOption,
-  subparser, switch, value)
+  header, help, helper, info, infoOption, long, metavar, option, progDesc,
+  short, strOption, subparser, switch, value)
 import Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as B (pack)
 import qualified Data.ByteString.Lazy as BL (writeFile)
@@ -135,10 +135,15 @@ accountsOptions = Accounts <$> (AccountsOptions
       ( long "overwrite"
      <> help "Overwrite files that already exist." ))
 
+versionOption :: Parser (a -> a)
+versionOption = infoOption "Version 0.1.0.0"
+  ( long "version"
+ <> help "Show version." )
+
 main :: IO ()
 main = do
   apiKey <- (B.pack <$>) <$> lookupEnv "CO_HOUSE_API_KEY"
-  let opts = info (options apiKey <**> helper)
+  let opts = info (options apiKey <**> versionOption <**> helper)
         ( fullDesc
        <> progDesc "Interrogate the Companies House API"
        <> header "co-house - a tool to interrogate the Companies House API" )
