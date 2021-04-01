@@ -28,6 +28,8 @@ import Network.HTTP.Media.MediaType ((//))
 import Servant.API (type (:>), (:<|>), Accept (..), BasicAuth,
   Capture, Get, JSON, QueryParam, ToHttpApiData (..), MimeUnrender (..))
 
+import Web.CoHouse.Types.Description (Description (..))
+
 type DayOfMonth = Int
 type MonthOfYear = Int
 
@@ -354,7 +356,7 @@ data FilingHistory = FilingHistory
   , fhBarcode           :: !(Maybe Text)
   , fhCategory          :: !Category
   , fhDate              :: !Day
-  , fhDescription       :: !Text
+  , fhDescription       :: !Description
   , fhDescriptionValues :: !(Maybe DescriptionValue)
   , fhLinks             :: !(Maybe Links)
   , fhPages             :: !(Maybe Int)
@@ -385,7 +387,7 @@ instance FromJSON Annotation where
 
 data AssociatedFiling = AssociatedFiling
   { afDate        :: Day
-  , afDescription :: !Text
+  , afDescription :: !Description
   , afType        :: !Text
   } deriving (Eq, Generic, Show)
 

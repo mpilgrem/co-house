@@ -1,2 +1,4 @@
 cradle:
   stack:
+  - path: "./tool"
+    component: "co-house:exe:tool-description"

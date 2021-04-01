@@ -17,6 +17,12 @@ description:         Please see the README on GitHub at <https://github.com/mpil
 ghc-options:
 - -Wall
 
+flags:
+  tools:
+    description: Build developer tools
+    default: false
+    manual: false
+
 dependencies:
 - base >= 4.7 && < 5
 - aeson
@@ -47,3 +53,17 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - co-house
+  tool-description:
+    when:
+      - condition: "!flag(tools)"
+        buildable: false
+    main:                Description.hs
+    source-dirs:         tool
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - casing
+    - unordered-containers
+    - yaml

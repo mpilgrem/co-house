@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 6a9170b395bde9d3ed791480668ae9da1bea6e5ced455cff88865fe71879ac2e
+-- hash: e62f4f1e3c382480122e0cb98fc9e8f6af25b4fb3f34e0e40a0dcda585b2b412
 
 name:           co-house
 version:        0.1.0.0
@@ -27,10 +27,16 @@ source-repository head
   type: git
   location: https://github.com/mpilgrem/co-house
 
+flag tools
+  description: Build developer tools
+  manual: False
+  default: False
+
 library
   exposed-modules:
       Web.CoHouse
       Web.CoHouse.Types
+      Web.CoHouse.Types.Description
   other-modules:
       Paths_co_house
   hs-source-dirs:
@@ -78,4 +84,34 @@ executable co-house
     , servant-client
     , text
     , time
+  default-language: Haskell2010
+
+executable tool-description
+  main-is: Description.hs
+  other-modules:
+      Paths_co_house
+  hs-source-dirs:
+      tool
+  ghc-options: -Wall -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      aeson
+    , base >=4.7 && <5
+    , bytestring
+    , casing
+    , directory
+    , filepath
+    , http-client
+    , http-client-tls
+    , http-media
+    , http-types
+    , modern-uri
+    , optparse-applicative
+    , servant
+    , servant-client
+    , text
+    , time
+    , unordered-containers
+    , yaml
+  if !flag(tools)
+    buildable: False
   default-language: Haskell2010

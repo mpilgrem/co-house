@@ -1,0 +1,2277 @@
+-- This file was generated using tool-description
+
+{-# LANGUAGE OverloadedStrings #-}
+
+{- |
+Module      : Web.CoHouse.Types.Description
+Description : Types defining the UK's Companies House APIs
+Copyright   : (c) Mike Pilgrem 2021
+Maintainer  : public@pilgrem.com
+Stability   : Experimental
+
+This module has no connection with the UK's Companies House or its affiliates.
+-}
+module Web.CoHouse.Types.Description
+  ( Description (..)
+  , isAccounts
+  ) where
+
+import Data.Aeson (FromJSON (..), withText)
+import qualified Data.Text as T (unpack)
+
+data Description
+  = Accounts
+  | AccountsAmended
+  | AccountsAmendedWithAccountsTypeAuditExemptionSubsiduary
+  | AccountsAmendedWithAccountsTypeDormant
+  | AccountsAmendedWithAccountsTypeFull
+  | AccountsAmendedWithAccountsTypeFullGroup
+  | AccountsAmendedWithAccountsTypeGroup
+  | AccountsAmendedWithAccountsTypeInitial
+  | AccountsAmendedWithAccountsTypeInterim
+  | AccountsAmendedWithAccountsTypeMedium
+  | AccountsAmendedWithAccountsTypeMediumGroup
+  | AccountsAmendedWithAccountsTypeMicroEntity
+  | AccountsAmendedWithAccountsTypePartialExemption
+  | AccountsAmendedWithAccountsTypeSmall
+  | AccountsAmendedWithAccountsTypeSmallGroup
+  | AccountsAmendedWithAccountsTypeTotalExemptionFull
+  | AccountsAmendedWithAccountsTypeTotalExemptionSmall
+  | AccountsAmendedWithMadeUpDate
+  | AccountsBalanceSheet
+  | AccountsDormantCompany
+  | AccountsWithAccountsTypeAuditExemptionSubsiduary
+  | AccountsWithAccountsTypeAuditedAbridged
+  | AccountsWithAccountsTypeDormant
+  | AccountsWithAccountsTypeFull
+  | AccountsWithAccountsTypeFullGroup
+  | AccountsWithAccountsTypeGroup
+  | AccountsWithAccountsTypeInitial
+  | AccountsWithAccountsTypeInterim
+  | AccountsWithAccountsTypeMedium
+  | AccountsWithAccountsTypeMediumGroup
+  | AccountsWithAccountsTypeMicroEntity
+  | AccountsWithAccountsTypePartialExemption
+  | AccountsWithAccountsTypeSmall
+  | AccountsWithAccountsTypeSmallGroup
+  | AccountsWithAccountsTypeTotalExemptionFull
+  | AccountsWithAccountsTypeTotalExemptionSmall
+  | AccountsWithAccountsTypeUnauditedAbridged
+  | AccountsWithMadeUpDate
+  | AddressCorrection
+  | AdministrativeRestorationCompany
+  | AdministrativeRestorationLimitedLiabilityPartnership
+  | AmendmentOfStatutesSocietasEuropaea
+  | Annotation
+  | AnnualReturnAddPersonAuthorisedToAcceptServiceToUkEstablishment
+  | AnnualReturnAddPersonAuthorisedToRepresentToUkEstablishment
+  | AnnualReturnAddPersonToUkEstablisment
+  | AnnualReturnCompany
+  | AnnualReturnCompanyWithMadeUpDate
+  | AnnualReturnCompanyWithMadeUpDateBearerShares
+  | AnnualReturnCompanyWithMadeUpDateBulkListShareholders
+  | AnnualReturnCompanyWithMadeUpDateChangesToShareholders
+  | AnnualReturnCompanyWithMadeUpDateFullListShareholders
+  | AnnualReturnCompanyWithMadeUpDateNoMemberList
+  | AnnualReturnCompanyWithMadeUpDateNoShareholdersList
+  | AnnualReturnLimitedLiabilityPartnership
+  | AnnualReturnLimitedLiabilityPartnershipWithMadeUpDate
+  | AnnualReturnNewspaper
+  | AnnualReturnOverseasCompany
+  | AnnualReturnUpdateDetails
+  | AnnualReturnUpdateWithChangeDetails
+  | ApplicationDocumentRectification
+  | ApplicationToCommenceBusiness
+  | ApplicationToCourtToCancelBearerShares
+  | ApplicationTradingCertificate
+  | AppointCorporateDirectorCompany
+  | AppointCorporateDirectorCompanyWithName
+  | AppointCorporateDirectorCompanyWithNameDate
+  | AppointCorporateDirectorOverseasCompany
+  | AppointCorporateDirectorOverseasCompanyWithAppointmentDate
+  | AppointCorporateManagerEuropeanEconomicInterestGroupings
+  | AppointCorporateMemberLimitedLiabilityPartnership
+  | AppointCorporateMemberLimitedLiabilityPartnershipWithAppointmentDate
+  | AppointCorporateMemberSocietasEuropaea
+  | AppointCorporateMemberSocietasEuropaeaWithName
+  | AppointCorporateMemberSocietasEuropaeaWithNameAppointmentDate
+  | AppointCorporateSecretaryCompany
+  | AppointCorporateSecretaryCompanyWithName
+  | AppointCorporateSecretaryCompanyWithNameDate
+  | AppointCorporateSecretaryOverseasCompany
+  | AppointCorporateSecretaryOverseasCompanyWithAppointmentDate
+  | AppointJudicialFactorOverseasCompany
+  | AppointJudicialFactorOverseasCompanyWithAppointmentDate
+  | AppointManagerCompany
+  | AppointManagerCompanyWithName
+  | AppointManagerCompanyWithNameDate
+  | AppointManagerEuropeanEconomicInterestGroupings
+  | AppointManagerEuropeanEconomicInterestGroupingsWithAppointmentDate
+  | AppointPersonAuthorisedAcceptOverseasCompany
+  | AppointPersonAuthorisedAcceptOverseasCompanyWithAppointmentDate
+  | AppointPersonAuthorisedRepresentOverseasCompany
+  | AppointPersonAuthorisedRepresentOverseasCompanyWithAppointmentDate
+  | AppointPersonDirectorCompany
+  | AppointPersonDirectorCompanyWithName
+  | AppointPersonDirectorCompanyWithNameDate
+  | AppointPersonDirectorOverseasCompany
+  | AppointPersonDirectorOverseasCompanyWithName
+  | AppointPersonDirectorOverseasCompanyWithNameAppointmentDate
+  | AppointPersonMemberLimitedLiabilityPartnership
+  | AppointPersonMemberLimitedLiabilityPartnershipWithAppointmentDate
+  | AppointPersonMemberSocietasEuropaea
+  | AppointPersonMemberSocietasEuropaeaWithName
+  | AppointPersonMemberSocietasEuropaeaWithNameAppointmentDate
+  | AppointPersonSecretaryCompany
+  | AppointPersonSecretaryCompanyWithName
+  | AppointPersonSecretaryCompanyWithNameDate
+  | AppointPersonSecretaryOverseasCompany
+  | AppointPersonSecretaryOverseasCompanyWithAppointmentDate
+  | AppointmentAtRegistrationOfPersonAuthorisedToAcceptService
+  | AppointmentAtRegistrationOfPersonAuthorisedToRepresent
+  | AppointmentOverseasCompany
+  | AuditorsReport
+  | AuditorsResignationCompany
+  | AuditorsResignationLimitedCompany
+  | AuditorsResignationLimitedLiabilityPartnership
+  | AuditorsStatement
+  | BonaVacantiaCompany
+  | BonaVacantiaLimitedLiabilityPartnership
+  | CapitalAllotmentNewClassOfShares
+  | CapitalAllotmentShares
+  | CapitalAlterShares
+  | CapitalAlterSharesConsolidation
+  | CapitalAlterSharesConsolidationReconversion
+  | CapitalAlterSharesConsolidationReconversionStatementOfCapital
+  | CapitalAlterSharesConsolidationStatementOfCapital
+  | CapitalAlterSharesConsolidationSubdivision
+  | CapitalAlterSharesConsolidationSubdivisionReconversion
+  | CapitalAlterSharesConsolidationSubdivisionReconversionStatementOfCapital
+  | CapitalAlterSharesConsolidationSubdivisionStatementOfCapital
+  | CapitalAlterSharesReconversion
+  | CapitalAlterSharesReconversionStatementOfCapital
+  | CapitalAlterSharesRedemption
+  | CapitalAlterSharesRedemptionStatementOfCapital
+  | CapitalAlterSharesSubdivision
+  | CapitalAlterSharesSubdivisionReconversion
+  | CapitalAlterSharesSubdivisionReconversionStatementOfCapital
+  | CapitalAlterSharesSubdivisionStatementOfCapital
+  | CapitalApplicationByCompanyToCourtCancellationOfSpecialResolutionApprovingRedemptionPurchaseOfSharesOutOfCapital
+  | CapitalApplicationToCourtCancellationOfSpecialResolutionApprovingRedemptionPurchaseOfSharesOutOfCapital
+  | CapitalCancellationShares
+  | CapitalCancellationSharesByPlc
+  | CapitalCancellationTreasuryShares
+  | CapitalCancellationTreasurySharesWithDateCurrencyCapitalFigure
+  | CapitalCancellationTreasurySharesWithDateTreasuryCapitalFigure
+  | CapitalDirectorsStatementAuditorsReport
+  | CapitalNameOfClassOfShares
+  | CapitalNameOfClassOfSharesWithDate
+  | CapitalNewClassMembers
+  | CapitalRedominationOfShares
+  | CapitalReductionOfCapitalRedomination
+  | CapitalReturnPurchaseOwnShares
+  | CapitalReturnPurchaseOwnSharesCapitalDate
+  | CapitalReturnPurchaseOwnSharesShareCapitalDate
+  | CapitalReturnPurchaseOwnSharesTreasuryCapitalDate
+  | CapitalSaleOrTransferTreasuryShares
+  | CapitalSaleOrTransferTreasurySharesWithDate
+  | CapitalSaleOrTransferTreasurySharesWithDateCurrency
+  | CapitalSaleOrTransferTreasurySharesWithDateCurrencyCapitalFigure
+  | CapitalStatementCapitalCompany
+  | CapitalStatementCapitalCompanyWithDateCurrencyFigure
+  | CapitalStatementDirectorsReductionOfCapitalFollowingRedomination
+  | CapitalUpdateToClassOfMembers
+  | CapitalVariationOfClassRights
+  | CapitalVariationOfRightsAttachedToShares
+  | Certificate
+  | CertificateAuthorisationToCommenceBusinessBorrow
+  | CertificateCapitalCancellationSharePremiumAccount
+  | CertificateCapitalIronSteelActReductionIssedCapital
+  | CertificateCapitalReductionIssuedCapital
+  | CertificateCapitalReductionIssuedCapitalCancellationSharePremiumCancellationCapitalRedemptionReserve
+  | CertificateCapitalReductionIssuedCapitalSharePremium
+  | CertificateCapitalReductionIssuedCapitalSharePremiumCancellationSharePremiumn
+  | CertificateCapitalReductionSharePremium
+  | CertificateCapitalReductionSharePremiumCancellationCapitalRedemptionReserve
+  | CertificateChangeOfNameCompany
+  | CertificateChangeOfNameLimitedPartnership
+  | CertificateChangeOfNameReRegistrationOldPublicCompanyToPublicLimitedCompany
+  | CertificateChangeOfNameReRegistrationPrivateToPublicLimitedCompany
+  | CertificateChangeOfNameReRegistrationPublicLimitedCompanyToPrivate
+  | CertificateChangeOfNameReRegistrationToLimited
+  | CertificateChangeOfNameReRegistrationToUnlimited
+  | CertificateIncorporation
+  | CertificateIncorporationForeignPrivateAct
+  | CertificateOfDesignationAsAPrivateFundLimitedPartnership
+  | CertificateOfRegistrationAndDesignationAsAPrivateFundLimitedPartnership
+  | CertificateReRegistrationChangeOfName
+  | CertificateReRegistrationLimitedToUnlimited
+  | CertificateReRegistrationOldPublicCompanyToPrivateLimitedCompany
+  | CertificateReRegistrationOldPublicCompanyToPublicLimitedCompany
+  | CertificateReRegistrationPrivateToPublicLimitedCompany
+  | CertificateReRegistrationPublicLimitedCompanyToPrivate
+  | CertificateReRegistrationUnlimitedToLimited
+  | CertificateReRegistrationUnlimitedToPublicLimitedCompany
+  | CertificateRegistrationFriendlySociety
+  | CertificateRegistrationLimitedPartnership
+  | CessationOfAPersonWithSignificantControl
+  | CessationOfAPersonWithSignificantControlLimitedLiabilityPartnership
+  | CessationOfAPersonWithSignificantControlScottishLimitedPartnership
+  | CessationOfAPersonWithSignificantControlScottishPartnership
+  | CessationOfAPersonWithSignificantControlWithoutNameDate
+  | CessationOfASuperSecurePersonWithSignificantControl
+  | CessationOfASuperSecurePersonWithSignificantControlLimitedLiabilityPartnership
+  | ChangeAccountReferenceDateCompany
+  | ChangeAccountReferenceDateCompanyCurrentExtended
+  | ChangeAccountReferenceDateCompanyCurrentShortened
+  | ChangeAccountReferenceDateCompanyPreviousExtended
+  | ChangeAccountReferenceDateCompanyPreviousShortened
+  | ChangeAccountReferenceDateLimitedLiabilityPartnership
+  | ChangeAccountReferenceDateLimitedLiabilityPartnershipCurrentExtended
+  | ChangeAccountReferenceDateLimitedLiabilityPartnershipCurrentShortened
+  | ChangeAccountReferenceDateLimitedLiabilityPartnershipPreviousExtended
+  | ChangeAccountReferenceDateLimitedLiabilityPartnershipPreviousShortened
+  | ChangeCompanyDetailsByUkEstablishmentOverseasCompany
+  | ChangeCompanyDetailsByUkEstablishmentOverseasCompanyWithChangeDetails
+  | ChangeCompanyDetailsOverseasCompany
+  | ChangeCompanyDetailsOverseasCompanyWithChangeDetails
+  | ChangeConstitutionByCourtOrder
+  | ChangeConstitutionEnactment
+  | ChangeConstitutionalDocumentsOverseasCompany
+  | ChangeConstitutionalDocumentsOverseasCompanyWithDate
+  | ChangeCorporateDirectorCompany
+  | ChangeCorporateDirectorCompanyWithChangeDate
+  | ChangeCorporateDirectorOverseasCompany
+  | ChangeCorporateDirectorOverseasCompanyWithChangeDate
+  | ChangeCorporateMemberLimitedLiabilityPartnership
+  | ChangeCorporateMemberLimitedLiabilityPartnershipWithNameChangeDate
+  | ChangeCorporateMemberSocietasEuropaea
+  | ChangeCorporateMemberSocietasEuropaeaWithName
+  | ChangeCorporateMemberSocietasEuropaeaWithNameDate
+  | ChangeCorporateSecretaryCompany
+  | ChangeCorporateSecretaryCompanyWithChangeDate
+  | ChangeCorporateSecretaryOverseasCompany
+  | ChangeCorporateSecretaryOverseasCompanyWithChangeDate
+  | ChangeManagerEuropeanEconomicInterestGroups
+  | ChangeManagerEuropeanEconomicInterestGroupsWithChangeDate
+  | ChangeOfNameByConditionalResolution
+  | ChangeOfNameByDirectorsResolution
+  | ChangeOfNameByProvisionInArticles
+  | ChangeOfNameByResolution
+  | ChangeOfNameCommunityInterestCompany
+  | ChangeOfNameConditionalResolutionSatisfaction
+  | ChangeOfNameDirection
+  | ChangeOfNameExemption
+  | ChangeOfNameNotice
+  | ChangeOfNameNoticeLimitedLiabilityPartnership
+  | ChangeOfNameOverseasByResolution
+  | ChangeOfNameOverseasByResolutionWithDate
+  | ChangeOfNameRequestComments
+  | ChangeOfStatusLimitedLiabilityPartnership
+  | ChangePersonAuthorisedOverseasCompany
+  | ChangePersonAuthorisedOverseasCompanyWithChangeDate
+  | ChangePersonAuthorisedToRepresentOverseasCompany
+  | ChangePersonAuthorisedToRepresentOverseasCompanyWithChangeDate
+  | ChangePersonDirectorCompany
+  | ChangePersonDirectorCompanyWithChangeDate
+  | ChangePersonDirectorOverseasCompany
+  | ChangePersonDirectorOverseasCompanyWithChangeDate
+  | ChangePersonMemberLimitedLiabilityPartnership
+  | ChangePersonMemberLimitedLiabilityPartnershipWithNameChangeDate
+  | ChangePersonMemberSocietasEuropaea
+  | ChangePersonMemberSocietasEuropaeaWithName
+  | ChangePersonMemberSocietasEuropaeaWithNameDate
+  | ChangePersonSecretaryCompany
+  | ChangePersonSecretaryCompanyWithChangeDate
+  | ChangePersonSecretaryOverseasCompany
+  | ChangePersonSecretaryOverseasCompanyWithChangeDate
+  | ChangeProprietorsNewspaper
+  | ChangeRegisteredOfficeAddresOverseasCompany
+  | ChangeRegisteredOfficeAddressCompany
+  | ChangeRegisteredOfficeAddressCompanyWithDateOldAddress
+  | ChangeRegisteredOfficeAddressCompanyWithDateOldAddressNewAddress
+  | ChangeRegisteredOfficeAddressLimitedLiabilityPartnership
+  | ChangeRegisteredOfficeAddressLimitedLiabilityPartnershipWithDateOldAddress
+  | ChangeRegisteredOfficeAddressLimitedLiabilityPartnershipWithDateOldAddressNewAddress
+  | ChangeRegisteredOfficeSituationCompanyWithNewJurisdiction
+  | ChangeRegisteredOfficeSituationCompanyWithOldJurisdictionNewJurisdiction
+  | ChangeRegisteredOfficeSituationCompanyWithOldJurisdictionNewJurisdictionDate
+  | ChangeRegisteredOfficeSituationLimitedLiabilityPartnership
+  | ChangeSailAddressCompany
+  | ChangeSailAddressCompanyWithNewAddress
+  | ChangeSailAddressCompanyWithOldAddress
+  | ChangeSailAddressCompanyWithOldAddressNewAddress
+  | ChangeSailAddressLimitedLiabilityPartnership
+  | ChangeSailAddressLimitedLiabilityPartnershipWithNewAddress
+  | ChangeSailAddressLimitedLiabilityPartnershipWithOldAddress
+  | ChangeSailAddressLimitedLiabilityPartnershipWithOldAddressNewAddress
+  | ChangeSailAddressOverseasCompany
+  | ChangeServiceAddressJudicialFactorOverseasCompany
+  | ChangeServiceAddressManager
+  | ChangeToAPersonWithSignificantControl
+  | ChangeToAPersonWithSignificantControlLimitedLiabilityPartnership
+  | ChangeToAPersonWithSignificantControlScottishLimitedPartnership
+  | ChangeToAPersonWithSignificantControlScottishPartnership
+  | ChangeToAPersonWithSignificantControlWithoutNameDate
+  | ChangeUkEstablishmentRelatingToConstitutionalDocuments
+  | ConfirmationStatement
+  | ConfirmationStatementWithMadeUpDate
+  | ConfirmationStatementWithNoUpdates
+  | ConfirmationStatementWithUpdates
+  | ConversionSocietasEuropaeaToPublicLimitedCompany
+  | CourtOrder
+  | CourtUpheldRegistrarsDecisionOnRegisteredOfficeAddress
+  | DefaultCompaniesHouseRegisteredOfficeAddressApplied
+  | DesignationAsAPrivateFundLimitedPartnership
+  | DirectorsRegisterInformationOnWithdrawalFromThePublicRegister
+  | DirectorsUsualResidentialAddressRegisterInformationOnWithdrawalFromThePublicRegister
+  | DissolutionApplicationStrikeOffCompany
+  | DissolutionApplicationStrikeOffLimitedLiabilityPartnership
+  | DissolutionClosureOfUkEstablishment
+  | DissolutionClosureOfUkEstablishmentAndOverseasCompany
+  | DissolutionClosureOverseasCompany
+  | DissolutionRequestWhereLiquidatorCeasedToAct
+  | DissolutionTerminationOverseasCompany
+  | DissolutionVoluntaryStrikeOffDiscontinued
+  | DissolutionVoluntaryStrikeOffSuspended
+  | DissolutionWithdrawalApplicationStrikeOffCompany
+  | DissolutionWithdrawalApplicationStrikeOffLimitedLiabilityPartnership
+  | DissolvedCompany
+  | DissolvedCompulsoryStrikeOffSuspended
+  | DocumentReplacement
+  | ElectToKeepTheDirectorsRegisterInformationOnThePublicRegister
+  | ElectToKeepTheDirectorsResidentialAddressRegisterInformationOnThePublicRegister
+  | ElectToKeepTheLimitedLiabilityPartnershipMembersRegisterInformationOnThePublicRegister
+  | ElectToKeepTheLimitedLiabilityPartnershipMembersResidentialAddressRegisterInformationOnThePublicRegister
+  | ElectToKeepTheLimitedLiabilityPartnershipPersonsWithSignificantControlRegisterInformationOnThePublicRegister
+  | ElectToKeepTheMembersRegisterInformationOnThePublicRegister
+  | ElectToKeepThePersonsWithSignificantControlRegisterInformationOnThePublicRegister
+  | ElectToKeepTheSecretariesRegisterInformationOnThePublicRegister
+  | ElectiveResolution
+  | ExtraordinaryResolution
+  | ExtraordinaryResolutionAcquisition
+  | ExtraordinaryResolutionAdoptMemorandum
+  | ExtraordinaryResolutionAlterationMemorandum
+  | ExtraordinaryResolutionCapitalisation
+  | ExtraordinaryResolutionChangeOfName
+  | ExtraordinaryResolutionDecreaseCapital
+  | ExtraordinaryResolutionExemption
+  | ExtraordinaryResolutionIncreaseCapital
+  | ExtraordinaryResolutionMemorandum
+  | ExtraordinaryResolutionPurchaseNumberShares
+  | ExtraordinaryResolutionPurchaseShares
+  | ExtraordinaryResolutionReRegistration
+  | ExtraordinaryResolutionRedeemShares
+  | ExtraordinaryResolutionReductionCapital
+  | ExtraordinaryResolutionRemovalPreEmption
+  | ExtraordinaryResolutionSecurities
+  | ExtraordinaryResolutionVaryingShareRights
+  | FormationByMergerOfSocietasEuropaea
+  | FormationEuropeanEconomicInterestGroupsOfficialAddressInsideUk
+  | FormationEuropeanEconomicInterestGroupsOfficialAddressInsideUkWithDate
+  | FormationEuropeanEconomicInterestGroupsOfficialAddressOutsideUk
+  | FormationOfHoldingSocietasEuropaea
+  | FormationOfSubsidiarySocietasEuropaeaArticle2
+  | FormationOfSubsidiarySocietasEuropaeaArticle3
+  | FormationTermsConversionPublicLimitedCompanyToSocietasEuropaea
+  | FormationTermsConversionSocietasEuropaeaToPublicLimitedCompany
+  | FormationTermsHoldingSocietasEuropaea
+  | GazetteDissolvedCompulsary
+  | GazetteDissolvedCompulsory
+  | GazetteDissolvedLiquidation
+  | GazetteDissolvedStatutoryInstrument
+  | GazetteDissolvedVoluntary
+  | GazetteFilingsBroughtUpToDate
+  | GazetteNoticeCompulsary
+  | GazetteNoticeCompulsory
+  | GazetteNoticeVoluntary
+  | GazetteReturnOfFinalMeeting
+  | GazetteReturnOfFinalMeetingProcessed
+  | IncorporationCommunityInterestCompany
+  | IncorporationCommunityInterestCompanyWithDate
+  | IncorporationCompany
+  | IncorporationCompanyWithTypeDate
+  | IncorporationLimitedLiabilityPartnership
+  | IncorporationLimitedLiabilityPartnershipWithDate
+  | LimitedLiabilityPartnershipMembersRegisterInformationOnWithdrawalFromThePublicRegister
+  | LimitedLiabilityPartnershipMembersUsualResidentialAddressRegisterInformationOnWithdrawalFromThePublicRegister
+  | LimitedLiabilityPartnershipPersonsWithSignificantControlRegisterInformationOnWithdrawalFromThePublicRegister
+  | LiquidationAdministrationAdministratorsAbstractsOfReceiptsAndPayments
+  | LiquidationAdministrationAdministratorsAbstractsOfReceiptsAndPaymentsScotland
+  | LiquidationAdministrationAdministratorsAbstractsOfReceiptsAndPaymentsScotlandWithBroughtDownDate
+  | LiquidationAdministrationAdministratorsAbstractsOfReceiptsAndPaymentsWithBroughtDownDate
+  | LiquidationAdministrationApprovalOfProposalsScotland
+  | LiquidationAdministrationCourtOrderLimitedDisclosure
+  | LiquidationAdministrationDischargeOfAdministrationOrder
+  | LiquidationAdministrationDischargeOfAdministrationOrderScotland
+  | LiquidationAdministrationDismissalOfPetitionScotland
+  | LiquidationAdministrationInsufficientPropertyScotland
+  | LiquidationAdministrationMeetingOfCreditors
+  | LiquidationAdministrationNoticeDeemedApprovalOfProposals
+  | LiquidationAdministrationNoticeDeemedApprovalOfProposalsNorthernIreland
+  | LiquidationAdministrationNoticeOfAdministrationOrder
+  | LiquidationAdministrationNoticeOfAdministrationOrderScotland
+  | LiquidationAdministrationNoticeOfPetitionScotland
+  | LiquidationAdministrationOrder
+  | LiquidationAdministrationOrderToDealChargedProperty
+  | LiquidationAdministrationOrderToDealSecuredPropertyScotland
+  | LiquidationAdministrationProposals
+  | LiquidationAdministrationResultOfMeetingScotland
+  | LiquidationAdministrationStatementOfAdministratorsProposalsScotland
+  | LiquidationAdministrationStatementOfAffairsScotland
+  | LiquidationAdministrationStatementOfConcurrenceScotland
+  | LiquidationAdministrationVariationOfAdministrationOrder
+  | LiquidationAdministrationVariationOfAdministrationOrderScotland
+  | LiquidationAdministrativeReceiversAbstractsNorthernIreland
+  | LiquidationAdministrativeReceiversAbstractsNorthernIrelandWithBroughtDownDate
+  | LiquidationAdministrativeReceiversReportNorthernIreland
+  | LiquidationAdministratorsAbstractsNorthernIreland
+  | LiquidationAdministratorsProposalsNorthernIreland
+  | LiquidationAllConstitutionOfCommittee
+  | LiquidationAllStatementOfConcurrence
+  | LiquidationAmendedCertificateCreditorsCommitteeNorthernIreland
+  | LiquidationAppealAgainstDepartmentNorthernIreland
+  | LiquidationAppointmentOfLiquidator
+  | LiquidationAppointmentOfLiquidatorLimitedLiabilityPartnership
+  | LiquidationAppointmentOfLiquidatorNorthernIreland
+  | LiquidationAppointmentOfLiquidatorOverseas
+  | LiquidationAppointmentOfProvisionalLiquidator
+  | LiquidationAppointmentOfProvisionalLiquidatorCourtScotland
+  | LiquidationAppointmentOfProvisionalLiquidatorNorthernIreland
+  | LiquidationAppointmentOfReceiverNorthernIreland
+  | LiquidationAppointmentReceiverNorthernIreland
+  | LiquidationAppointmenttOfAdministratorNorthernIreland
+  | LiquidationApptOfReplacementAdditionalAdminstratorNorthernIreland
+  | LiquidationAutomaticEndNorthernIreland
+  | LiquidationAutomaticEndScotland
+  | LiquidationCeaseToActAsLiquidatorNorthernIreland
+  | LiquidationCertificateCreditorsPaidInFull
+  | LiquidationCertificateCreditorsPaidInFullNorthernIreland
+  | LiquidationCertificateOfConstitutionCreditorsNorthernIreland
+  | LiquidationCessationOfCommittee
+  | LiquidationCessationOfInsolvencyProceedingsOverseas
+  | LiquidationChangeInCommitteeMembershipNorthernIreland
+  | LiquidationChangeOfMembershipOfCreditorsOrLiquidationCommittee
+  | LiquidationChangeOfMembershipOfCreditorsOrLiquidationCommitteeScotland
+  | LiquidationCommencementOfMoratoriumNorthernIreland
+  | LiquidationCompletionOfVoluntaryArrangementNorthernIreland
+  | LiquidationCompletionOfWindingUpNorthernIreland
+  | LiquidationCompulsoryAppointmentLiquidator
+  | LiquidationCompulsoryAppointmentProvisionalLiquidatorScotland
+  | LiquidationCompulsoryCompletion
+  | LiquidationCompulsoryCompletionSocialLandlords
+  | LiquidationCompulsoryCourtOrderSistingScotland
+  | LiquidationCompulsoryDeathOfLiquidator
+  | LiquidationCompulsoryDeferDissolution
+  | LiquidationCompulsoryDeferDissolutionCourtScotland
+  | LiquidationCompulsoryEarlyCompletion
+  | LiquidationCompulsoryEarlyCompletionSocialLandlords
+  | LiquidationCompulsoryEarlyDissolutionCourtScotland
+  | LiquidationCompulsoryLossOfQualificationAsInsolvencyPractitioner
+  | LiquidationCompulsoryNoticeSecretaryOfStateForDirection
+  | LiquidationCompulsoryNoticeSecretaryOfStateForDirectionSocialLandlords
+  | LiquidationCompulsoryNoticeWindingUp
+  | LiquidationCompulsoryNoticeWindingUpOrder
+  | LiquidationCompulsoryNoticeWindingUpOrderCourtScotland
+  | LiquidationCompulsoryNoticeWindingUpScotland
+  | LiquidationCompulsoryOrderLimitingDisclosureOfStatementOfAffairsInWindingUp
+  | LiquidationCompulsoryReleaseOfLiquidatorOrOfficialReceiverBySecretaryOfState
+  | LiquidationCompulsoryReleaseOfficialReceiver
+  | LiquidationCompulsoryRemovalOfLiquidatorByCourt
+  | LiquidationCompulsoryRemovalOfLiquidatorByCreditors
+  | LiquidationCompulsoryRemovalOfLiquidatorBySecretaryOfState
+  | LiquidationCompulsoryReturnFinalMeeting
+  | LiquidationCompulsoryReturnFinalMeetingCourtScotland
+  | LiquidationCompulsoryReturnOfFinalMeetingScotland
+  | LiquidationCompulsoryStatementOfAffairs
+  | LiquidationCompulsoryStayingOrSistingProceedingsScotland
+  | LiquidationCompulsoryWindingUpOrder
+  | LiquidationCompulsoryWindingUpOrderScotland
+  | LiquidationCompulsoryWindingUpOrderWithCaseStartDate
+  | LiquidationCompulsoryWindingUpProgressReport
+  | LiquidationConstitutionOfLiquidationCommitteeNorthernIreland
+  | LiquidationContinuationOfCreditorsCommittee
+  | LiquidationCourtOrderEarlyDissolution
+  | LiquidationCourtOrderEndingAdministrationNorthernIreland
+  | LiquidationCourtOrderInsolvencyNorthernIreland
+  | LiquidationCourtOrderLimitingDisclosure
+  | LiquidationCourtOrderMiscellaneous
+  | LiquidationCourtOrderRecallProvisionalLiquidator
+  | LiquidationCourtOrderToRescindWindingUp
+  | LiquidationCourtOrderToStayWindingUp
+  | LiquidationCourtOrderToUnstayWindingUp
+  | LiquidationCourtOrderUnderSection176aNorthernIreland
+  | LiquidationCourtOrderWindingUpNorthernIreland
+  | LiquidationCvaSupervisorsAbstractOfReceiptsPaymentsWithBroughtDownDate
+  | LiquidationCvaSupervisorsAbstractsOfReceiptsPayments
+  | LiquidationDateOfDissolutionNorthernIreland
+  | LiquidationDeathOfLiquidatorNorthernIreland
+  | LiquidationDeclarationOfSolvencyNorthernIreland
+  | LiquidationDeferDissolutionDissolution
+  | LiquidationDischargeAdministrationOrderNorthernIreland
+  | LiquidationDischargeOfAdministrationOrderNorthernIreland
+  | LiquidationDisclaimerNotice
+  | LiquidationEarlyCompletionOfWindingUpNorthernIreland
+  | LiquidationEndOfAdministrationNorthernIreland
+  | LiquidationEndingOfMoratoriumNorthernIreland
+  | LiquidationEstablishmentOfCreditorsOrLiquidationCommittee
+  | LiquidationEstablishmentOfCreditorsOrLiquidationCommitteeScotland
+  | LiquidationEx
+  | LiquidationExtensionNorthernIreland
+  | LiquidationExtensionOfPeriodNorthernIreland
+  | LiquidationExtensionOfTimeNorthernIreland
+  | LiquidationInAdministrationAdministratorCeasingToBeQualifiedToAct
+  | LiquidationInAdministrationAdministratorCeasingToBeQualifiedToActScotland
+  | LiquidationInAdministrationAdministratorDeceased
+  | LiquidationInAdministrationAdministratorDeceasedScotland
+  | LiquidationInAdministrationAmendedCertificateOfConstitutionCreditorsCommittee
+  | LiquidationInAdministrationAppointmentOfAReplacementOrAdditionalAdministrator
+  | LiquidationInAdministrationAppointmentOfAReplacementOrAdditionalAdministratorScotland
+  | LiquidationInAdministrationAppointmentOfAdministrator
+  | LiquidationInAdministrationAppointmentOfAdministratorScotland
+  | LiquidationInAdministrationAppointmentOfReplacementAdditionalAdministrator
+  | LiquidationInAdministrationAppointmentOfReplacementAdditionalAdministratorScotland
+  | LiquidationInAdministrationAppointmentOfReplacementAdditionalAdminstrator
+  | LiquidationInAdministrationAutomaticEndOfCase
+  | LiquidationInAdministrationAutomaticEndOfCaseScotland
+  | LiquidationInAdministrationAutomaticEndScotland
+  | LiquidationInAdministrationChangeDateOfDissolution
+  | LiquidationInAdministrationChangeDateOfDissolutionScotland
+  | LiquidationInAdministrationChangeInCommitteeMembership
+  | LiquidationInAdministrationCourtOrderEndingAdministration
+  | LiquidationInAdministrationCourtOrderEndingAdministrationScotland
+  | LiquidationInAdministrationCourtOrderEndingAdministrationScotland2
+  | LiquidationInAdministrationCourtOrderUnderSection176A
+  | LiquidationInAdministrationCreditorDecisionRevisedProposalsScotland
+  | LiquidationInAdministrationDateOfDissolutionScotland
+  | LiquidationInAdministrationDeemedProposalScotland
+  | LiquidationInAdministrationEndOfAdministration
+  | LiquidationInAdministrationEndOfAdministrationScotland
+  | LiquidationInAdministrationEndOfAdministrationScotland2
+  | LiquidationInAdministrationExtensionOfPeriod
+  | LiquidationInAdministrationExtensionOfPeriodScotland
+  | LiquidationInAdministrationExtensionOfTime
+  | LiquidationInAdministrationExtensionOfTimeApprovalScotland
+  | LiquidationInAdministrationExtensionOfTimeDeliverScotland
+  | LiquidationInAdministrationMoveToCreditorsVoluntaryLiquidation
+  | LiquidationInAdministrationMoveToCreditorsVoluntaryLiquidationScotland
+  | LiquidationInAdministrationMoveToCreditorsVoluntaryLiquidationScotland2
+  | LiquidationInAdministrationMoveToDissolution
+  | LiquidationInAdministrationMoveToDissolutionScotland
+  | LiquidationInAdministrationMoveToDissolutionScotland2
+  | LiquidationInAdministrationMoveToDissolutionWithCaseEndDate
+  | LiquidationInAdministrationNoticeAdministratorsProposalsScotland
+  | LiquidationInAdministrationNoticeDeemedApprovalOfProposalsScotland
+  | LiquidationInAdministrationNoticeOfOrderDealWithChargedProperty
+  | LiquidationInAdministrationNoticeOfOrderDealWithChargedPropertyScotland
+  | LiquidationInAdministrationNoticeOfStatementOfAffairsScotland
+  | LiquidationInAdministrationNoticeOfStatementOfAffairsScotlandWithFormAttached
+  | LiquidationInAdministrationOrderLimitingDisclosureOfStatementOfAffairsOrProposals
+  | LiquidationInAdministrationOrderLimitingDisclosureOfStatementOfAffairsOrProposalsScotland
+  | LiquidationInAdministrationOrderToDealWithSecuredPropertyScotland
+  | LiquidationInAdministrationProgressReport
+  | LiquidationInAdministrationProgressReportScotland
+  | LiquidationInAdministrationProgressReportScotlandWithBroughtDownDate
+  | LiquidationInAdministrationProgressReportWithBroughtDownDate
+  | LiquidationInAdministrationProposals
+  | LiquidationInAdministrationProposalsScotland
+  | LiquidationInAdministrationRemovalOfAdministratorFromOffice
+  | LiquidationInAdministrationRemovalOfAdministratorFromOfficeScotland
+  | LiquidationInAdministrationRescissionOrAmendmentOfOrderLimitingDisclosureOfStatementOfAffairsOrProposals
+  | LiquidationInAdministrationRescissionOrAmendmentOfOrderLimitingDisclosureOfStatementOfAffairsOrProposalsScotland
+  | LiquidationInAdministrationResignationOfAdministrator
+  | LiquidationInAdministrationResignationOfAdministratorScotland
+  | LiquidationInAdministrationResignationOfAdministratorScotland2
+  | LiquidationInAdministrationResultCreditorsDecisionScotland
+  | LiquidationInAdministrationResultCreditorsMeeting
+  | LiquidationInAdministrationResultOfCreditorsMeetingScotland
+  | LiquidationInAdministrationRevisedProposals
+  | LiquidationInAdministrationRevisedProposalsScotland
+  | LiquidationInAdministrationRevisionAdministratorsProposalsScotland
+  | LiquidationInAdministrationStatementOfAffairs
+  | LiquidationInAdministrationStatementOfAffairsScotland
+  | LiquidationInAdministrationStatementOfAffairsWithFormAttached
+  | LiquidationInAdministrationStatementOfAffairsWithFormAttachedScotland
+  | LiquidationInAdministrationVacationOfOffice
+  | LiquidationInAdministrationVacationOfOfficeScotland
+  | LiquidationInAdminstrationDeemedProposalScotland
+  | LiquidationInsolvencyJudgementOverseas
+  | LiquidationInsolvencyMisellaneousNorthernIreland
+  | LiquidationInsolvencyProceedingsLimitedLiabilityPartnership
+  | LiquidationInsolvencyProceedingsOverseas
+  | LiquidationLeaveToResignAsLiquidatorNorthernIreland
+  | LiquidationLiquidationStatementOfReceiptsAndPaymentsNorthernIreland
+  | LiquidationLiquidationStatementOfReceiptsAndPaymentsNorthernIrelandWithBroughtDownDate
+  | LiquidationMeetingApprovingCompaniesVoluntaryArrangementNorthernIreland
+  | LiquidationMiscellaneous
+  | LiquidationMiscellaneousNorthernIreland
+  | LiquidationMoratoriumCommencementOfMoratorium
+  | LiquidationMoratoriumCourtOrderPermittingDisposalOfGoods
+  | LiquidationMoratoriumEarlyEndOfMoratorium
+  | LiquidationMoratoriumEndOfMoratoriumByCourt
+  | LiquidationMoratoriumEndOfMoratoriumByMonitor
+  | LiquidationMoratoriumEndOfMoratoriumFollowingDisposalOfApplicationForExtensionByCourtOrFollowingCvaProposalTakingEffectOrBeingWithdrawn
+  | LiquidationMoratoriumExtensionOfMoratorium
+  | LiquidationMoratoriumMonitorCeasingToActFollowingCourtOrder
+  | LiquidationMoratoriumReplacementOrAdditonalMonitorFollowingCourtOrder
+  | LiquidationMoveToCreditorsVoluntaryLiquidationNorthernIreland
+  | LiquidationMoveToDissolutionNorthernIreland
+  | LiquidationNoticeOfFinalMeetingOfCreditorsNorthernIreland
+  | LiquidationNoticeOfOrderToDisposeOfChargedPropertyNorthernIreland
+  | LiquidationNoticeOrderOfChargedPropertyNorthernIreland
+  | LiquidationOrderToDealWithChargedPropertyNorthernIreland
+  | LiquidationProceedingsMemberStateWithConsentToDissolution
+  | LiquidationProceedingsMemberStateWithConsentToDissolutionNorthernIreland
+  | LiquidationProceedingsMemberStateWithConsentToDissolutionScotland
+  | LiquidationProceedingsMemberStateWithoutConsentToDissolution
+  | LiquidationProceedingsMemberStateWithoutConsentToDissolutionNorthernIreland
+  | LiquidationProceedingsMemberStateWithoutConsentToDissolutionScotland
+  | LiquidationProgressReportNorthernIreland
+  | LiquidationProgressReportNorthernIrelandWithBroughtDownDate
+  | LiquidationReceiverAbstractOfReceiptsAndPayments
+  | LiquidationReceiverAbstractOfReceiptsAndPaymentsWithBroughtDownDate
+  | LiquidationReceiverAdministrativeReceiversReport
+  | LiquidationReceiverAdministrativeReceiversReportScotland
+  | LiquidationReceiverAmendedCertificateOfConstitution
+  | LiquidationReceiverAppointmentOfReceiver
+  | LiquidationReceiverAppointmentOfReceiverByCourtScotland
+  | LiquidationReceiverAppointmentOfReceiverLimitedLiabilityPartnership
+  | LiquidationReceiverAppointmentOfReceiverScotland
+  | LiquidationReceiverAppointmentOfReceiverScotland2
+  | LiquidationReceiverCeaseToActReceiver
+  | LiquidationReceiverCeaseToActReceiverLimitedLiabilityPartnership
+  | LiquidationReceiverCeaseToActReceiverScotland
+  | LiquidationReceiverCeasingToActScotland
+  | LiquidationReceiverDeathOfReceiver
+  | LiquidationReceiverDeathOfReceiverNorthernIreland
+  | LiquidationReceiverDeathOfReceiverScotland
+  | LiquidationReceiverDeathOfReceiverScotland2
+  | LiquidationReceiverDisposeOfSecuredPropertyScotland
+  | LiquidationReceiverOrderToDisposeOfChargedProperty
+  | LiquidationReceiverOrderToDisposeOfChargedPropertyScotland
+  | LiquidationReceiverReceiversAbstractsOfReceiptsAndPaymentsScotland
+  | LiquidationReceiverReceiversReportScotland
+  | LiquidationReceiverReportChangeOfCommittee
+  | LiquidationReceiverStatementOfAffairs
+  | LiquidationRegulationsOnsetOfInsolvencyOverseas
+  | LiquidationRemovalOfLiquidatorNorthernIreland
+  | LiquidationReplacementNomineeNorthernIreland
+  | LiquidationResignationAsLiquidatorNorthernIreland
+  | LiquidationResignationOfAdministratorNorthernIreland
+  | LiquidationResolutionMiscellaneous
+  | LiquidationResultOfCreditorsMeetingNorthernIreland
+  | LiquidationReturnOfFinalMeetingCreditorsVoluntaryWindingUpNorthernIreland
+  | LiquidationReturnOfFinalMeetingMembersVoluntaryWindingUpNorthernIreland
+  | LiquidationRevisedProposalsNorthernIreland
+  | LiquidationRevocationOrSuspensionOfVoluntaryArrangementNorthernIreland
+  | LiquidationSpecialResolutionToWindUpNorthernIreland
+  | LiquidationStatementOfAffairsAdministrativeReceiverNorthernIreland
+  | LiquidationStatementOfAffairsNorthernIreland
+  | LiquidationStatementOfConcurrence
+  | LiquidationStatementOfProposalsNorthernIreland
+  | LiquidationSupervisorsAbstractsOfReceiptsPaymentsNorthernIreland
+  | LiquidationTerminationOfProvisionalLiquidator
+  | LiquidationTerminationOfProvisionalLiquidatorCourtScotland
+  | LiquidationTerminationOfWindingUpSocietasEuropaea
+  | LiquidationVacationOfLiquidatorNorthernIreland
+  | LiquidationVacationOfOfficeNorthernIreland
+  | LiquidationVariationOfAdministrationOrderNorthernIreland
+  | LiquidationVoluntaryAppeal
+  | LiquidationVoluntaryAppointmentOfLiquidator
+  | LiquidationVoluntaryArrangementCommencementOfMoratorium
+  | LiquidationVoluntaryArrangementCommencementOfMoratoriumScotland
+  | LiquidationVoluntaryArrangementCompletion
+  | LiquidationVoluntaryArrangementCompletionScotland
+  | LiquidationVoluntaryArrangementCompletionWithDate
+  | LiquidationVoluntaryArrangementContinuationOfMoratoriumScotland
+  | LiquidationVoluntaryArrangementCourtOrderToExtendMoratorium
+  | LiquidationVoluntaryArrangementCourtOrderToExtendMoratoriumScotland
+  | LiquidationVoluntaryArrangementDecisionToExtendMoratorium
+  | LiquidationVoluntaryArrangementDisposalOfChargedPropertyMoratoriumScotland
+  | LiquidationVoluntaryArrangementEndingOfMoratorium
+  | LiquidationVoluntaryArrangementEndingOfMoratoriumScotland
+  | LiquidationVoluntaryArrangementExtensionOfMoratorium
+  | LiquidationVoluntaryArrangementExtensionOfMoratoriumScotland
+  | LiquidationVoluntaryArrangementMeetingApprovingCompaniesVoluntaryArrangement
+  | LiquidationVoluntaryArrangementMeetingApprovingCompaniesVoluntaryArrangementScotland
+  | LiquidationVoluntaryArrangementMeetingApprovingCreditorsVoluntaryArrangementScotland
+  | LiquidationVoluntaryArrangementNoticeCompletionScotland
+  | LiquidationVoluntaryArrangementOrMoratoriumCourtOrder
+  | LiquidationVoluntaryArrangementOrMoratoriumCourtOrderScotland
+  | LiquidationVoluntaryArrangementReplacementNominee
+  | LiquidationVoluntaryArrangementReplacementNomineeScotland
+  | LiquidationVoluntaryArrangementRevocationOrSuspension
+  | LiquidationVoluntaryArrangementRevocationOrSuspensionOfVoluntaryArrangementScotland
+  | LiquidationVoluntaryArrangementRevocationOrSuspensionOfVoluntaryArrangementScotland2
+  | LiquidationVoluntaryArrangementSupervisorsProgressReportScotland
+  | LiquidationVoluntaryArrangementWithdrawalOfConsent
+  | LiquidationVoluntaryArrangementWithdrawalOfConsentScotland
+  | LiquidationVoluntaryCeaseToActAsLiquidator
+  | LiquidationVoluntaryCertificateCreditorsPaidInFullScotland
+  | LiquidationVoluntaryCertificateOfContinuanceScotland
+  | LiquidationVoluntaryCertificateReleaseOfLiquidatorScotland
+  | LiquidationVoluntaryConstitutionLiquidationCommittee
+  | LiquidationVoluntaryContinuanceScotland
+  | LiquidationVoluntaryCourtOrderOfResignationOfLiquidatorScotland
+  | LiquidationVoluntaryCourtOrderStayingOrSistingWindingUpInMVLOrCVLScotland
+  | LiquidationVoluntaryCreditorsPaidInFull
+  | LiquidationVoluntaryCreditorsPaidInFullScotland
+  | LiquidationVoluntaryCreditorsReturnOfFinalMeeting
+  | LiquidationVoluntaryCreditorsReturnOfFinalMeetingScotland
+  | LiquidationVoluntaryCreditorsVoluntaryWindingUpScotland
+  | LiquidationVoluntaryDeathLiquidator
+  | LiquidationVoluntaryDeathOfLiquidatorScotland
+  | LiquidationVoluntaryDeclarationOfSolvency
+  | LiquidationVoluntaryDeclarationOfSolvencyScotland
+  | LiquidationVoluntaryDeferDissolution
+  | LiquidationVoluntaryDeferralOfDissolution
+  | LiquidationVoluntaryDeferralOfDissolutionScotland
+  | LiquidationVoluntaryDetermination
+  | LiquidationVoluntaryExtraordinaryResolutionToWindUp
+  | LiquidationVoluntaryExtraordinaryResolutionToWindUpWithCaseStartDate
+  | LiquidationVoluntaryLeaveToResignLiquidator
+  | LiquidationVoluntaryLiquidatorsStatementOfReceiptsPaymentsScotland
+  | LiquidationVoluntaryMembersReturnOfFinalMeeting
+  | LiquidationVoluntaryMembersReturnOfFinalMeetingScotland
+  | LiquidationVoluntaryNoticeOfLimitedDisclosure
+  | LiquidationVoluntaryNoticeOrderUnderSection176a
+  | LiquidationVoluntaryNoticeRevisedAccount
+  | LiquidationVoluntaryNoticeToGazetteAppointmentOfLiquidator
+  | LiquidationVoluntaryNoticeUnderSection204Scotland
+  | LiquidationVoluntaryReleaseOfLiquidatorBySecretaryOfState
+  | LiquidationVoluntaryReleaseOfLiquidatorScotland
+  | LiquidationVoluntaryRemovalLiquidator
+  | LiquidationVoluntaryRemovalOfLiquidator
+  | LiquidationVoluntaryRemovalOfLiquidatorByCompanyMeeting
+  | LiquidationVoluntaryRemovalOfLiquidatorByCourt
+  | LiquidationVoluntaryRemovalOfLiquidatorScotland
+  | LiquidationVoluntaryRemovalOfReceiverScotland
+  | LiquidationVoluntaryResignationAsLiquidator
+  | LiquidationVoluntaryResignationLiquidator
+  | LiquidationVoluntaryResignationOfLiquidatorScotland
+  | LiquidationVoluntaryReturnOfFinalMeetingScotland
+  | LiquidationVoluntarySpecialResolutionToWindUp
+  | LiquidationVoluntarySpecialResolutionToWindUpCaseStartDate
+  | LiquidationVoluntaryStatementOfAffairs
+  | LiquidationVoluntaryStatementOfAffairsWithFormAttached
+  | LiquidationVoluntaryStatementOfReceiptsAndPayments
+  | LiquidationVoluntaryStatementOfReceiptsAndPaymentsWithBroughtDownDate
+  | LiquidationVoluntarySupervisorsAbstractsOfReceiptsPaymentsScotland
+  | LiquidationVoluntarySupervisorsAbstractsOfReceiptsPaymentsScotlandWithBroughtDownDate
+  | LiquidationVoluntaryVacationLiquidator
+  | LiquidationVoluntaryVacationOfLiquidatorScotland
+  | LiquidationWindingUpOverseas
+  | LiquidationWithdrawalOfConsentNorthernIreland
+  | MembersRegisterInformationOnWithdrawalFromThePublicRegister
+  | MemorandumArticles
+  | Miscellaneous
+  | MiscellaneousLimitedLiabilityPartnership
+  | ModelArticlesAdopted
+  | ModelArticlesAdoptedAmendedProvisions
+  | MortgageAcquireWithDeed
+  | MortgageAcquireWithDeedLimitedLiabilityPartnership
+  | MortgageAcquireWithDeedWithChargeNumber
+  | MortgageAcquireWithDeedWithChargeNumberChargeAcquisitionDate
+  | MortgageAcquireWithDeedWithChargeNumberChargeAcquisitionDateLimitedLiabilityPartnership
+  | MortgageAcquireWithDeedWithChargeNumberLimitedLiabilityPartnership
+  | MortgageAcquireWithDeedWithCharlesCourtOrderExtendWithChargeNumberChargeAcquisitionDate
+  | MortgageAcquireWithDeedWithCharlesCourtOrderExtendWithChargeNumberChargeAcquisitionDateLimitedLiabilityPartnership
+  | MortgageAcquireWithDeedWithCourtOrderExtendWithChargeNumberChargeAcquisitionDate
+  | MortgageAcquireWithDeedWithCourtOrderExtendWithChargeNumberChargeAcquisitionDateLimitedLiabilityPartnership
+  | MortgageAcquireWithoutDeed
+  | MortgageAcquireWithoutDeedLimitedLiabilityPartnership
+  | MortgageAcquireWithoutDeedWithChargeNumberChargeCreationDate
+  | MortgageAcquireWithoutDeedWithChargeNumberChargeCreationDateLimitedLiabilityPartnership
+  | MortgageAcquireWithoutDeedWithCharlesCourtOrderExtendWithChargeNumberChargeAcquisitionDate
+  | MortgageAcquireWithoutDeedWithCharlesCourtOrderExtendWithChargeNumberChargeAcquisitionDateLimitedLiabilityPartnership
+  | MortgageAcquireWithoutDeedWithCourtOrderExtendChargeNumberChargeAcquisitionDateLimitedLiabilityPartnership
+  | MortgageAcquireWithoutDeedWithCourtOrderExtendWithChargeNumberChargeAcquisitionDate
+  | MortgageAlterCharge
+  | MortgageAlterChargeWithChargeNumber
+  | MortgageAlterChargeWithChargeNumberChargeCreationDate
+  | MortgageAlterFloatingCharge
+  | MortgageAlterFloatingChargeWithNumber
+  | MortgageAlterFloatingChargeWithNumberDate
+  | MortgageAlterPostToChargeLimitedLiabilityPartnership
+  | MortgageAlterPostToChargeWithChargeNumberLimitedLiabilityPartnership
+  | MortgageAlterationFloatingChargeScotlandLimitedLiabilityPartnership
+  | MortgageChargePartBothWithChargeNumber
+  | MortgageChargePartCeaseAndReleaseWithChargeNumberLimitedLiabilityPartnership
+  | MortgageChargePartCeaseAndReleaseWithChargeNumberSatisfactionDate
+  | MortgageChargePartCeaseAndReleaseWithChargeNumberSatisfactionDateLimitedLiabilityPartnership
+  | MortgageChargePartCeaseWithChargeNumber
+  | MortgageChargePartCeaseWithChargeNumberLimitedLiabilityPartnership
+  | MortgageChargePartCeaseWithChargeNumberSatisfactionDate
+  | MortgageChargePartCeaseWithChargeNumberSatisfactionDateLimitedLiabilityPartnership
+  | MortgageChargePartReleaseWithChargeNumber
+  | MortgageChargePartReleaseWithChargeNumberLimitedLiabilityPartnership
+  | MortgageChargePartReleaseWithChargeNumberSatisfactionDate
+  | MortgageChargePartReleaseWithChargeNumberSatisfactionDateLimitedLiabilityPartnership
+  | MortgageChargeWholeCeaseAndReleaseWithChargeNumber
+  | MortgageChargeWholeCeaseAndReleaseWithChargeNumberLimitedLiabilityPartnership
+  | MortgageChargeWholeCeaseAndReleaseWithChargeNumberSatisfactionDate
+  | MortgageChargeWholeCeaseAndReleaseWithChargeNumberSatisfactionDateLimitedLiabilityPartnership
+  | MortgageChargeWholeCeaseWithChargeNumber
+  | MortgageChargeWholeCeaseWithChargeNumberLimitedLiabilityPartnership
+  | MortgageChargeWholeCeaseWithChargeNumberSatisfactionDate
+  | MortgageChargeWholeCeaseWithChargeNumberSatisfactionDateLimitedLiabilityPartnership
+  | MortgageChargeWholeReleaseWithChargeNumber
+  | MortgageChargeWholeReleaseWithChargeNumberLimitedLiabilityPartnership
+  | MortgageChargeWholeReleaseWithChargeNumberSatisfactionDate
+  | MortgageChargeWholeReleaseWithChargeNumberSatisfactionDateLimitedLiabilityPartnership
+  | MortgageCourtOrder
+  | MortgageCreateWithDeed
+  | MortgageCreateWithDeedLimitedLiabilityPartnership
+  | MortgageCreateWithDeedWithChargeNumber
+  | MortgageCreateWithDeedWithChargeNumberChargeCreationDate
+  | MortgageCreateWithDeedWithChargeNumberChargeCreationDateLimitedLiabilityPartnership
+  | MortgageCreateWithDeedWithChargeNumberLimitedLiabilityPartnership
+  | MortgageCreateWithDeedWithCharlesCourtOrderExtendWithChargeNumberChargeCreationDate
+  | MortgageCreateWithDeedWithCharlesCourtOrderExtendWithChargeNumberChargeCreationDateLimitedLiabilityPartnership
+  | MortgageCreateWithDeedWithCourtOrderExtendWithChargeNumberChargeCreationDateLimitedLiabilityPartnership
+  | MortgageCreateWithoutDeed
+  | MortgageCreateWithoutDeedLimitedLiabilityPartnership
+  | MortgageCreateWithoutDeedWithChargeNumberChargeCreationDate
+  | MortgageCreateWithoutDeedWithChargeNumberChargeCreationDateLimitedLiabilityPartnership
+  | MortgageCreateWithoutDeedWithChargeNumberLimitedLiabilityPartnership
+  | MortgageCreateWithoutDeedWithCharlesCourtOrderExtendWithChargeNumberChargeCreationDate
+  | MortgageCreateWithoutDeedWithCharlesCourtOrderExtendWithChargeNumberChargeCreationDateLimitedLiabilityPartnership
+  | MortgageCreateWithoutDeedWithCourtOrderExtendChargeNumberChargeCreationDateLimitedLiabilityPartnership
+  | MortgageCreateWithoutDeedWithCourtOrderExtendWithChargeNumberChargeCreationDate
+  | MortgageDebentureWithDeed
+  | MortgageDebentureWithDeedLimitedLiabilityPartnership
+  | MortgageDebentureWithDeedWithChargeNumberChargeCreationDate
+  | MortgageDebentureWithDeedWithChargeNumberChargeCreationDateLimitedLiabilityPartnership
+  | MortgageDebentureWithDeedWithChargeNumberLimitedLiabilityPartnership
+  | MortgageDebentureWithDeedWithCharlesCourtOrderExtendWithChargeNumberChargeCreationDate
+  | MortgageDebentureWithDeedWithCharlesCourtOrderExtendWithChargeNumberChargeCreationDateLimitedLiabilityPartnership
+  | MortgageDebentureWithDeedWithCourtOrderExtendWithChargeNumberChargeCreationDate
+  | MortgageDebentureWithDeedWithCourtOrderExtendWithChargeNumberChargeCreationDateLimitedLiabilityPartnership
+  | MortgageDebentureWithoutDeed
+  | MortgageDebentureWithoutDeedLimitedLiabilityPartnership
+  | MortgageDebentureWithoutDeedWithChargeNumberChargeCreationDate
+  | MortgageDebentureWithoutDeedWithChargeNumberChargeCreationDateLimitedLiabilityPartnership
+  | MortgageDebentureWithoutDeedWithCharlesCourtOrderExtendWithChargeNumberChargeCreationDate
+  | MortgageDebentureWithoutDeedWithCharlesCourtOrderExtendWithChargeNumberChargeCreationDateLimitedLiabilityPartnership
+  | MortgageDebentureWithoutDeedWithCourtOrderExtendWithChargeNumberChargeCreationDate
+  | MortgageDebentureWithoutDeedWithCourtOrderExtendWithChargeNumberChargeCreationDateLimitedLiabilityPartnership
+  | MortgageDeed
+  | MortgageMiscellaneous
+  | MortgageRectificationOrder
+  | MortgageReleaseCeaseCharge
+  | MortgageReleaseCeaseChargeLimitedLiabilityPartnership
+  | MortgageResolution
+  | MortgageSatisfyCharge
+  | MortgageSatisfyChargeFull
+  | MortgageSatisfyChargeFullLimitedLiabilityPartnership
+  | MortgageSatisfyChargeFullWithDate
+  | MortgageSatisfyChargeFullWithMortgageSatisfactionDateLimitedLiabilityPartnership
+  | MortgageSatisfyChargeLimitedLiabilityPartnership
+  | MortgageSatisfyChargePart
+  | MortgageSatisfyChargePartLimitedLiabilityPartnership
+  | MortgageSatisfyChargePartWithDate
+  | MortgageSatisfyChargePartWithMortgageSatisfactionDateLimitedLiabilityPartnership
+  | MortgageTrusteeActingAs
+  | MortgageTrusteeActingAsTrusteeLimitedLiabilityPartnership
+  | MortgageTrusteeActingAsTrusteeWithChargeNumberLimitedLiabilityPartnership
+  | MoveRegistersToRegisteredOfficeCompany
+  | MoveRegistersToRegisteredOfficeCompanyWithNewAddress
+  | MoveRegistersToRegisteredOfficeLimitedLiabilityPartnership
+  | MoveRegistersToRegisteredOfficeLimitedLiabilityPartnershipWithNewAddress
+  | MoveRegistersToSailCompany
+  | MoveRegistersToSailCompanyWithNewAddress
+  | MoveRegistersToSailLimitedLiabilityPartnership
+  | MoveRegistersToSailLimitedLiabilityPartnershipWithNewAddress
+  | NoDescriptionAvailable
+  | NoticeAppealToRemoveCompanyFromSocialLandlordRegister
+  | NoticeCarryOnBusinessAsInvestmentCompany
+  | NoticeFromOverseasRegistryTransferFromUk
+  | NoticeNoLongerAnInvestmentCompany
+  | NoticeObjectionToRequestToRectifyRegister
+  | NoticeOfCeasingToBeAQualifyingPartnership
+  | NoticeOfClosureBranchOverseasCompany
+  | NoticeOfInsolvencyProceedingsForAFurtherEducationOrSixthFormCollegeCorporation
+  | NoticeOfRemovalOfACorporateDirector
+  | NoticeOfRemovalOfADirector
+  | NoticeRemovalRestrictionOnCompanyArticles
+  | NoticeRestrictionOnCompanyArticles
+  | NoticeSatisfactionOfConditionsFormationOfSocietasEuropaea
+  | NoticeToCancelReregistrationByApplicants
+  | NoticeToCancelReregistrationByCompany
+  | NotificationOfAPersonWithSignificantControl
+  | NotificationOfAPersonWithSignificantControlLimitedLiabilityPartnership
+  | NotificationOfAPersonWithSignificantControlScottishLimitedPartnership
+  | NotificationOfAPersonWithSignificantControlScottishPartnership
+  | NotificationOfAPersonWithSignificantControlStatement
+  | NotificationOfAPersonWithSignificantControlStatementLimitedLiabilityPartnership
+  | NotificationOfAPersonWithSignificantControlStatementScottishLimitedPartnership
+  | NotificationOfAPersonWithSignificantControlStatementScottishPartnership
+  | NotificationOfAPersonWithSignificantControlWithoutNameDate
+  | NotificationOfASuperSecurePersonWithSignificantControl
+  | NotificationOfASuperSecurePersonWithSignificantControlLimitedLiabilityPartnership
+  | OrderOfCourtRegisteredOfficeAddressChange
+  | OrderOfCourtRegisteredOfficeAddressChangeDef
+  | OrderOfCourtRestorationPreviouslyCompulsoryLiquidation
+  | OrderOfCourtRestorationPreviouslyCreditorsVoluntaryLiquidation
+  | OrderOfCourtRestorationPreviouslyMembersVoluntaryLiquidation
+  | OrderOfCourtRestructuringPlan
+  | OrderOfCourtRestructuringPlanAndChangeShareCapital
+  | OrdinaryResolution
+  | OrdinaryResolutionAcquisition
+  | OrdinaryResolutionAdoptMemorandum
+  | OrdinaryResolutionAlterationMemorandum
+  | OrdinaryResolutionCapitalisation
+  | OrdinaryResolutionChangeOfName
+  | OrdinaryResolutionDecreaseCapital
+  | OrdinaryResolutionExemption
+  | OrdinaryResolutionIncreaseCapital
+  | OrdinaryResolutionMemorandum
+  | OrdinaryResolutionPurchaseNumberShares
+  | OrdinaryResolutionPurchaseShares
+  | OrdinaryResolutionRedeemShares
+  | OrdinaryResolutionReductionCapital
+  | OrdinaryResolutionRemovalPreEmption
+  | OrdinaryResolutionSecurities
+  | OrdindaryResolutionVaryingShareRights
+  | ParticularsOfAMortgageCharge
+  | PersonsWithSignificantControlRegisterInformationOnWithdrawalFromThePublicRegister
+  | ProposedTransferSocietasEuropaeaFromUk
+  | ProposedTransferSocietasEuropaeaToUk
+  | ReRegistrationCourtOrderToReduceShareCapital
+  | ReRegistrationMemorandumArticles
+  | RegisterOverseasCompany
+  | RegisterOverseasCompanyWithDate
+  | RegistrationAndDesignationAsAPrivateFundLimitedPartnership
+  | RegistrationCompanyAsSocialLandlord
+  | RegistrationOfALimitedPartnership
+  | RegistrationOfAScottishPartnership
+  | RegistrationOfEuropeanEconomicInterestGroupAddressInUk
+  | RegistrationOfUkEstablishment
+  | RemovalCompanyAsSocialLandlord
+  | RemovalCompanyAsSocialLandlordWithRemovalDate
+  | Reregistration
+  | ReregistrationAssent
+  | ReregistrationPrivateLimitedToPrivateUnlimitedCompany
+  | ReregistrationPrivateToPublicCompany
+  | ReregistrationPrivateToPublicCompanyAppointSecretary
+  | ReregistrationPrivateUnlimitedToPrivateLimitedCompany
+  | ReregistrationPublicToPrivateCompany
+  | ReregistrationPublicToPrivateFollowingCancellationOfShares
+  | ReregistrationPublicToPrivateFollowingCapitalReduction
+  | ReregistrationPublicToPrivateFollowingCourtOrder
+  | ReregistrationPublicToPrivateUnlimitedCompany
+  | Resolution
+  | ResolutionAcquisition
+  | ResolutionAdoptArticles
+  | ResolutionAdoptMemorandum
+  | ResolutionAdoptMemorandumAndArticles
+  | ResolutionAlterationArticles
+  | ResolutionAlterationMemorandum
+  | ResolutionAlterationMemorandumAndArticles
+  | ResolutionCapitalisation
+  | ResolutionChangeOfName
+  | ResolutionDecreaseCapital
+  | ResolutionExemption
+  | ResolutionIncreaseCapital
+  | ResolutionMemorandum
+  | ResolutionMemorandumAndArticles
+  | ResolutionPurchaseNumberShares
+  | ResolutionPurchaseShares
+  | ResolutionReRegistration
+  | ResolutionRedeemShares
+  | ResolutionRedonominateShares
+  | ResolutionReduceCapital
+  | ResolutionReductionCapital
+  | ResolutionRemovalPreEmption
+  | ResolutionSecurities
+  | ResolutionVaryingShareRights
+  | RestorationOrderOfCourt
+  | SchemeOfArrangement
+  | SecondFilingCapitalAllotmentShares
+  | SecondFilingCapitalAlterShares
+  | SecondFilingCapitalAlterSharesConsolidation
+  | SecondFilingCapitalAlterSharesConsolidationReconversion
+  | SecondFilingCapitalAlterSharesConsolidationReconversionStatementOfCapital
+  | SecondFilingCapitalAlterSharesConsolidationStatementOfCapital
+  | SecondFilingCapitalAlterSharesConsolidationSubdivision
+  | SecondFilingCapitalAlterSharesConsolidationSubdivisionReconversion
+  | SecondFilingCapitalAlterSharesConsolidationSubdivisionReconversionStatementOfCapital
+  | SecondFilingCapitalAlterSharesConsolidationSubdivisionStatementOfCapital
+  | SecondFilingCapitalAlterSharesReconversion
+  | SecondFilingCapitalAlterSharesReconversionStatementOfCapital
+  | SecondFilingCapitalAlterSharesRedemption
+  | SecondFilingCapitalAlterSharesRedemptionStatementOfCapital
+  | SecondFilingCapitalAlterSharesSubdivision
+  | SecondFilingCapitalAlterSharesSubdivisionReconversion
+  | SecondFilingCapitalAlterSharesSubdivisionReconversionStatementOfCapital
+  | SecondFilingCapitalAlterSharesSubdivisionStatementOfCapital
+  | SecondFilingCapitalCancellationShares
+  | SecondFilingCapitalCancellationSharesByPlc
+  | SecondFilingCapitalCancellationTreasurySharesWithDateCurrencyCapitalFigure
+  | SecondFilingCapitalCancellationTreasurySharesWithDateTreasuryCapitalFigure
+  | SecondFilingCapitalRedominationOfShares
+  | SecondFilingCapitalReductionOfCapitalRedomination
+  | SecondFilingCessationOfAPersonWithSignificantControl
+  | SecondFilingCessationOfAPersonWithSignificantControlLimitedLiabilityPartnership
+  | SecondFilingCessationOfAPersonWithSignificantControlWithoutNameDate
+  | SecondFilingChangeDetailsOfAPersonWithSignificantControl
+  | SecondFilingChangeDetailsOfAPersonWithSignificantControlLimitedLiabilityPartnership
+  | SecondFilingChangeToAPersonWithSignificantControlWithoutNameDate
+  | SecondFilingNotificationOfAPersonWithSignificantControl
+  | SecondFilingNotificationOfAPersonWithSignificantControlLimitedLiabilityPartnership
+  | SecondFilingNotificationOfAPersonWithSignificantControlStatement
+  | SecondFilingNotificationOfAPersonWithSignificantControlStatementLimitedLiabilityPartnership
+  | SecondFilingNotificationOfAPersonWithSignificantControlWithoutNameDate
+  | SecondFilingOfAnnualReturnWithMadeUpDate
+  | SecondFilingOfChangeOfDirectorDetailsWithName
+  | SecondFilingOfChangeOfMemberDetailsWithName
+  | SecondFilingOfChangeOfSecretaryDetailsWithName
+  | SecondFilingOfConfirmationStatementWithMadeUpDate
+  | SecondFilingOfDirectorAppointmentWithName
+  | SecondFilingOfDirectorTerminationWithName
+  | SecondFilingOfForm
+  | SecondFilingOfFormWithFormType
+  | SecondFilingOfFormWithFormTypeMadeUpDate
+  | SecondFilingOfMemberAppointmentWithName
+  | SecondFilingOfMemberTerminationWithName
+  | SecondFilingOfSecretaryAppointmentWithName
+  | SecondFilingOfSecretaryTerminationWithName
+  | SecondFilingWithdrawalOfAPersonWithSignificantControlStatement
+  | SecondFilingWithdrawalOfAPersonWithSignificantControlStatementLimitedLiabilityPartnership
+  | SecretariesRegisterInformationOnWithdrawalFromThePublicRegister
+  | SelectionOfDocumentsRegisteredBeforeApril2014
+  | SelectionOfDocumentsRegisteredBeforeJanuary1995
+  | SelectionOfMortgageDocumentsRegisteredBeforeJanuary1995
+  | SpecialResolution
+  | SpecialResolutionAcquisition
+  | SpecialResolutionAdoptMemorandum
+  | SpecialResolutionAlterationMemorandum
+  | SpecialResolutionCapitalisation
+  | SpecialResolutionDecreaseCapital
+  | SpecialResolutionExemption
+  | SpecialResolutionIncreaseCapital
+  | SpecialResolutionMemorandum
+  | SpecialResolutionPurchaseNumberShares
+  | SpecialResolutionPurchaseShares
+  | SpecialResolutionReRegistration
+  | SpecialResolutionRedeemShares
+  | SpecialResolutionReductionCapital
+  | SpecialResolutionRemovalPreEmption
+  | SpecialResolutionSecurities
+  | SpecialResolutionVaryingShareRights
+  | StatementComplianceArticlesRestricted
+  | StatementGuaranteeByParentUndertakingOfSubsidiaryCompany
+  | StatementGuaranteeByParentUndertakingOfSubsidiaryLimitedLiabilityPartnership
+  | StatementOfAffairs
+  | StatementOfCapital
+  | StatementOfCompanysObjects
+  | StatementSolvencyByMembersSocietasEuopaeaProposingToTransferFromUk
+  | TerminationDirectorCompany
+  | TerminationDirectorCompanyWithName
+  | TerminationDirectorCompanyWithNameTerminationDate
+  | TerminationManagerCompany
+  | TerminationManagerCompanyWithTerminationDate
+  | TerminationMemberLimitedLiabilityPartnership
+  | TerminationMemberLimitedLiabilityPartnershipWithName
+  | TerminationMemberLimitedLiabilityPartnershipWithNameTerminationDate
+  | TerminationMemberSocietasEuropaea
+  | TerminationMemberSocietasEuropaeaWithName
+  | TerminationMemberSocietasEuropaeaWithNameTerminationDate
+  | TerminationPersonAuthorisedOverseasCompany
+  | TerminationPersonDirectorOverseasCompany
+  | TerminationPersonDirectorOverseasCompanyWithName
+  | TerminationPersonDirectorOverseasCompanyWithNameTerminationDate
+  | TerminationPersonJudicialFactorOverseasCompany
+  | TerminationPersonJudicialFactorOverseasCompanyWithName
+  | TerminationPersonJudicialFactorOverseasCompanyWithNameTerminationDate
+  | TerminationPersonSecretaryOverseasCompany
+  | TerminationPersonSecretaryOverseasCompanyWithName
+  | TerminationPersonSecretaryOverseasCompanyWithNameTerminationDate
+  | TerminationSecretaryCompany
+  | TerminationSecretaryCompanyWithName
+  | TerminationSecretaryCompanyWithNameTerminationDate
+  | TransferSocietasEuropaeaFromUk
+  | TransferSocietasEuropaeaToUk
+  | TransformationPublicLimitedCompanyToSocietasEuropaea
+  | UpdateToTheMembersRegisterInformationOnThePublicRegister
+  | WithdrawalOfAPersonWithSignificantControlStatement
+  | WithdrawalOfAPersonWithSignificantControlStatementLimitedLiabilityPartnership
+  | WithdrawalOfAPersonWithSignificantControlStatementScottishLimitedPartnership
+  | WithdrawalOfAPersonWithSignificantControlStatementScottishPartnership
+  | WithdrawalOfTheDirectorsRegisterInformationFromThePublicRegister
+  | WithdrawalOfTheDirectorsResidentialAddressRegisterInformationFromThePublicRegister
+  | WithdrawalOfTheLimitedLiabilityPartnershipMembersRegisterInformationFromThePublicRegister
+  | WithdrawalOfTheLimitedLiabilityPartnershipMembersResidentialAddressRegisterInformationFromThePublicRegister
+  | WithdrawalOfTheLimitedLiabilityPartnershipPersonsWithSignificantControlRegisterInformationFromThePublicRegister
+  | WithdrawalOfTheMembersRegisterInformationFromThePublicRegister
+  | WithdrawalOfThePersonsWithSignificantControlRegisterInformationFromThePublicRegister
+  | WithdrawalOfTheSecretariesRegisterInformationFromThePublicRegister
+  | WrittenResolution
+  | WrittenResolutionAcquisition
+  | WrittenResolutionAdoptMemorandum
+  | WrittenResolutionAlterationMemorandum
+  | WrittenResolutionCapitalisation
+  | WrittenResolutionChangeOfName
+  | WrittenResolutionDecreaseCapital
+  | WrittenResolutionExemption
+  | WrittenResolutionIncreaseCapital
+  | WrittenResolutionMemorandum
+  | WrittenResolutionPurchaseNumberShares
+  | WrittenResolutionPurchaseShares
+  | WrittenResolutionReRegistration
+  | WrittenResolutionRedeemShares
+  | WrittenResolutionReductionCapital
+  | WrittenResolutionRemovalPreEmption
+  | WrittenResolutionSecurities
+  | WrittenResolutionVaryingShareRights
+  deriving (Eq, Show)
+
+instance FromJSON Description where
+  parseJSON = withText "Description" $ \t -> case t of
+    "accounts" -> pure Accounts
+    "accounts-amended" -> pure AccountsAmended
+    "accounts-amended-with-accounts-type-audit-exemption-subsiduary" -> pure AccountsAmendedWithAccountsTypeAuditExemptionSubsiduary
+    "accounts-amended-with-accounts-type-dormant" -> pure AccountsAmendedWithAccountsTypeDormant
+    "accounts-amended-with-accounts-type-full" -> pure AccountsAmendedWithAccountsTypeFull
+    "accounts-amended-with-accounts-type-full-group" -> pure AccountsAmendedWithAccountsTypeFullGroup
+    "accounts-amended-with-accounts-type-group" -> pure AccountsAmendedWithAccountsTypeGroup
+    "accounts-amended-with-accounts-type-initial" -> pure AccountsAmendedWithAccountsTypeInitial
+    "accounts-amended-with-accounts-type-interim" -> pure AccountsAmendedWithAccountsTypeInterim
+    "accounts-amended-with-accounts-type-medium" -> pure AccountsAmendedWithAccountsTypeMedium
+    "accounts-amended-with-accounts-type-medium-group" -> pure AccountsAmendedWithAccountsTypeMediumGroup
+    "accounts-amended-with-accounts-type-micro-entity" -> pure AccountsAmendedWithAccountsTypeMicroEntity
+    "accounts-amended-with-accounts-type-partial-exemption" -> pure AccountsAmendedWithAccountsTypePartialExemption
+    "accounts-amended-with-accounts-type-small" -> pure AccountsAmendedWithAccountsTypeSmall
+    "accounts-amended-with-accounts-type-small-group" -> pure AccountsAmendedWithAccountsTypeSmallGroup
+    "accounts-amended-with-accounts-type-total-exemption-full" -> pure AccountsAmendedWithAccountsTypeTotalExemptionFull
+    "accounts-amended-with-accounts-type-total-exemption-small" -> pure AccountsAmendedWithAccountsTypeTotalExemptionSmall
+    "accounts-amended-with-made-up-date" -> pure AccountsAmendedWithMadeUpDate
+    "accounts-balance-sheet" -> pure AccountsBalanceSheet
+    "accounts-dormant-company" -> pure AccountsDormantCompany
+    "accounts-with-accounts-type-audit-exemption-subsiduary" -> pure AccountsWithAccountsTypeAuditExemptionSubsiduary
+    "accounts-with-accounts-type-audited-abridged" -> pure AccountsWithAccountsTypeAuditedAbridged
+    "accounts-with-accounts-type-dormant" -> pure AccountsWithAccountsTypeDormant
+    "accounts-with-accounts-type-full" -> pure AccountsWithAccountsTypeFull
+    "accounts-with-accounts-type-full-group" -> pure AccountsWithAccountsTypeFullGroup
+    "accounts-with-accounts-type-group" -> pure AccountsWithAccountsTypeGroup
+    "accounts-with-accounts-type-initial" -> pure AccountsWithAccountsTypeInitial
+    "accounts-with-accounts-type-interim" -> pure AccountsWithAccountsTypeInterim
+    "accounts-with-accounts-type-medium" -> pure AccountsWithAccountsTypeMedium
+    "accounts-with-accounts-type-medium-group" -> pure AccountsWithAccountsTypeMediumGroup
+    "accounts-with-accounts-type-micro-entity" -> pure AccountsWithAccountsTypeMicroEntity
+    "accounts-with-accounts-type-partial-exemption" -> pure AccountsWithAccountsTypePartialExemption
+    "accounts-with-accounts-type-small" -> pure AccountsWithAccountsTypeSmall
+    "accounts-with-accounts-type-small-group" -> pure AccountsWithAccountsTypeSmallGroup
+    "accounts-with-accounts-type-total-exemption-full" -> pure AccountsWithAccountsTypeTotalExemptionFull
+    "accounts-with-accounts-type-total-exemption-small" -> pure AccountsWithAccountsTypeTotalExemptionSmall
+    "accounts-with-accounts-type-unaudited-abridged" -> pure AccountsWithAccountsTypeUnauditedAbridged
+    "accounts-with-made-up-date" -> pure AccountsWithMadeUpDate
+    "address-correction" -> pure AddressCorrection
+    "administrative-restoration-company" -> pure AdministrativeRestorationCompany
+    "administrative-restoration-limited-liability-partnership" -> pure AdministrativeRestorationLimitedLiabilityPartnership
+    "amendment-of-statutes-societas-europaea" -> pure AmendmentOfStatutesSocietasEuropaea
+    "annotation" -> pure Annotation
+    "annual-return-add-person-authorised-to-accept-service-to-uk-establishment" -> pure AnnualReturnAddPersonAuthorisedToAcceptServiceToUkEstablishment
+    "annual-return-add-person-authorised-to-represent-to-uk-establishment" -> pure AnnualReturnAddPersonAuthorisedToRepresentToUkEstablishment
+    "annual-return-add-person-to-uk-establisment" -> pure AnnualReturnAddPersonToUkEstablisment
+    "annual-return-company" -> pure AnnualReturnCompany
+    "annual-return-company-with-made-up-date" -> pure AnnualReturnCompanyWithMadeUpDate
+    "annual-return-company-with-made-up-date-bearer-shares" -> pure AnnualReturnCompanyWithMadeUpDateBearerShares
+    "annual-return-company-with-made-up-date-bulk-list-shareholders" -> pure AnnualReturnCompanyWithMadeUpDateBulkListShareholders
+    "annual-return-company-with-made-up-date-changes-to-shareholders" -> pure AnnualReturnCompanyWithMadeUpDateChangesToShareholders
+    "annual-return-company-with-made-up-date-full-list-shareholders" -> pure AnnualReturnCompanyWithMadeUpDateFullListShareholders
+    "annual-return-company-with-made-up-date-no-member-list" -> pure AnnualReturnCompanyWithMadeUpDateNoMemberList
+    "annual-return-company-with-made-up-date-no-shareholders-list" -> pure AnnualReturnCompanyWithMadeUpDateNoShareholdersList
+    "annual-return-limited-liability-partnership" -> pure AnnualReturnLimitedLiabilityPartnership
+    "annual-return-limited-liability-partnership-with-made-up-date" -> pure AnnualReturnLimitedLiabilityPartnershipWithMadeUpDate
+    "annual-return-newspaper" -> pure AnnualReturnNewspaper
+    "annual-return-overseas-company" -> pure AnnualReturnOverseasCompany
+    "annual-return-update-details" -> pure AnnualReturnUpdateDetails
+    "annual-return-update-with-change-details" -> pure AnnualReturnUpdateWithChangeDetails
+    "application-document-rectification" -> pure ApplicationDocumentRectification
+    "application-to-commence-business" -> pure ApplicationToCommenceBusiness
+    "application-to-court-to-cancel-bearer-shares" -> pure ApplicationToCourtToCancelBearerShares
+    "application-trading-certificate" -> pure ApplicationTradingCertificate
+    "appoint-corporate-director-company" -> pure AppointCorporateDirectorCompany
+    "appoint-corporate-director-company-with-name" -> pure AppointCorporateDirectorCompanyWithName
+    "appoint-corporate-director-company-with-name-date" -> pure AppointCorporateDirectorCompanyWithNameDate
+    "appoint-corporate-director-overseas-company" -> pure AppointCorporateDirectorOverseasCompany
+    "appoint-corporate-director-overseas-company-with-appointment-date" -> pure AppointCorporateDirectorOverseasCompanyWithAppointmentDate
+    "appoint-corporate-manager-european-economic-interest-groupings" -> pure AppointCorporateManagerEuropeanEconomicInterestGroupings
+    "appoint-corporate-member-limited-liability-partnership" -> pure AppointCorporateMemberLimitedLiabilityPartnership
+    "appoint-corporate-member-limited-liability-partnership-with-appointment-date" -> pure AppointCorporateMemberLimitedLiabilityPartnershipWithAppointmentDate
+    "appoint-corporate-member-societas-europaea" -> pure AppointCorporateMemberSocietasEuropaea
+    "appoint-corporate-member-societas-europaea-with-name" -> pure AppointCorporateMemberSocietasEuropaeaWithName
+    "appoint-corporate-member-societas-europaea-with-name-appointment-date" -> pure AppointCorporateMemberSocietasEuropaeaWithNameAppointmentDate
+    "appoint-corporate-secretary-company" -> pure AppointCorporateSecretaryCompany
+    "appoint-corporate-secretary-company-with-name" -> pure AppointCorporateSecretaryCompanyWithName
+    "appoint-corporate-secretary-company-with-name-date" -> pure AppointCorporateSecretaryCompanyWithNameDate
+    "appoint-corporate-secretary-overseas-company" -> pure AppointCorporateSecretaryOverseasCompany
+    "appoint-corporate-secretary-overseas-company-with-appointment-date" -> pure AppointCorporateSecretaryOverseasCompanyWithAppointmentDate
+    "appoint-judicial-factor-overseas-company" -> pure AppointJudicialFactorOverseasCompany
+    "appoint-judicial-factor-overseas-company-with-appointment-date" -> pure AppointJudicialFactorOverseasCompanyWithAppointmentDate
+    "appoint-manager-company" -> pure AppointManagerCompany
+    "appoint-manager-company-with-name" -> pure AppointManagerCompanyWithName
+    "appoint-manager-company-with-name-date" -> pure AppointManagerCompanyWithNameDate
+    "appoint-manager-european-economic-interest-groupings" -> pure AppointManagerEuropeanEconomicInterestGroupings
+    "appoint-manager-european-economic-interest-groupings-with-appointment-date" -> pure AppointManagerEuropeanEconomicInterestGroupingsWithAppointmentDate
+    "appoint-person-authorised-accept-overseas-company" -> pure AppointPersonAuthorisedAcceptOverseasCompany
+    "appoint-person-authorised-accept-overseas-company-with-appointment-date" -> pure AppointPersonAuthorisedAcceptOverseasCompanyWithAppointmentDate
+    "appoint-person-authorised-represent-overseas-company" -> pure AppointPersonAuthorisedRepresentOverseasCompany
+    "appoint-person-authorised-represent-overseas-company-with-appointment-date" -> pure AppointPersonAuthorisedRepresentOverseasCompanyWithAppointmentDate
+    "appoint-person-director-company" -> pure AppointPersonDirectorCompany
+    "appoint-person-director-company-with-name" -> pure AppointPersonDirectorCompanyWithName
+    "appoint-person-director-company-with-name-date" -> pure AppointPersonDirectorCompanyWithNameDate
+    "appoint-person-director-overseas-company" -> pure AppointPersonDirectorOverseasCompany
+    "appoint-person-director-overseas-company-with-name" -> pure AppointPersonDirectorOverseasCompanyWithName
+    "appoint-person-director-overseas-company-with-name-appointment-date" -> pure AppointPersonDirectorOverseasCompanyWithNameAppointmentDate
+    "appoint-person-member-limited-liability-partnership" -> pure AppointPersonMemberLimitedLiabilityPartnership
+    "appoint-person-member-limited-liability-partnership-with-appointment-date" -> pure AppointPersonMemberLimitedLiabilityPartnershipWithAppointmentDate
+    "appoint-person-member-societas-europaea" -> pure AppointPersonMemberSocietasEuropaea
+    "appoint-person-member-societas-europaea-with-name" -> pure AppointPersonMemberSocietasEuropaeaWithName
+    "appoint-person-member-societas-europaea-with-name-appointment-date" -> pure AppointPersonMemberSocietasEuropaeaWithNameAppointmentDate
+    "appoint-person-secretary-company" -> pure AppointPersonSecretaryCompany
+    "appoint-person-secretary-company-with-name" -> pure AppointPersonSecretaryCompanyWithName
+    "appoint-person-secretary-company-with-name-date" -> pure AppointPersonSecretaryCompanyWithNameDate
+    "appoint-person-secretary-overseas-company" -> pure AppointPersonSecretaryOverseasCompany
+    "appoint-person-secretary-overseas-company-with-appointment-date" -> pure AppointPersonSecretaryOverseasCompanyWithAppointmentDate
+    "appointment-at-registration-of-person-authorised-to-accept-service" -> pure AppointmentAtRegistrationOfPersonAuthorisedToAcceptService
+    "appointment-at-registration-of-person-authorised-to-represent" -> pure AppointmentAtRegistrationOfPersonAuthorisedToRepresent
+    "appointment-overseas-company" -> pure AppointmentOverseasCompany
+    "auditors-report" -> pure AuditorsReport
+    "auditors-resignation-company" -> pure AuditorsResignationCompany
+    "auditors-resignation-limited-company" -> pure AuditorsResignationLimitedCompany
+    "auditors-resignation-limited-liability-partnership" -> pure AuditorsResignationLimitedLiabilityPartnership
+    "auditors-statement" -> pure AuditorsStatement
+    "bona-vacantia-company" -> pure BonaVacantiaCompany
+    "bona-vacantia-limited-liability-partnership" -> pure BonaVacantiaLimitedLiabilityPartnership
+    "capital-allotment-new-class-of-shares" -> pure CapitalAllotmentNewClassOfShares
+    "capital-allotment-shares" -> pure CapitalAllotmentShares
+    "capital-alter-shares" -> pure CapitalAlterShares
+    "capital-alter-shares-consolidation" -> pure CapitalAlterSharesConsolidation
+    "capital-alter-shares-consolidation-reconversion" -> pure CapitalAlterSharesConsolidationReconversion
+    "capital-alter-shares-consolidation-reconversion-statement-of-capital" -> pure CapitalAlterSharesConsolidationReconversionStatementOfCapital
+    "capital-alter-shares-consolidation-statement-of-capital" -> pure CapitalAlterSharesConsolidationStatementOfCapital
+    "capital-alter-shares-consolidation-subdivision" -> pure CapitalAlterSharesConsolidationSubdivision
+    "capital-alter-shares-consolidation-subdivision-reconversion" -> pure CapitalAlterSharesConsolidationSubdivisionReconversion
+    "capital-alter-shares-consolidation-subdivision-reconversion-statement-of-capital" -> pure CapitalAlterSharesConsolidationSubdivisionReconversionStatementOfCapital
+    "capital-alter-shares-consolidation-subdivision-statement-of-capital" -> pure CapitalAlterSharesConsolidationSubdivisionStatementOfCapital
+    "capital-alter-shares-reconversion" -> pure CapitalAlterSharesReconversion
+    "capital-alter-shares-reconversion-statement-of-capital" -> pure CapitalAlterSharesReconversionStatementOfCapital
+    "capital-alter-shares-redemption" -> pure CapitalAlterSharesRedemption
+    "capital-alter-shares-redemption-statement-of-capital" -> pure CapitalAlterSharesRedemptionStatementOfCapital
+    "capital-alter-shares-subdivision" -> pure CapitalAlterSharesSubdivision
+    "capital-alter-shares-subdivision-reconversion" -> pure CapitalAlterSharesSubdivisionReconversion
+    "capital-alter-shares-subdivision-reconversion-statement-of-capital" -> pure CapitalAlterSharesSubdivisionReconversionStatementOfCapital
+    "capital-alter-shares-subdivision-statement-of-capital" -> pure CapitalAlterSharesSubdivisionStatementOfCapital
+    "capital-application-by-company-to-court-cancellation-of-special-resolution-approving-redemption-purchase-of-shares-out-of-capital" -> pure CapitalApplicationByCompanyToCourtCancellationOfSpecialResolutionApprovingRedemptionPurchaseOfSharesOutOfCapital
+    "capital-application-to-court-cancellation-of-special-resolution-approving-redemption-purchase-of-shares-out-of-capital" -> pure CapitalApplicationToCourtCancellationOfSpecialResolutionApprovingRedemptionPurchaseOfSharesOutOfCapital
+    "capital-cancellation-shares" -> pure CapitalCancellationShares
+    "capital-cancellation-shares-by-plc" -> pure CapitalCancellationSharesByPlc
+    "capital-cancellation-treasury-shares" -> pure CapitalCancellationTreasuryShares
+    "capital-cancellation-treasury-shares-with-date-currency-capital-figure" -> pure CapitalCancellationTreasurySharesWithDateCurrencyCapitalFigure
+    "capital-cancellation-treasury-shares-with-date-treasury-capital-figure" -> pure CapitalCancellationTreasurySharesWithDateTreasuryCapitalFigure
+    "capital-directors-statement-auditors-report" -> pure CapitalDirectorsStatementAuditorsReport
+    "capital-name-of-class-of-shares" -> pure CapitalNameOfClassOfShares
+    "capital-name-of-class-of-shares-with-date" -> pure CapitalNameOfClassOfSharesWithDate
+    "capital-new-class-members" -> pure CapitalNewClassMembers
+    "capital-redomination-of-shares" -> pure CapitalRedominationOfShares
+    "capital-reduction-of-capital-redomination" -> pure CapitalReductionOfCapitalRedomination
+    "capital-return-purchase-own-shares" -> pure CapitalReturnPurchaseOwnShares
+    "capital-return-purchase-own-shares-capital-date" -> pure CapitalReturnPurchaseOwnSharesCapitalDate
+    "capital-return-purchase-own-shares-share-capital-date" -> pure CapitalReturnPurchaseOwnSharesShareCapitalDate
+    "capital-return-purchase-own-shares-treasury-capital-date" -> pure CapitalReturnPurchaseOwnSharesTreasuryCapitalDate
+    "capital-sale-or-transfer-treasury-shares" -> pure CapitalSaleOrTransferTreasuryShares
+    "capital-sale-or-transfer-treasury-shares-with-date" -> pure CapitalSaleOrTransferTreasurySharesWithDate
+    "capital-sale-or-transfer-treasury-shares-with-date-currency" -> pure CapitalSaleOrTransferTreasurySharesWithDateCurrency
+    "capital-sale-or-transfer-treasury-shares-with-date-currency-capital-figure" -> pure CapitalSaleOrTransferTreasurySharesWithDateCurrencyCapitalFigure
+    "capital-statement-capital-company" -> pure CapitalStatementCapitalCompany
+    "capital-statement-capital-company-with-date-currency-figure" -> pure CapitalStatementCapitalCompanyWithDateCurrencyFigure
+    "capital-statement-directors-reduction-of-capital-following-redomination" -> pure CapitalStatementDirectorsReductionOfCapitalFollowingRedomination
+    "capital-update-to-class-of-members" -> pure CapitalUpdateToClassOfMembers
+    "capital-variation-of-class-rights" -> pure CapitalVariationOfClassRights
+    "capital-variation-of-rights-attached-to-shares" -> pure CapitalVariationOfRightsAttachedToShares
+    "certificate" -> pure Certificate
+    "certificate-authorisation-to-commence-business-borrow" -> pure CertificateAuthorisationToCommenceBusinessBorrow
+    "certificate-capital-cancellation-share-premium-account" -> pure CertificateCapitalCancellationSharePremiumAccount
+    "certificate-capital-iron-steel-act-reduction-issed-capital" -> pure CertificateCapitalIronSteelActReductionIssedCapital
+    "certificate-capital-reduction-issued-capital" -> pure CertificateCapitalReductionIssuedCapital
+    "certificate-capital-reduction-issued-capital-cancellation-share-premium-cancellation-capital-redemption-reserve" -> pure CertificateCapitalReductionIssuedCapitalCancellationSharePremiumCancellationCapitalRedemptionReserve
+    "certificate-capital-reduction-issued-capital-share-premium" -> pure CertificateCapitalReductionIssuedCapitalSharePremium
+    "certificate-capital-reduction-issued-capital-share-premium-cancellation-share-premiumn" -> pure CertificateCapitalReductionIssuedCapitalSharePremiumCancellationSharePremiumn
+    "certificate-capital-reduction-share-premium" -> pure CertificateCapitalReductionSharePremium
+    "certificate-capital-reduction-share-premium-cancellation-capital-redemption-reserve" -> pure CertificateCapitalReductionSharePremiumCancellationCapitalRedemptionReserve
+    "certificate-change-of-name-company" -> pure CertificateChangeOfNameCompany
+    "certificate-change-of-name-limited-partnership" -> pure CertificateChangeOfNameLimitedPartnership
+    "certificate-change-of-name-re-registration-old-public-company-to-public-limited-company" -> pure CertificateChangeOfNameReRegistrationOldPublicCompanyToPublicLimitedCompany
+    "certificate-change-of-name-re-registration-private-to-public-limited-company" -> pure CertificateChangeOfNameReRegistrationPrivateToPublicLimitedCompany
+    "certificate-change-of-name-re-registration-public-limited-company-to-private" -> pure CertificateChangeOfNameReRegistrationPublicLimitedCompanyToPrivate
+    "certificate-change-of-name-re-registration-to-limited" -> pure CertificateChangeOfNameReRegistrationToLimited
+    "certificate-change-of-name-re-registration-to-unlimited" -> pure CertificateChangeOfNameReRegistrationToUnlimited
+    "certificate-incorporation" -> pure CertificateIncorporation
+    "certificate-incorporation-foreign-private-act" -> pure CertificateIncorporationForeignPrivateAct
+    "certificate-of-designation-as-a-private-fund-limited-partnership" -> pure CertificateOfDesignationAsAPrivateFundLimitedPartnership
+    "certificate-of-registration-and-designation-as-a-private-fund-limited-partnership" -> pure CertificateOfRegistrationAndDesignationAsAPrivateFundLimitedPartnership
+    "certificate-re-registration-change-of-name" -> pure CertificateReRegistrationChangeOfName
+    "certificate-re-registration-limited-to-unlimited" -> pure CertificateReRegistrationLimitedToUnlimited
+    "certificate-re-registration-old-public-company-to-private-limited-company" -> pure CertificateReRegistrationOldPublicCompanyToPrivateLimitedCompany
+    "certificate-re-registration-old-public-company-to-public-limited-company" -> pure CertificateReRegistrationOldPublicCompanyToPublicLimitedCompany
+    "certificate-re-registration-private-to-public-limited-company" -> pure CertificateReRegistrationPrivateToPublicLimitedCompany
+    "certificate-re-registration-public-limited-company-to-private" -> pure CertificateReRegistrationPublicLimitedCompanyToPrivate
+    "certificate-re-registration-unlimited-to-limited" -> pure CertificateReRegistrationUnlimitedToLimited
+    "certificate-re-registration-unlimited-to-public-limited-company" -> pure CertificateReRegistrationUnlimitedToPublicLimitedCompany
+    "certificate-registration-friendly-society" -> pure CertificateRegistrationFriendlySociety
+    "certificate-registration-limited-partnership" -> pure CertificateRegistrationLimitedPartnership
+    "cessation-of-a-person-with-significant-control" -> pure CessationOfAPersonWithSignificantControl
+    "cessation-of-a-person-with-significant-control-limited-liability-partnership" -> pure CessationOfAPersonWithSignificantControlLimitedLiabilityPartnership
+    "cessation-of-a-person-with-significant-control-scottish-limited-partnership" -> pure CessationOfAPersonWithSignificantControlScottishLimitedPartnership
+    "cessation-of-a-person-with-significant-control-scottish-partnership" -> pure CessationOfAPersonWithSignificantControlScottishPartnership
+    "cessation-of-a-person-with-significant-control-without-name-date" -> pure CessationOfAPersonWithSignificantControlWithoutNameDate
+    "cessation-of-a-super-secure-person-with-significant-control" -> pure CessationOfASuperSecurePersonWithSignificantControl
+    "cessation-of-a-super-secure-person-with-significant-control-limited-liability-partnership" -> pure CessationOfASuperSecurePersonWithSignificantControlLimitedLiabilityPartnership
+    "change-account-reference-date-company" -> pure ChangeAccountReferenceDateCompany
+    "change-account-reference-date-company-current-extended" -> pure ChangeAccountReferenceDateCompanyCurrentExtended
+    "change-account-reference-date-company-current-shortened" -> pure ChangeAccountReferenceDateCompanyCurrentShortened
+    "change-account-reference-date-company-previous-extended" -> pure ChangeAccountReferenceDateCompanyPreviousExtended
+    "change-account-reference-date-company-previous-shortened" -> pure ChangeAccountReferenceDateCompanyPreviousShortened
+    "change-account-reference-date-limited-liability-partnership" -> pure ChangeAccountReferenceDateLimitedLiabilityPartnership
+    "change-account-reference-date-limited-liability-partnership-current-extended" -> pure ChangeAccountReferenceDateLimitedLiabilityPartnershipCurrentExtended
+    "change-account-reference-date-limited-liability-partnership-current-shortened" -> pure ChangeAccountReferenceDateLimitedLiabilityPartnershipCurrentShortened
+    "change-account-reference-date-limited-liability-partnership-previous-extended" -> pure ChangeAccountReferenceDateLimitedLiabilityPartnershipPreviousExtended
+    "change-account-reference-date-limited-liability-partnership-previous-shortened" -> pure ChangeAccountReferenceDateLimitedLiabilityPartnershipPreviousShortened
+    "change-company-details-by-uk-establishment-overseas-company" -> pure ChangeCompanyDetailsByUkEstablishmentOverseasCompany
+    "change-company-details-by-uk-establishment-overseas-company-with-change-details" -> pure ChangeCompanyDetailsByUkEstablishmentOverseasCompanyWithChangeDetails
+    "change-company-details-overseas-company" -> pure ChangeCompanyDetailsOverseasCompany
+    "change-company-details-overseas-company-with-change-details" -> pure ChangeCompanyDetailsOverseasCompanyWithChangeDetails
+    "change-constitution-by-court-order" -> pure ChangeConstitutionByCourtOrder
+    "change-constitution-enactment" -> pure ChangeConstitutionEnactment
+    "change-constitutional-documents-overseas-company" -> pure ChangeConstitutionalDocumentsOverseasCompany
+    "change-constitutional-documents-overseas-company-with-date" -> pure ChangeConstitutionalDocumentsOverseasCompanyWithDate
+    "change-corporate-director-company" -> pure ChangeCorporateDirectorCompany
+    "change-corporate-director-company-with-change-date" -> pure ChangeCorporateDirectorCompanyWithChangeDate
+    "change-corporate-director-overseas-company" -> pure ChangeCorporateDirectorOverseasCompany
+    "change-corporate-director-overseas-company-with-change-date" -> pure ChangeCorporateDirectorOverseasCompanyWithChangeDate
+    "change-corporate-member-limited-liability-partnership" -> pure ChangeCorporateMemberLimitedLiabilityPartnership
+    "change-corporate-member-limited-liability-partnership-with-name-change-date" -> pure ChangeCorporateMemberLimitedLiabilityPartnershipWithNameChangeDate
+    "change-corporate-member-societas-europaea" -> pure ChangeCorporateMemberSocietasEuropaea
+    "change-corporate-member-societas-europaea-with-name" -> pure ChangeCorporateMemberSocietasEuropaeaWithName
+    "change-corporate-member-societas-europaea-with-name-date" -> pure ChangeCorporateMemberSocietasEuropaeaWithNameDate
+    "change-corporate-secretary-company" -> pure ChangeCorporateSecretaryCompany
+    "change-corporate-secretary-company-with-change-date" -> pure ChangeCorporateSecretaryCompanyWithChangeDate
+    "change-corporate-secretary-overseas-company" -> pure ChangeCorporateSecretaryOverseasCompany
+    "change-corporate-secretary-overseas-company-with-change-date" -> pure ChangeCorporateSecretaryOverseasCompanyWithChangeDate
+    "change-manager-european-economic-interest-groups" -> pure ChangeManagerEuropeanEconomicInterestGroups
+    "change-manager-european-economic-interest-groups-with-change-date" -> pure ChangeManagerEuropeanEconomicInterestGroupsWithChangeDate
+    "change-of-name-by-conditional-resolution" -> pure ChangeOfNameByConditionalResolution
+    "change-of-name-by-directors-resolution" -> pure ChangeOfNameByDirectorsResolution
+    "change-of-name-by-provision-in-articles" -> pure ChangeOfNameByProvisionInArticles
+    "change-of-name-by-resolution" -> pure ChangeOfNameByResolution
+    "change-of-name-community-interest-company" -> pure ChangeOfNameCommunityInterestCompany
+    "change-of-name-conditional-resolution-satisfaction" -> pure ChangeOfNameConditionalResolutionSatisfaction
+    "change-of-name-direction" -> pure ChangeOfNameDirection
+    "change-of-name-exemption" -> pure ChangeOfNameExemption
+    "change-of-name-notice" -> pure ChangeOfNameNotice
+    "change-of-name-notice-limited-liability-partnership" -> pure ChangeOfNameNoticeLimitedLiabilityPartnership
+    "change-of-name-overseas-by-resolution" -> pure ChangeOfNameOverseasByResolution
+    "change-of-name-overseas-by-resolution-with-date" -> pure ChangeOfNameOverseasByResolutionWithDate
+    "change-of-name-request-comments" -> pure ChangeOfNameRequestComments
+    "change-of-status-limited-liability-partnership" -> pure ChangeOfStatusLimitedLiabilityPartnership
+    "change-person-authorised-overseas-company" -> pure ChangePersonAuthorisedOverseasCompany
+    "change-person-authorised-overseas-company-with-change-date" -> pure ChangePersonAuthorisedOverseasCompanyWithChangeDate
+    "change-person-authorised-to-represent-overseas-company" -> pure ChangePersonAuthorisedToRepresentOverseasCompany
+    "change-person-authorised-to-represent-overseas-company-with-change-date" -> pure ChangePersonAuthorisedToRepresentOverseasCompanyWithChangeDate
+    "change-person-director-company" -> pure ChangePersonDirectorCompany
+    "change-person-director-company-with-change-date" -> pure ChangePersonDirectorCompanyWithChangeDate
+    "change-person-director-overseas-company" -> pure ChangePersonDirectorOverseasCompany
+    "change-person-director-overseas-company-with-change-date" -> pure ChangePersonDirectorOverseasCompanyWithChangeDate
+    "change-person-member-limited-liability-partnership" -> pure ChangePersonMemberLimitedLiabilityPartnership
+    "change-person-member-limited-liability-partnership-with-name-change-date" -> pure ChangePersonMemberLimitedLiabilityPartnershipWithNameChangeDate
+    "change-person-member-societas-europaea" -> pure ChangePersonMemberSocietasEuropaea
+    "change-person-member-societas-europaea-with-name" -> pure ChangePersonMemberSocietasEuropaeaWithName
+    "change-person-member-societas-europaea-with-name-date" -> pure ChangePersonMemberSocietasEuropaeaWithNameDate
+    "change-person-secretary-company" -> pure ChangePersonSecretaryCompany
+    "change-person-secretary-company-with-change-date" -> pure ChangePersonSecretaryCompanyWithChangeDate
+    "change-person-secretary-overseas-company" -> pure ChangePersonSecretaryOverseasCompany
+    "change-person-secretary-overseas-company-with-change-date" -> pure ChangePersonSecretaryOverseasCompanyWithChangeDate
+    "change-proprietors-newspaper" -> pure ChangeProprietorsNewspaper
+    "change-registered-office-addres-overseas-company" -> pure ChangeRegisteredOfficeAddresOverseasCompany
+    "change-registered-office-address-company" -> pure ChangeRegisteredOfficeAddressCompany
+    "change-registered-office-address-company-with-date-old-address" -> pure ChangeRegisteredOfficeAddressCompanyWithDateOldAddress
+    "change-registered-office-address-company-with-date-old-address-new-address" -> pure ChangeRegisteredOfficeAddressCompanyWithDateOldAddressNewAddress
+    "change-registered-office-address-limited-liability-partnership" -> pure ChangeRegisteredOfficeAddressLimitedLiabilityPartnership
+    "change-registered-office-address-limited-liability-partnership-with-date-old-address" -> pure ChangeRegisteredOfficeAddressLimitedLiabilityPartnershipWithDateOldAddress
+    "change-registered-office-address-limited-liability-partnership-with-date-old-address-new-address" -> pure ChangeRegisteredOfficeAddressLimitedLiabilityPartnershipWithDateOldAddressNewAddress
+    "change-registered-office-situation-company-with-new-jurisdiction" -> pure ChangeRegisteredOfficeSituationCompanyWithNewJurisdiction
+    "change-registered-office-situation-company-with-old-jurisdiction-new-jurisdiction" -> pure ChangeRegisteredOfficeSituationCompanyWithOldJurisdictionNewJurisdiction
+    "change-registered-office-situation-company-with-old-jurisdiction-new-jurisdiction-date" -> pure ChangeRegisteredOfficeSituationCompanyWithOldJurisdictionNewJurisdictionDate
+    "change-registered-office-situation-limited-liability-partnership" -> pure ChangeRegisteredOfficeSituationLimitedLiabilityPartnership
+    "change-sail-address-company" -> pure ChangeSailAddressCompany
+    "change-sail-address-company-with-new-address" -> pure ChangeSailAddressCompanyWithNewAddress
+    "change-sail-address-company-with-old-address" -> pure ChangeSailAddressCompanyWithOldAddress
+    "change-sail-address-company-with-old-address-new-address" -> pure ChangeSailAddressCompanyWithOldAddressNewAddress
+    "change-sail-address-limited-liability-partnership" -> pure ChangeSailAddressLimitedLiabilityPartnership
+    "change-sail-address-limited-liability-partnership-with-new-address" -> pure ChangeSailAddressLimitedLiabilityPartnershipWithNewAddress
+    "change-sail-address-limited-liability-partnership-with-old-address" -> pure ChangeSailAddressLimitedLiabilityPartnershipWithOldAddress
+    "change-sail-address-limited-liability-partnership-with-old-address-new-address" -> pure ChangeSailAddressLimitedLiabilityPartnershipWithOldAddressNewAddress
+    "change-sail-address-overseas-company" -> pure ChangeSailAddressOverseasCompany
+    "change-service-address-judicial-factor-overseas-company" -> pure ChangeServiceAddressJudicialFactorOverseasCompany
+    "change-service-address-manager" -> pure ChangeServiceAddressManager
+    "change-to-a-person-with-significant-control" -> pure ChangeToAPersonWithSignificantControl
+    "change-to-a-person-with-significant-control-limited-liability-partnership" -> pure ChangeToAPersonWithSignificantControlLimitedLiabilityPartnership
+    "change-to-a-person-with-significant-control-scottish-limited-partnership" -> pure ChangeToAPersonWithSignificantControlScottishLimitedPartnership
+    "change-to-a-person-with-significant-control-scottish-partnership" -> pure ChangeToAPersonWithSignificantControlScottishPartnership
+    "change-to-a-person-with-significant-control-without-name-date" -> pure ChangeToAPersonWithSignificantControlWithoutNameDate
+    "change-uk-establishment-relating-to-constitutional-documents" -> pure ChangeUkEstablishmentRelatingToConstitutionalDocuments
+    "confirmation-statement" -> pure ConfirmationStatement
+    "confirmation-statement-with-made-up-date" -> pure ConfirmationStatementWithMadeUpDate
+    "confirmation-statement-with-no-updates" -> pure ConfirmationStatementWithNoUpdates
+    "confirmation-statement-with-updates" -> pure ConfirmationStatementWithUpdates
+    "conversion-societas-europaea-to-public-limited-company" -> pure ConversionSocietasEuropaeaToPublicLimitedCompany
+    "court-order" -> pure CourtOrder
+    "court-upheld-registrars-decision-on-registered-office-address" -> pure CourtUpheldRegistrarsDecisionOnRegisteredOfficeAddress
+    "default-companies-house-registered-office-address-applied" -> pure DefaultCompaniesHouseRegisteredOfficeAddressApplied
+    "designation-as-a-private-fund-limited-partnership" -> pure DesignationAsAPrivateFundLimitedPartnership
+    "directors-register-information-on-withdrawal-from-the-public-register" -> pure DirectorsRegisterInformationOnWithdrawalFromThePublicRegister
+    "directors-usual-residential-address-register-information-on-withdrawal-from-the-public-register" -> pure DirectorsUsualResidentialAddressRegisterInformationOnWithdrawalFromThePublicRegister
+    "dissolution-application-strike-off-company" -> pure DissolutionApplicationStrikeOffCompany
+    "dissolution-application-strike-off-limited-liability-partnership" -> pure DissolutionApplicationStrikeOffLimitedLiabilityPartnership
+    "dissolution-closure-of-uk-establishment" -> pure DissolutionClosureOfUkEstablishment
+    "dissolution-closure-of-uk-establishment-and-overseas-company" -> pure DissolutionClosureOfUkEstablishmentAndOverseasCompany
+    "dissolution-closure-overseas-company" -> pure DissolutionClosureOverseasCompany
+    "dissolution-request-where-liquidator-ceased-to-act" -> pure DissolutionRequestWhereLiquidatorCeasedToAct
+    "dissolution-termination-overseas-company" -> pure DissolutionTerminationOverseasCompany
+    "dissolution-voluntary-strike-off-discontinued" -> pure DissolutionVoluntaryStrikeOffDiscontinued
+    "dissolution-voluntary-strike-off-suspended" -> pure DissolutionVoluntaryStrikeOffSuspended
+    "dissolution-withdrawal-application-strike-off-company" -> pure DissolutionWithdrawalApplicationStrikeOffCompany
+    "dissolution-withdrawal-application-strike-off-limited-liability-partnership" -> pure DissolutionWithdrawalApplicationStrikeOffLimitedLiabilityPartnership
+    "dissolved-company" -> pure DissolvedCompany
+    "dissolved-compulsory-strike-off-suspended" -> pure DissolvedCompulsoryStrikeOffSuspended
+    "document-replacement" -> pure DocumentReplacement
+    "elect-to-keep-the-directors-register-information-on-the-public-register" -> pure ElectToKeepTheDirectorsRegisterInformationOnThePublicRegister
+    "elect-to-keep-the-directors-residential-address-register-information-on-the-public-register" -> pure ElectToKeepTheDirectorsResidentialAddressRegisterInformationOnThePublicRegister
+    "elect-to-keep-the-limited-liability-partnership-members-register-information-on-the-public-register" -> pure ElectToKeepTheLimitedLiabilityPartnershipMembersRegisterInformationOnThePublicRegister
+    "elect-to-keep-the-limited-liability-partnership-members-residential-address-register-information-on-the-public-register" -> pure ElectToKeepTheLimitedLiabilityPartnershipMembersResidentialAddressRegisterInformationOnThePublicRegister
+    "elect-to-keep-the-limited-liability-partnership-persons-with-significant-control-register-information-on-the-public-register" -> pure ElectToKeepTheLimitedLiabilityPartnershipPersonsWithSignificantControlRegisterInformationOnThePublicRegister
+    "elect-to-keep-the-members-register-information-on-the-public-register" -> pure ElectToKeepTheMembersRegisterInformationOnThePublicRegister
+    "elect-to-keep-the-persons-with-significant-control-register-information-on-the-public-register" -> pure ElectToKeepThePersonsWithSignificantControlRegisterInformationOnThePublicRegister
+    "elect-to-keep-the-secretaries-register-information-on-the-public-register" -> pure ElectToKeepTheSecretariesRegisterInformationOnThePublicRegister
+    "elective-resolution" -> pure ElectiveResolution
+    "extraordinary-resolution" -> pure ExtraordinaryResolution
+    "extraordinary-resolution-acquisition" -> pure ExtraordinaryResolutionAcquisition
+    "extraordinary-resolution-adopt-memorandum" -> pure ExtraordinaryResolutionAdoptMemorandum
+    "extraordinary-resolution-alteration-memorandum" -> pure ExtraordinaryResolutionAlterationMemorandum
+    "extraordinary-resolution-capitalisation" -> pure ExtraordinaryResolutionCapitalisation
+    "extraordinary-resolution-change-of-name" -> pure ExtraordinaryResolutionChangeOfName
+    "extraordinary-resolution-decrease-capital" -> pure ExtraordinaryResolutionDecreaseCapital
+    "extraordinary-resolution-exemption" -> pure ExtraordinaryResolutionExemption
+    "extraordinary-resolution-increase-capital" -> pure ExtraordinaryResolutionIncreaseCapital
+    "extraordinary-resolution-memorandum" -> pure ExtraordinaryResolutionMemorandum
+    "extraordinary-resolution-purchase-number-shares" -> pure ExtraordinaryResolutionPurchaseNumberShares
+    "extraordinary-resolution-purchase-shares" -> pure ExtraordinaryResolutionPurchaseShares
+    "extraordinary-resolution-re-registration" -> pure ExtraordinaryResolutionReRegistration
+    "extraordinary-resolution-redeem-shares" -> pure ExtraordinaryResolutionRedeemShares
+    "extraordinary-resolution-reduction-capital" -> pure ExtraordinaryResolutionReductionCapital
+    "extraordinary-resolution-removal-pre-emption" -> pure ExtraordinaryResolutionRemovalPreEmption
+    "extraordinary-resolution-securities" -> pure ExtraordinaryResolutionSecurities
+    "extraordinary-resolution-varying-share-rights" -> pure ExtraordinaryResolutionVaryingShareRights
+    "formation-by-merger-of-societas-europaea" -> pure FormationByMergerOfSocietasEuropaea
+    "formation-european-economic-interest-groups-official-address-inside-uk" -> pure FormationEuropeanEconomicInterestGroupsOfficialAddressInsideUk
+    "formation-european-economic-interest-groups-official-address-inside-uk-with-date" -> pure FormationEuropeanEconomicInterestGroupsOfficialAddressInsideUkWithDate
+    "formation-european-economic-interest-groups-official-address-outside-uk" -> pure FormationEuropeanEconomicInterestGroupsOfficialAddressOutsideUk
+    "formation-of-holding-societas-europaea" -> pure FormationOfHoldingSocietasEuropaea
+    "formation-of-subsidiary-societas-europaea-article2" -> pure FormationOfSubsidiarySocietasEuropaeaArticle2
+    "formation-of-subsidiary-societas-europaea-article3" -> pure FormationOfSubsidiarySocietasEuropaeaArticle3
+    "formation-terms-conversion-public-limited-company-to-societas-europaea" -> pure FormationTermsConversionPublicLimitedCompanyToSocietasEuropaea
+    "formation-terms-conversion-societas-europaea-to-public-limited-company" -> pure FormationTermsConversionSocietasEuropaeaToPublicLimitedCompany
+    "formation-terms-holding-societas-europaea" -> pure FormationTermsHoldingSocietasEuropaea
+    "gazette-dissolved-compulsary" -> pure GazetteDissolvedCompulsary
+    "gazette-dissolved-compulsory" -> pure GazetteDissolvedCompulsory
+    "gazette-dissolved-liquidation" -> pure GazetteDissolvedLiquidation
+    "gazette-dissolved-statutory-instrument" -> pure GazetteDissolvedStatutoryInstrument
+    "gazette-dissolved-voluntary" -> pure GazetteDissolvedVoluntary
+    "gazette-filings-brought-up-to-date" -> pure GazetteFilingsBroughtUpToDate
+    "gazette-notice-compulsary" -> pure GazetteNoticeCompulsary
+    "gazette-notice-compulsory" -> pure GazetteNoticeCompulsory
+    "gazette-notice-voluntary" -> pure GazetteNoticeVoluntary
+    "gazette-return-of-final-meeting" -> pure GazetteReturnOfFinalMeeting
+    "gazette-return-of-final-meeting-processed" -> pure GazetteReturnOfFinalMeetingProcessed
+    "incorporation-community-interest-company" -> pure IncorporationCommunityInterestCompany
+    "incorporation-community-interest-company-with-date" -> pure IncorporationCommunityInterestCompanyWithDate
+    "incorporation-company" -> pure IncorporationCompany
+    "incorporation-company-with-type-date" -> pure IncorporationCompanyWithTypeDate
+    "incorporation-limited-liability-partnership" -> pure IncorporationLimitedLiabilityPartnership
+    "incorporation-limited-liability-partnership-with-date" -> pure IncorporationLimitedLiabilityPartnershipWithDate
+    "limited-liability-partnership-members-register-information-on-withdrawal-from-the-public-register" -> pure LimitedLiabilityPartnershipMembersRegisterInformationOnWithdrawalFromThePublicRegister
+    "limited-liability-partnership-members-usual-residential-address-register-information-on-withdrawal-from-the-public-register" -> pure LimitedLiabilityPartnershipMembersUsualResidentialAddressRegisterInformationOnWithdrawalFromThePublicRegister
+    "limited-liability-partnership-persons-with-significant-control-register-information-on-withdrawal-from-the-public-register" -> pure LimitedLiabilityPartnershipPersonsWithSignificantControlRegisterInformationOnWithdrawalFromThePublicRegister
+    "liquidation-administration-administrators-abstracts-of-receipts-and-payments" -> pure LiquidationAdministrationAdministratorsAbstractsOfReceiptsAndPayments
+    "liquidation-administration-administrators-abstracts-of-receipts-and-payments-scotland" -> pure LiquidationAdministrationAdministratorsAbstractsOfReceiptsAndPaymentsScotland
+    "liquidation-administration-administrators-abstracts-of-receipts-and-payments-scotland-with-brought-down-date" -> pure LiquidationAdministrationAdministratorsAbstractsOfReceiptsAndPaymentsScotlandWithBroughtDownDate
+    "liquidation-administration-administrators-abstracts-of-receipts-and-payments-with-brought-down-date" -> pure LiquidationAdministrationAdministratorsAbstractsOfReceiptsAndPaymentsWithBroughtDownDate
+    "liquidation-administration-approval-of-proposals-scotland" -> pure LiquidationAdministrationApprovalOfProposalsScotland
+    "liquidation-administration-court-order-limited-disclosure" -> pure LiquidationAdministrationCourtOrderLimitedDisclosure
+    "liquidation-administration-discharge-of-administration-order" -> pure LiquidationAdministrationDischargeOfAdministrationOrder
+    "liquidation-administration-discharge-of-administration-order-scotland" -> pure LiquidationAdministrationDischargeOfAdministrationOrderScotland
+    "liquidation-administration-dismissal-of-petition-scotland" -> pure LiquidationAdministrationDismissalOfPetitionScotland
+    "liquidation-administration-insufficient-property-scotland" -> pure LiquidationAdministrationInsufficientPropertyScotland
+    "liquidation-administration-meeting-of-creditors" -> pure LiquidationAdministrationMeetingOfCreditors
+    "liquidation-administration-notice-deemed-approval-of-proposals" -> pure LiquidationAdministrationNoticeDeemedApprovalOfProposals
+    "liquidation-administration-notice-deemed-approval-of-proposals-northern-ireland" -> pure LiquidationAdministrationNoticeDeemedApprovalOfProposalsNorthernIreland
+    "liquidation-administration-notice-of-administration-order" -> pure LiquidationAdministrationNoticeOfAdministrationOrder
+    "liquidation-administration-notice-of-administration-order-scotland" -> pure LiquidationAdministrationNoticeOfAdministrationOrderScotland
+    "liquidation-administration-notice-of-petition-scotland" -> pure LiquidationAdministrationNoticeOfPetitionScotland
+    "liquidation-administration-order" -> pure LiquidationAdministrationOrder
+    "liquidation-administration-order-to-deal-charged-property" -> pure LiquidationAdministrationOrderToDealChargedProperty
+    "liquidation-administration-order-to-deal-secured-property-scotland" -> pure LiquidationAdministrationOrderToDealSecuredPropertyScotland
+    "liquidation-administration-proposals" -> pure LiquidationAdministrationProposals
+    "liquidation-administration-result-of-meeting-scotland" -> pure LiquidationAdministrationResultOfMeetingScotland
+    "liquidation-administration-statement-of-administrators-proposals-scotland" -> pure LiquidationAdministrationStatementOfAdministratorsProposalsScotland
+    "liquidation-administration-statement-of-affairs-scotland" -> pure LiquidationAdministrationStatementOfAffairsScotland
+    "liquidation-administration-statement-of-concurrence-scotland" -> pure LiquidationAdministrationStatementOfConcurrenceScotland
+    "liquidation-administration-variation-of-administration-order" -> pure LiquidationAdministrationVariationOfAdministrationOrder
+    "liquidation-administration-variation-of-administration-order-scotland" -> pure LiquidationAdministrationVariationOfAdministrationOrderScotland
+    "liquidation-administrative-receivers-abstracts-northern-ireland" -> pure LiquidationAdministrativeReceiversAbstractsNorthernIreland
+    "liquidation-administrative-receivers-abstracts-northern-ireland-with-brought-down-date" -> pure LiquidationAdministrativeReceiversAbstractsNorthernIrelandWithBroughtDownDate
+    "liquidation-administrative-receivers-report-northern-ireland" -> pure LiquidationAdministrativeReceiversReportNorthernIreland
+    "liquidation-administrators-abstracts-northern-ireland" -> pure LiquidationAdministratorsAbstractsNorthernIreland
+    "liquidation-administrators-proposals-northern-ireland" -> pure LiquidationAdministratorsProposalsNorthernIreland
+    "liquidation-all-constitution-of-committee" -> pure LiquidationAllConstitutionOfCommittee
+    "liquidation-all-statement-of-concurrence" -> pure LiquidationAllStatementOfConcurrence
+    "liquidation-amended-certificate-creditors-committee-northern-ireland" -> pure LiquidationAmendedCertificateCreditorsCommitteeNorthernIreland
+    "liquidation-appeal-against-department-northern-ireland" -> pure LiquidationAppealAgainstDepartmentNorthernIreland
+    "liquidation-appointment-of-liquidator" -> pure LiquidationAppointmentOfLiquidator
+    "liquidation-appointment-of-liquidator-limited-liability-partnership" -> pure LiquidationAppointmentOfLiquidatorLimitedLiabilityPartnership
+    "liquidation-appointment-of-liquidator-northern-ireland" -> pure LiquidationAppointmentOfLiquidatorNorthernIreland
+    "liquidation-appointment-of-liquidator-overseas" -> pure LiquidationAppointmentOfLiquidatorOverseas
+    "liquidation-appointment-of-provisional-liquidator" -> pure LiquidationAppointmentOfProvisionalLiquidator
+    "liquidation-appointment-of-provisional-liquidator-court-scotland" -> pure LiquidationAppointmentOfProvisionalLiquidatorCourtScotland
+    "liquidation-appointment-of-provisional-liquidator-northern-ireland" -> pure LiquidationAppointmentOfProvisionalLiquidatorNorthernIreland
+    "liquidation-appointment-of-receiver-northern-ireland" -> pure LiquidationAppointmentOfReceiverNorthernIreland
+    "liquidation-appointment-receiver-northern-ireland" -> pure LiquidationAppointmentReceiverNorthernIreland
+    "liquidation-appointmentt-of-administrator-northern-ireland" -> pure LiquidationAppointmenttOfAdministratorNorthernIreland
+    "liquidation-appt-of-replacement-additional-adminstrator-northern-ireland" -> pure LiquidationApptOfReplacementAdditionalAdminstratorNorthernIreland
+    "liquidation-automatic-end-northern-ireland" -> pure LiquidationAutomaticEndNorthernIreland
+    "liquidation-automatic-end-scotland" -> pure LiquidationAutomaticEndScotland
+    "liquidation-cease-to-act-as-liquidator-northern-ireland" -> pure LiquidationCeaseToActAsLiquidatorNorthernIreland
+    "liquidation-certificate-creditors-paid-in-full" -> pure LiquidationCertificateCreditorsPaidInFull
+    "liquidation-certificate-creditors-paid-in-full-northern-ireland" -> pure LiquidationCertificateCreditorsPaidInFullNorthernIreland
+    "liquidation-certificate-of-constitution-creditors-northern-ireland" -> pure LiquidationCertificateOfConstitutionCreditorsNorthernIreland
+    "liquidation-cessation-of-committee" -> pure LiquidationCessationOfCommittee
+    "liquidation-cessation-of-insolvency-proceedings-overseas" -> pure LiquidationCessationOfInsolvencyProceedingsOverseas
+    "liquidation-change-in-committee-membership-northern-ireland" -> pure LiquidationChangeInCommitteeMembershipNorthernIreland
+    "liquidation-change-of-membership-of-creditors-or-liquidation-committee" -> pure LiquidationChangeOfMembershipOfCreditorsOrLiquidationCommittee
+    "liquidation-change-of-membership-of-creditors-or-liquidation-committee-scotland" -> pure LiquidationChangeOfMembershipOfCreditorsOrLiquidationCommitteeScotland
+    "liquidation-commencement-of-moratorium-northern-ireland" -> pure LiquidationCommencementOfMoratoriumNorthernIreland
+    "liquidation-completion-of-voluntary-arrangement-northern-ireland" -> pure LiquidationCompletionOfVoluntaryArrangementNorthernIreland
+    "liquidation-completion-of-winding-up-northern-ireland" -> pure LiquidationCompletionOfWindingUpNorthernIreland
+    "liquidation-compulsory-appointment-liquidator" -> pure LiquidationCompulsoryAppointmentLiquidator
+    "liquidation-compulsory-appointment-provisional-liquidator-scotland" -> pure LiquidationCompulsoryAppointmentProvisionalLiquidatorScotland
+    "liquidation-compulsory-completion" -> pure LiquidationCompulsoryCompletion
+    "liquidation-compulsory-completion-social-landlords" -> pure LiquidationCompulsoryCompletionSocialLandlords
+    "liquidation-compulsory-court-order-sisting-scotland" -> pure LiquidationCompulsoryCourtOrderSistingScotland
+    "liquidation-compulsory-death-of-liquidator" -> pure LiquidationCompulsoryDeathOfLiquidator
+    "liquidation-compulsory-defer-dissolution" -> pure LiquidationCompulsoryDeferDissolution
+    "liquidation-compulsory-defer-dissolution-court-scotland" -> pure LiquidationCompulsoryDeferDissolutionCourtScotland
+    "liquidation-compulsory-early-completion" -> pure LiquidationCompulsoryEarlyCompletion
+    "liquidation-compulsory-early-completion-social-landlords" -> pure LiquidationCompulsoryEarlyCompletionSocialLandlords
+    "liquidation-compulsory-early-dissolution-court-scotland" -> pure LiquidationCompulsoryEarlyDissolutionCourtScotland
+    "liquidation-compulsory-loss-of-qualification-as-insolvency-practitioner" -> pure LiquidationCompulsoryLossOfQualificationAsInsolvencyPractitioner
+    "liquidation-compulsory-notice-secretary-of-state-for-direction" -> pure LiquidationCompulsoryNoticeSecretaryOfStateForDirection
+    "liquidation-compulsory-notice-secretary-of-state-for-direction-social-landlords" -> pure LiquidationCompulsoryNoticeSecretaryOfStateForDirectionSocialLandlords
+    "liquidation-compulsory-notice-winding-up" -> pure LiquidationCompulsoryNoticeWindingUp
+    "liquidation-compulsory-notice-winding-up-order" -> pure LiquidationCompulsoryNoticeWindingUpOrder
+    "liquidation-compulsory-notice-winding-up-order-court-scotland" -> pure LiquidationCompulsoryNoticeWindingUpOrderCourtScotland
+    "liquidation-compulsory-notice-winding-up-scotland" -> pure LiquidationCompulsoryNoticeWindingUpScotland
+    "liquidation-compulsory-order-limiting-disclosure-of-statement-of-affairs-in-winding-up" -> pure LiquidationCompulsoryOrderLimitingDisclosureOfStatementOfAffairsInWindingUp
+    "liquidation-compulsory-release-of-liquidator-or-official-receiver-by-secretary-of-state" -> pure LiquidationCompulsoryReleaseOfLiquidatorOrOfficialReceiverBySecretaryOfState
+    "liquidation-compulsory-release-official-receiver" -> pure LiquidationCompulsoryReleaseOfficialReceiver
+    "liquidation-compulsory-removal-of-liquidator-by-court" -> pure LiquidationCompulsoryRemovalOfLiquidatorByCourt
+    "liquidation-compulsory-removal-of-liquidator-by-creditors" -> pure LiquidationCompulsoryRemovalOfLiquidatorByCreditors
+    "liquidation-compulsory-removal-of-liquidator-by-secretary-of-state" -> pure LiquidationCompulsoryRemovalOfLiquidatorBySecretaryOfState
+    "liquidation-compulsory-return-final-meeting" -> pure LiquidationCompulsoryReturnFinalMeeting
+    "liquidation-compulsory-return-final-meeting-court-scotland" -> pure LiquidationCompulsoryReturnFinalMeetingCourtScotland
+    "liquidation-compulsory-return-of-final-meeting-scotland" -> pure LiquidationCompulsoryReturnOfFinalMeetingScotland
+    "liquidation-compulsory-statement-of-affairs" -> pure LiquidationCompulsoryStatementOfAffairs
+    "liquidation-compulsory-staying-or-sisting-proceedings-scotland" -> pure LiquidationCompulsoryStayingOrSistingProceedingsScotland
+    "liquidation-compulsory-winding-up-order" -> pure LiquidationCompulsoryWindingUpOrder
+    "liquidation-compulsory-winding-up-order-scotland" -> pure LiquidationCompulsoryWindingUpOrderScotland
+    "liquidation-compulsory-winding-up-order-with-case-start-date" -> pure LiquidationCompulsoryWindingUpOrderWithCaseStartDate
+    "liquidation-compulsory-winding-up-progress-report" -> pure LiquidationCompulsoryWindingUpProgressReport
+    "liquidation-constitution-of-liquidation-committee-northern-ireland" -> pure LiquidationConstitutionOfLiquidationCommitteeNorthernIreland
+    "liquidation-continuation-of-creditors-committee" -> pure LiquidationContinuationOfCreditorsCommittee
+    "liquidation-court-order-early-dissolution" -> pure LiquidationCourtOrderEarlyDissolution
+    "liquidation-court-order-ending-administration-northern-ireland" -> pure LiquidationCourtOrderEndingAdministrationNorthernIreland
+    "liquidation-court-order-insolvency-northern-ireland" -> pure LiquidationCourtOrderInsolvencyNorthernIreland
+    "liquidation-court-order-limiting-disclosure" -> pure LiquidationCourtOrderLimitingDisclosure
+    "liquidation-court-order-miscellaneous" -> pure LiquidationCourtOrderMiscellaneous
+    "liquidation-court-order-recall-provisional-liquidator" -> pure LiquidationCourtOrderRecallProvisionalLiquidator
+    "liquidation-court-order-to-rescind-winding-up" -> pure LiquidationCourtOrderToRescindWindingUp
+    "liquidation-court-order-to-stay-winding-up" -> pure LiquidationCourtOrderToStayWindingUp
+    "liquidation-court-order-to-unstay-winding-up" -> pure LiquidationCourtOrderToUnstayWindingUp
+    "liquidation-court-order-under-section-176a-northern-ireland" -> pure LiquidationCourtOrderUnderSection176aNorthernIreland
+    "liquidation-court-order-winding-up-northern-ireland" -> pure LiquidationCourtOrderWindingUpNorthernIreland
+    "liquidation-cva-supervisors-abstract-of-receipts-payments-with-brought-down-date" -> pure LiquidationCvaSupervisorsAbstractOfReceiptsPaymentsWithBroughtDownDate
+    "liquidation-cva-supervisors-abstracts-of-receipts-payments" -> pure LiquidationCvaSupervisorsAbstractsOfReceiptsPayments
+    "liquidation-date-of-dissolution-northern-ireland" -> pure LiquidationDateOfDissolutionNorthernIreland
+    "liquidation-death-of-liquidator-northern-ireland" -> pure LiquidationDeathOfLiquidatorNorthernIreland
+    "liquidation-declaration-of-solvency-northern-ireland" -> pure LiquidationDeclarationOfSolvencyNorthernIreland
+    "liquidation-defer-dissolution-dissolution" -> pure LiquidationDeferDissolutionDissolution
+    "liquidation-discharge-administration-order--northern-ireland" -> pure LiquidationDischargeAdministrationOrderNorthernIreland
+    "liquidation-discharge-of-administration-order-northern-ireland" -> pure LiquidationDischargeOfAdministrationOrderNorthernIreland
+    "liquidation-disclaimer-notice" -> pure LiquidationDisclaimerNotice
+    "liquidation-early-completion-of-winding-up-northern-ireland" -> pure LiquidationEarlyCompletionOfWindingUpNorthernIreland
+    "liquidation-end-of-administration-northern-ireland" -> pure LiquidationEndOfAdministrationNorthernIreland
+    "liquidation-ending-of-moratorium-northern-ireland" -> pure LiquidationEndingOfMoratoriumNorthernIreland
+    "liquidation-establishment-of-creditors-or-liquidation-committee" -> pure LiquidationEstablishmentOfCreditorsOrLiquidationCommittee
+    "liquidation-establishment-of-creditors-or-liquidation-committee-scotland" -> pure LiquidationEstablishmentOfCreditorsOrLiquidationCommitteeScotland
+    "liquidation-ex" -> pure LiquidationEx
+    "liquidation-extension-northern-ireland" -> pure LiquidationExtensionNorthernIreland
+    "liquidation-extension-of-period-northern-ireland" -> pure LiquidationExtensionOfPeriodNorthernIreland
+    "liquidation-extension-of-time-northern-ireland" -> pure LiquidationExtensionOfTimeNorthernIreland
+    "liquidation-in-administration-administrator-ceasing-to-be-qualified-to-act" -> pure LiquidationInAdministrationAdministratorCeasingToBeQualifiedToAct
+    "liquidation-in-administration-administrator-ceasing-to-be-qualified-to-act-scotland" -> pure LiquidationInAdministrationAdministratorCeasingToBeQualifiedToActScotland
+    "liquidation-in-administration-administrator-deceased" -> pure LiquidationInAdministrationAdministratorDeceased
+    "liquidation-in-administration-administrator-deceased-scotland" -> pure LiquidationInAdministrationAdministratorDeceasedScotland
+    "liquidation-in-administration-amended-certificate-of-constitution-creditors-committee" -> pure LiquidationInAdministrationAmendedCertificateOfConstitutionCreditorsCommittee
+    "liquidation-in-administration-appointment-of-a-replacement-or-additional-administrator" -> pure LiquidationInAdministrationAppointmentOfAReplacementOrAdditionalAdministrator
+    "liquidation-in-administration-appointment-of-a-replacement-or-additional-administrator-scotland" -> pure LiquidationInAdministrationAppointmentOfAReplacementOrAdditionalAdministratorScotland
+    "liquidation-in-administration-appointment-of-administrator" -> pure LiquidationInAdministrationAppointmentOfAdministrator
+    "liquidation-in-administration-appointment-of-administrator-scotland" -> pure LiquidationInAdministrationAppointmentOfAdministratorScotland
+    "liquidation-in-administration-appointment-of-replacement-additional-administrator" -> pure LiquidationInAdministrationAppointmentOfReplacementAdditionalAdministrator
+    "liquidation-in-administration-appointment-of-replacement-additional-administrator-scotland" -> pure LiquidationInAdministrationAppointmentOfReplacementAdditionalAdministratorScotland
+    "liquidation-in-administration-appointment-of-replacement-additional-adminstrator" -> pure LiquidationInAdministrationAppointmentOfReplacementAdditionalAdminstrator
+    "liquidation-in-administration-automatic-end-of-case" -> pure LiquidationInAdministrationAutomaticEndOfCase
+    "liquidation-in-administration-automatic-end-of-case-scotland" -> pure LiquidationInAdministrationAutomaticEndOfCaseScotland
+    "liquidation-in-administration-automatic-end-scotland" -> pure LiquidationInAdministrationAutomaticEndScotland
+    "liquidation-in-administration-change-date-of-dissolution" -> pure LiquidationInAdministrationChangeDateOfDissolution
+    "liquidation-in-administration-change-date-of-dissolution-scotland" -> pure LiquidationInAdministrationChangeDateOfDissolutionScotland
+    "liquidation-in-administration-change-in-committee-membership" -> pure LiquidationInAdministrationChangeInCommitteeMembership
+    "liquidation-in-administration-court-order-ending-administration" -> pure LiquidationInAdministrationCourtOrderEndingAdministration
+    "liquidation-in-administration-court-order-ending-administration-scotland" -> pure LiquidationInAdministrationCourtOrderEndingAdministrationScotland
+    "liquidation-in-administration-court-order-ending-administration-scotland-2" -> pure LiquidationInAdministrationCourtOrderEndingAdministrationScotland2
+    "liquidation-in-administration-court-order-under-section-176A" -> pure LiquidationInAdministrationCourtOrderUnderSection176A
+    "liquidation-in-administration-creditor-decision-revised-proposals-scotland" -> pure LiquidationInAdministrationCreditorDecisionRevisedProposalsScotland
+    "liquidation-in-administration-date-of-dissolution-scotland" -> pure LiquidationInAdministrationDateOfDissolutionScotland
+    "liquidation-in-administration-deemed-proposal-scotland" -> pure LiquidationInAdministrationDeemedProposalScotland
+    "liquidation-in-administration-end-of-administration" -> pure LiquidationInAdministrationEndOfAdministration
+    "liquidation-in-administration-end-of-administration-scotland" -> pure LiquidationInAdministrationEndOfAdministrationScotland
+    "liquidation-in-administration-end-of-administration-scotland-2" -> pure LiquidationInAdministrationEndOfAdministrationScotland2
+    "liquidation-in-administration-extension-of-period" -> pure LiquidationInAdministrationExtensionOfPeriod
+    "liquidation-in-administration-extension-of-period-scotland" -> pure LiquidationInAdministrationExtensionOfPeriodScotland
+    "liquidation-in-administration-extension-of-time" -> pure LiquidationInAdministrationExtensionOfTime
+    "liquidation-in-administration-extension-of-time-approval-scotland" -> pure LiquidationInAdministrationExtensionOfTimeApprovalScotland
+    "liquidation-in-administration-extension-of-time-deliver-scotland" -> pure LiquidationInAdministrationExtensionOfTimeDeliverScotland
+    "liquidation-in-administration-move-to-creditors-voluntary-liquidation" -> pure LiquidationInAdministrationMoveToCreditorsVoluntaryLiquidation
+    "liquidation-in-administration-move-to-creditors-voluntary-liquidation-scotland" -> pure LiquidationInAdministrationMoveToCreditorsVoluntaryLiquidationScotland
+    "liquidation-in-administration-move-to-creditors-voluntary-liquidation-scotland-2" -> pure LiquidationInAdministrationMoveToCreditorsVoluntaryLiquidationScotland2
+    "liquidation-in-administration-move-to-dissolution" -> pure LiquidationInAdministrationMoveToDissolution
+    "liquidation-in-administration-move-to-dissolution-scotland" -> pure LiquidationInAdministrationMoveToDissolutionScotland
+    "liquidation-in-administration-move-to-dissolution-scotland-2" -> pure LiquidationInAdministrationMoveToDissolutionScotland2
+    "liquidation-in-administration-move-to-dissolution-with-case-end-date" -> pure LiquidationInAdministrationMoveToDissolutionWithCaseEndDate
+    "liquidation-in-administration-notice-administrators-proposals-scotland" -> pure LiquidationInAdministrationNoticeAdministratorsProposalsScotland
+    "liquidation-in-administration-notice-deemed-approval-of-proposals-scotland" -> pure LiquidationInAdministrationNoticeDeemedApprovalOfProposalsScotland
+    "liquidation-in-administration-notice-of-order-deal-with-charged-property" -> pure LiquidationInAdministrationNoticeOfOrderDealWithChargedProperty
+    "liquidation-in-administration-notice-of-order-deal-with-charged-property-scotland" -> pure LiquidationInAdministrationNoticeOfOrderDealWithChargedPropertyScotland
+    "liquidation-in-administration-notice-of-statement-of-affairs-scotland" -> pure LiquidationInAdministrationNoticeOfStatementOfAffairsScotland
+    "liquidation-in-administration-notice-of-statement-of-affairs-scotland-with-form-attached" -> pure LiquidationInAdministrationNoticeOfStatementOfAffairsScotlandWithFormAttached
+    "liquidation-in-administration-order-limiting-disclosure-of-statement-of-affairs-or-proposals" -> pure LiquidationInAdministrationOrderLimitingDisclosureOfStatementOfAffairsOrProposals
+    "liquidation-in-administration-order-limiting-disclosure-of-statement-of-affairs-or-proposals-scotland" -> pure LiquidationInAdministrationOrderLimitingDisclosureOfStatementOfAffairsOrProposalsScotland
+    "liquidation-in-administration-order-to-deal-with-secured-property-scotland" -> pure LiquidationInAdministrationOrderToDealWithSecuredPropertyScotland
+    "liquidation-in-administration-progress-report" -> pure LiquidationInAdministrationProgressReport
+    "liquidation-in-administration-progress-report-scotland" -> pure LiquidationInAdministrationProgressReportScotland
+    "liquidation-in-administration-progress-report-scotland-with-brought-down-date" -> pure LiquidationInAdministrationProgressReportScotlandWithBroughtDownDate
+    "liquidation-in-administration-progress-report-with-brought-down-date" -> pure LiquidationInAdministrationProgressReportWithBroughtDownDate
+    "liquidation-in-administration-proposals" -> pure LiquidationInAdministrationProposals
+    "liquidation-in-administration-proposals-scotland" -> pure LiquidationInAdministrationProposalsScotland
+    "liquidation-in-administration-removal-of-administrator-from-office" -> pure LiquidationInAdministrationRemovalOfAdministratorFromOffice
+    "liquidation-in-administration-removal-of-administrator-from-office-scotland" -> pure LiquidationInAdministrationRemovalOfAdministratorFromOfficeScotland
+    "liquidation-in-administration-rescission-or-amendment-of-order-limiting-disclosure-of-statement-of-affairs-or-proposals" -> pure LiquidationInAdministrationRescissionOrAmendmentOfOrderLimitingDisclosureOfStatementOfAffairsOrProposals
+    "liquidation-in-administration-rescission-or-amendment-of-order-limiting-disclosure-of-statement-of-affairs-or-proposals-scotland" -> pure LiquidationInAdministrationRescissionOrAmendmentOfOrderLimitingDisclosureOfStatementOfAffairsOrProposalsScotland
+    "liquidation-in-administration-resignation-of-administrator" -> pure LiquidationInAdministrationResignationOfAdministrator
+    "liquidation-in-administration-resignation-of-administrator-scotland" -> pure LiquidationInAdministrationResignationOfAdministratorScotland
+    "liquidation-in-administration-resignation-of-administrator-scotland-2" -> pure LiquidationInAdministrationResignationOfAdministratorScotland2
+    "liquidation-in-administration-result-creditors-decision-scotland" -> pure LiquidationInAdministrationResultCreditorsDecisionScotland
+    "liquidation-in-administration-result-creditors-meeting" -> pure LiquidationInAdministrationResultCreditorsMeeting
+    "liquidation-in-administration-result-of-creditors-meeting-scotland" -> pure LiquidationInAdministrationResultOfCreditorsMeetingScotland
+    "liquidation-in-administration-revised-proposals" -> pure LiquidationInAdministrationRevisedProposals
+    "liquidation-in-administration-revised-proposals-scotland" -> pure LiquidationInAdministrationRevisedProposalsScotland
+    "liquidation-in-administration-revision-administrators-proposals-scotland" -> pure LiquidationInAdministrationRevisionAdministratorsProposalsScotland
+    "liquidation-in-administration-statement-of-affairs" -> pure LiquidationInAdministrationStatementOfAffairs
+    "liquidation-in-administration-statement-of-affairs-scotland" -> pure LiquidationInAdministrationStatementOfAffairsScotland
+    "liquidation-in-administration-statement-of-affairs-with-form-attached" -> pure LiquidationInAdministrationStatementOfAffairsWithFormAttached
+    "liquidation-in-administration-statement-of-affairs-with-form-attached-scotland" -> pure LiquidationInAdministrationStatementOfAffairsWithFormAttachedScotland
+    "liquidation-in-administration-vacation-of-office" -> pure LiquidationInAdministrationVacationOfOffice
+    "liquidation-in-administration-vacation-of-office-scotland" -> pure LiquidationInAdministrationVacationOfOfficeScotland
+    "liquidation-in-adminstration-deemed-proposal-scotland" -> pure LiquidationInAdminstrationDeemedProposalScotland
+    "liquidation-insolvency-judgement-overseas" -> pure LiquidationInsolvencyJudgementOverseas
+    "liquidation-insolvency-misellaneous-northern-ireland" -> pure LiquidationInsolvencyMisellaneousNorthernIreland
+    "liquidation-insolvency-proceedings-limited-liability-partnership" -> pure LiquidationInsolvencyProceedingsLimitedLiabilityPartnership
+    "liquidation-insolvency-proceedings-overseas" -> pure LiquidationInsolvencyProceedingsOverseas
+    "liquidation-leave-to-resign-as-liquidator-northern-ireland" -> pure LiquidationLeaveToResignAsLiquidatorNorthernIreland
+    "liquidation-liquidation-statement-of-receipts-and-payments-northern-ireland" -> pure LiquidationLiquidationStatementOfReceiptsAndPaymentsNorthernIreland
+    "liquidation-liquidation-statement-of-receipts-and-payments-northern-ireland-with-brought-down-date" -> pure LiquidationLiquidationStatementOfReceiptsAndPaymentsNorthernIrelandWithBroughtDownDate
+    "liquidation-meeting-approving-companies-voluntary-arrangement-northern-ireland" -> pure LiquidationMeetingApprovingCompaniesVoluntaryArrangementNorthernIreland
+    "liquidation-miscellaneous" -> pure LiquidationMiscellaneous
+    "liquidation-miscellaneous-northern-ireland" -> pure LiquidationMiscellaneousNorthernIreland
+    "liquidation-moratorium-commencement-of-moratorium" -> pure LiquidationMoratoriumCommencementOfMoratorium
+    "liquidation-moratorium-court-order-permitting-disposal-of-goods" -> pure LiquidationMoratoriumCourtOrderPermittingDisposalOfGoods
+    "liquidation-moratorium-early-end-of-moratorium" -> pure LiquidationMoratoriumEarlyEndOfMoratorium
+    "liquidation-moratorium-end-of-moratorium-by-court" -> pure LiquidationMoratoriumEndOfMoratoriumByCourt
+    "liquidation-moratorium-end-of-moratorium-by-monitor" -> pure LiquidationMoratoriumEndOfMoratoriumByMonitor
+    "liquidation-moratorium-end-of-moratorium-following-disposal-of-application-for-extension-by-court-or-following-cva-proposal-taking-effect-or-being-withdrawn" -> pure LiquidationMoratoriumEndOfMoratoriumFollowingDisposalOfApplicationForExtensionByCourtOrFollowingCvaProposalTakingEffectOrBeingWithdrawn
+    "liquidation-moratorium-extension-of-moratorium" -> pure LiquidationMoratoriumExtensionOfMoratorium
+    "liquidation-moratorium-monitor-ceasing-to-act-following-court-order" -> pure LiquidationMoratoriumMonitorCeasingToActFollowingCourtOrder
+    "liquidation-moratorium-replacement-or-additonal-monitor-following-court-order" -> pure LiquidationMoratoriumReplacementOrAdditonalMonitorFollowingCourtOrder
+    "liquidation-move-to-creditors-voluntary-liquidation-northern-ireland" -> pure LiquidationMoveToCreditorsVoluntaryLiquidationNorthernIreland
+    "liquidation-move-to-dissolution-northern-ireland" -> pure LiquidationMoveToDissolutionNorthernIreland
+    "liquidation-notice-of-final-meeting-of-creditors-northern-ireland" -> pure LiquidationNoticeOfFinalMeetingOfCreditorsNorthernIreland
+    "liquidation-notice-of-order-to-dispose-of-charged-property-northern-ireland" -> pure LiquidationNoticeOfOrderToDisposeOfChargedPropertyNorthernIreland
+    "liquidation-notice-order-of-charged-property-northern-ireland" -> pure LiquidationNoticeOrderOfChargedPropertyNorthernIreland
+    "liquidation-order-to-deal-with-charged-property-northern-ireland" -> pure LiquidationOrderToDealWithChargedPropertyNorthernIreland
+    "liquidation-proceedings-member-state-with-consent-to-dissolution" -> pure LiquidationProceedingsMemberStateWithConsentToDissolution
+    "liquidation-proceedings-member-state-with-consent-to-dissolution-northern-ireland" -> pure LiquidationProceedingsMemberStateWithConsentToDissolutionNorthernIreland
+    "liquidation-proceedings-member-state-with-consent-to-dissolution-scotland" -> pure LiquidationProceedingsMemberStateWithConsentToDissolutionScotland
+    "liquidation-proceedings-member-state-without-consent-to-dissolution" -> pure LiquidationProceedingsMemberStateWithoutConsentToDissolution
+    "liquidation-proceedings-member-state-without-consent-to-dissolution-northern-ireland" -> pure LiquidationProceedingsMemberStateWithoutConsentToDissolutionNorthernIreland
+    "liquidation-proceedings-member-state-without-consent-to-dissolution-scotland" -> pure LiquidationProceedingsMemberStateWithoutConsentToDissolutionScotland
+    "liquidation-progress-report-northern-ireland" -> pure LiquidationProgressReportNorthernIreland
+    "liquidation-progress-report-northern-ireland-with-brought-down-date" -> pure LiquidationProgressReportNorthernIrelandWithBroughtDownDate
+    "liquidation-receiver-abstract-of-receipts-and-payments" -> pure LiquidationReceiverAbstractOfReceiptsAndPayments
+    "liquidation-receiver-abstract-of-receipts-and-payments-with-brought-down-date" -> pure LiquidationReceiverAbstractOfReceiptsAndPaymentsWithBroughtDownDate
+    "liquidation-receiver-administrative-receivers-report" -> pure LiquidationReceiverAdministrativeReceiversReport
+    "liquidation-receiver-administrative-receivers-report-scotland" -> pure LiquidationReceiverAdministrativeReceiversReportScotland
+    "liquidation-receiver-amended-certificate-of-constitution" -> pure LiquidationReceiverAmendedCertificateOfConstitution
+    "liquidation-receiver-appointment-of-receiver" -> pure LiquidationReceiverAppointmentOfReceiver
+    "liquidation-receiver-appointment-of-receiver-by-court-scotland" -> pure LiquidationReceiverAppointmentOfReceiverByCourtScotland
+    "liquidation-receiver-appointment-of-receiver-limited-liability-partnership" -> pure LiquidationReceiverAppointmentOfReceiverLimitedLiabilityPartnership
+    "liquidation-receiver-appointment-of-receiver-scotland" -> pure LiquidationReceiverAppointmentOfReceiverScotland
+    "liquidation-receiver-appointment-of-receiver-scotland-2" -> pure LiquidationReceiverAppointmentOfReceiverScotland2
+    "liquidation-receiver-cease-to-act-receiver" -> pure LiquidationReceiverCeaseToActReceiver
+    "liquidation-receiver-cease-to-act-receiver-limited-liability-partnership" -> pure LiquidationReceiverCeaseToActReceiverLimitedLiabilityPartnership
+    "liquidation-receiver-cease-to-act-receiver-scotland" -> pure LiquidationReceiverCeaseToActReceiverScotland
+    "liquidation-receiver-ceasing-to-act-scotland" -> pure LiquidationReceiverCeasingToActScotland
+    "liquidation-receiver-death-of-receiver" -> pure LiquidationReceiverDeathOfReceiver
+    "liquidation-receiver-death-of-receiver-northern-ireland" -> pure LiquidationReceiverDeathOfReceiverNorthernIreland
+    "liquidation-receiver-death-of-receiver-scotland" -> pure LiquidationReceiverDeathOfReceiverScotland
+    "liquidation-receiver-death-of-receiver-scotland-2" -> pure LiquidationReceiverDeathOfReceiverScotland2
+    "liquidation-receiver-dispose-of-secured-property-scotland" -> pure LiquidationReceiverDisposeOfSecuredPropertyScotland
+    "liquidation-receiver-order-to-dispose-of-charged-property" -> pure LiquidationReceiverOrderToDisposeOfChargedProperty
+    "liquidation-receiver-order-to-dispose-of-charged-property-scotland" -> pure LiquidationReceiverOrderToDisposeOfChargedPropertyScotland
+    "liquidation-receiver-receivers-abstracts-of-receipts-and-payments-scotland" -> pure LiquidationReceiverReceiversAbstractsOfReceiptsAndPaymentsScotland
+    "liquidation-receiver-receivers-report-scotland" -> pure LiquidationReceiverReceiversReportScotland
+    "liquidation-receiver-report-change-of-committee" -> pure LiquidationReceiverReportChangeOfCommittee
+    "liquidation-receiver-statement-of-affairs" -> pure LiquidationReceiverStatementOfAffairs
+    "liquidation-regulations-onset-of-insolvency-overseas" -> pure LiquidationRegulationsOnsetOfInsolvencyOverseas
+    "liquidation-removal-of-liquidator-northern-ireland" -> pure LiquidationRemovalOfLiquidatorNorthernIreland
+    "liquidation-replacement-nominee-northern-ireland" -> pure LiquidationReplacementNomineeNorthernIreland
+    "liquidation-resignation-as-liquidator-northern-ireland" -> pure LiquidationResignationAsLiquidatorNorthernIreland
+    "liquidation-resignation-of-administrator-northern-ireland" -> pure LiquidationResignationOfAdministratorNorthernIreland
+    "liquidation-resolution-miscellaneous" -> pure LiquidationResolutionMiscellaneous
+    "liquidation-result-of-creditors-meeting-northern-ireland" -> pure LiquidationResultOfCreditorsMeetingNorthernIreland
+    "liquidation-return-of-final-meeting-creditors-voluntary-winding-up-northern-ireland" -> pure LiquidationReturnOfFinalMeetingCreditorsVoluntaryWindingUpNorthernIreland
+    "liquidation-return-of-final-meeting-members-voluntary-winding-up-northern-ireland" -> pure LiquidationReturnOfFinalMeetingMembersVoluntaryWindingUpNorthernIreland
+    "liquidation-revised-proposals-northern-ireland" -> pure LiquidationRevisedProposalsNorthernIreland
+    "liquidation-revocation-or-suspension-of-voluntary-arrangement-northern-ireland" -> pure LiquidationRevocationOrSuspensionOfVoluntaryArrangementNorthernIreland
+    "liquidation-special-resolution-to-wind-up-northern-ireland" -> pure LiquidationSpecialResolutionToWindUpNorthernIreland
+    "liquidation-statement-of-affairs-administrative-receiver-northern-ireland" -> pure LiquidationStatementOfAffairsAdministrativeReceiverNorthernIreland
+    "liquidation-statement-of-affairs-northern-ireland" -> pure LiquidationStatementOfAffairsNorthernIreland
+    "liquidation-statement-of-concurrence" -> pure LiquidationStatementOfConcurrence
+    "liquidation-statement-of-proposals-northern-ireland" -> pure LiquidationStatementOfProposalsNorthernIreland
+    "liquidation-supervisors-abstracts-of-receipts-payments-northern-ireland" -> pure LiquidationSupervisorsAbstractsOfReceiptsPaymentsNorthernIreland
+    "liquidation-termination-of-provisional-liquidator" -> pure LiquidationTerminationOfProvisionalLiquidator
+    "liquidation-termination-of-provisional-liquidator-court-scotland" -> pure LiquidationTerminationOfProvisionalLiquidatorCourtScotland
+    "liquidation-termination-of-winding-up-societas-europaea" -> pure LiquidationTerminationOfWindingUpSocietasEuropaea
+    "liquidation-vacation-of-liquidator-northern-ireland" -> pure LiquidationVacationOfLiquidatorNorthernIreland
+    "liquidation-vacation-of-office-northern-ireland" -> pure LiquidationVacationOfOfficeNorthernIreland
+    "liquidation-variation-of-administration-order-northern-ireland" -> pure LiquidationVariationOfAdministrationOrderNorthernIreland
+    "liquidation-voluntary-appeal" -> pure LiquidationVoluntaryAppeal
+    "liquidation-voluntary-appointment-of-liquidator" -> pure LiquidationVoluntaryAppointmentOfLiquidator
+    "liquidation-voluntary-arrangement-commencement-of-moratorium" -> pure LiquidationVoluntaryArrangementCommencementOfMoratorium
+    "liquidation-voluntary-arrangement-commencement-of-moratorium-scotland" -> pure LiquidationVoluntaryArrangementCommencementOfMoratoriumScotland
+    "liquidation-voluntary-arrangement-completion" -> pure LiquidationVoluntaryArrangementCompletion
+    "liquidation-voluntary-arrangement-completion-scotland" -> pure LiquidationVoluntaryArrangementCompletionScotland
+    "liquidation-voluntary-arrangement-completion-with-date" -> pure LiquidationVoluntaryArrangementCompletionWithDate
+    "liquidation-voluntary-arrangement-continuation-of-moratorium-scotland" -> pure LiquidationVoluntaryArrangementContinuationOfMoratoriumScotland
+    "liquidation-voluntary-arrangement-court-order-to-extend-moratorium" -> pure LiquidationVoluntaryArrangementCourtOrderToExtendMoratorium
+    "liquidation-voluntary-arrangement-court-order-to-extend-moratorium-scotland" -> pure LiquidationVoluntaryArrangementCourtOrderToExtendMoratoriumScotland
+    "liquidation-voluntary-arrangement-decision-to-extend-moratorium" -> pure LiquidationVoluntaryArrangementDecisionToExtendMoratorium
+    "liquidation-voluntary-arrangement-disposal-of-charged-property-moratorium-scotland" -> pure LiquidationVoluntaryArrangementDisposalOfChargedPropertyMoratoriumScotland
+    "liquidation-voluntary-arrangement-ending-of-moratorium" -> pure LiquidationVoluntaryArrangementEndingOfMoratorium
+    "liquidation-voluntary-arrangement-ending-of-moratorium-scotland" -> pure LiquidationVoluntaryArrangementEndingOfMoratoriumScotland
+    "liquidation-voluntary-arrangement-extension-of-moratorium" -> pure LiquidationVoluntaryArrangementExtensionOfMoratorium
+    "liquidation-voluntary-arrangement-extension-of-moratorium-scotland" -> pure LiquidationVoluntaryArrangementExtensionOfMoratoriumScotland
+    "liquidation-voluntary-arrangement-meeting-approving-companies-voluntary-arrangement" -> pure LiquidationVoluntaryArrangementMeetingApprovingCompaniesVoluntaryArrangement
+    "liquidation-voluntary-arrangement-meeting-approving-companies-voluntary-arrangement-scotland" -> pure LiquidationVoluntaryArrangementMeetingApprovingCompaniesVoluntaryArrangementScotland
+    "liquidation-voluntary-arrangement-meeting-approving-creditors-voluntary-arrangement-scotland" -> pure LiquidationVoluntaryArrangementMeetingApprovingCreditorsVoluntaryArrangementScotland
+    "liquidation-voluntary-arrangement-notice-completion-scotland" -> pure LiquidationVoluntaryArrangementNoticeCompletionScotland
+    "liquidation-voluntary-arrangement-or-moratorium-court-order" -> pure LiquidationVoluntaryArrangementOrMoratoriumCourtOrder
+    "liquidation-voluntary-arrangement-or-moratorium-court-order-scotland" -> pure LiquidationVoluntaryArrangementOrMoratoriumCourtOrderScotland
+    "liquidation-voluntary-arrangement-replacement-nominee" -> pure LiquidationVoluntaryArrangementReplacementNominee
+    "liquidation-voluntary-arrangement-replacement-nominee-scotland" -> pure LiquidationVoluntaryArrangementReplacementNomineeScotland
+    "liquidation-voluntary-arrangement-revocation-or-suspension" -> pure LiquidationVoluntaryArrangementRevocationOrSuspension
+    "liquidation-voluntary-arrangement-revocation-or-suspension-of-voluntary-arrangement-scotland" -> pure LiquidationVoluntaryArrangementRevocationOrSuspensionOfVoluntaryArrangementScotland
+    "liquidation-voluntary-arrangement-revocation-or-suspension-of-voluntary-arrangement-scotland-2" -> pure LiquidationVoluntaryArrangementRevocationOrSuspensionOfVoluntaryArrangementScotland2
+    "liquidation-voluntary-arrangement-supervisors-progress-report-scotland" -> pure LiquidationVoluntaryArrangementSupervisorsProgressReportScotland
+    "liquidation-voluntary-arrangement-withdrawal-of-consent" -> pure LiquidationVoluntaryArrangementWithdrawalOfConsent
+    "liquidation-voluntary-arrangement-withdrawal-of-consent-scotland" -> pure LiquidationVoluntaryArrangementWithdrawalOfConsentScotland
+    "liquidation-voluntary-cease-to-act-as-liquidator" -> pure LiquidationVoluntaryCeaseToActAsLiquidator
+    "liquidation-voluntary-certificate-creditors-paid-in-full-scotland" -> pure LiquidationVoluntaryCertificateCreditorsPaidInFullScotland
+    "liquidation-voluntary-certificate-of-continuance-scotland" -> pure LiquidationVoluntaryCertificateOfContinuanceScotland
+    "liquidation-voluntary-certificate-release-of-liquidator-scotland" -> pure LiquidationVoluntaryCertificateReleaseOfLiquidatorScotland
+    "liquidation-voluntary-constitution-liquidation-committee" -> pure LiquidationVoluntaryConstitutionLiquidationCommittee
+    "liquidation-voluntary-continuance-scotland" -> pure LiquidationVoluntaryContinuanceScotland
+    "liquidation-voluntary-court-order-of-resignation-of-liquidator-scotland" -> pure LiquidationVoluntaryCourtOrderOfResignationOfLiquidatorScotland
+    "liquidation-voluntary-court-order-staying-or-sisting-winding-up-in-MVL-or-CVL-scotland" -> pure LiquidationVoluntaryCourtOrderStayingOrSistingWindingUpInMVLOrCVLScotland
+    "liquidation-voluntary-creditors-paid-in-full" -> pure LiquidationVoluntaryCreditorsPaidInFull
+    "liquidation-voluntary-creditors-paid-in-full-scotland" -> pure LiquidationVoluntaryCreditorsPaidInFullScotland
+    "liquidation-voluntary-creditors-return-of-final-meeting" -> pure LiquidationVoluntaryCreditorsReturnOfFinalMeeting
+    "liquidation-voluntary-creditors-return-of-final-meeting-scotland" -> pure LiquidationVoluntaryCreditorsReturnOfFinalMeetingScotland
+    "liquidation-voluntary-creditors-voluntary-winding-up-scotland" -> pure LiquidationVoluntaryCreditorsVoluntaryWindingUpScotland
+    "liquidation-voluntary-death-liquidator" -> pure LiquidationVoluntaryDeathLiquidator
+    "liquidation-voluntary-death-of-liquidator-scotland" -> pure LiquidationVoluntaryDeathOfLiquidatorScotland
+    "liquidation-voluntary-declaration-of-solvency" -> pure LiquidationVoluntaryDeclarationOfSolvency
+    "liquidation-voluntary-declaration-of-solvency-scotland" -> pure LiquidationVoluntaryDeclarationOfSolvencyScotland
+    "liquidation-voluntary-defer-dissolution" -> pure LiquidationVoluntaryDeferDissolution
+    "liquidation-voluntary-deferral-of-dissolution" -> pure LiquidationVoluntaryDeferralOfDissolution
+    "liquidation-voluntary-deferral-of-dissolution-scotland" -> pure LiquidationVoluntaryDeferralOfDissolutionScotland
+    "liquidation-voluntary-determination" -> pure LiquidationVoluntaryDetermination
+    "liquidation-voluntary-extraordinary-resolution-to-wind-up" -> pure LiquidationVoluntaryExtraordinaryResolutionToWindUp
+    "liquidation-voluntary-extraordinary-resolution-to-wind-up-with-case-start-date" -> pure LiquidationVoluntaryExtraordinaryResolutionToWindUpWithCaseStartDate
+    "liquidation-voluntary-leave-to-resign-liquidator" -> pure LiquidationVoluntaryLeaveToResignLiquidator
+    "liquidation-voluntary-liquidators-statement-of-receipts-payments-scotland" -> pure LiquidationVoluntaryLiquidatorsStatementOfReceiptsPaymentsScotland
+    "liquidation-voluntary-members-return-of-final-meeting" -> pure LiquidationVoluntaryMembersReturnOfFinalMeeting
+    "liquidation-voluntary-members-return-of-final-meeting-scotland" -> pure LiquidationVoluntaryMembersReturnOfFinalMeetingScotland
+    "liquidation-voluntary-notice-of-limited-disclosure" -> pure LiquidationVoluntaryNoticeOfLimitedDisclosure
+    "liquidation-voluntary-notice-order-under-section-176a" -> pure LiquidationVoluntaryNoticeOrderUnderSection176a
+    "liquidation-voluntary-notice-revised-account" -> pure LiquidationVoluntaryNoticeRevisedAccount
+    "liquidation-voluntary-notice-to-gazette-appointment-of-liquidator" -> pure LiquidationVoluntaryNoticeToGazetteAppointmentOfLiquidator
+    "liquidation-voluntary-notice-under-section-204-scotland" -> pure LiquidationVoluntaryNoticeUnderSection204Scotland
+    "liquidation-voluntary-release-of-liquidator-by-secretary-of-state" -> pure LiquidationVoluntaryReleaseOfLiquidatorBySecretaryOfState
+    "liquidation-voluntary-release-of-liquidator-scotland" -> pure LiquidationVoluntaryReleaseOfLiquidatorScotland
+    "liquidation-voluntary-removal-liquidator" -> pure LiquidationVoluntaryRemovalLiquidator
+    "liquidation-voluntary-removal-of-liquidator" -> pure LiquidationVoluntaryRemovalOfLiquidator
+    "liquidation-voluntary-removal-of-liquidator-by-company-meeting" -> pure LiquidationVoluntaryRemovalOfLiquidatorByCompanyMeeting
+    "liquidation-voluntary-removal-of-liquidator-by-court" -> pure LiquidationVoluntaryRemovalOfLiquidatorByCourt
+    "liquidation-voluntary-removal-of-liquidator-scotland" -> pure LiquidationVoluntaryRemovalOfLiquidatorScotland
+    "liquidation-voluntary-removal-of-receiver-scotland" -> pure LiquidationVoluntaryRemovalOfReceiverScotland
+    "liquidation-voluntary-resignation-as-liquidator" -> pure LiquidationVoluntaryResignationAsLiquidator
+    "liquidation-voluntary-resignation-liquidator" -> pure LiquidationVoluntaryResignationLiquidator
+    "liquidation-voluntary-resignation-of-liquidator-scotland" -> pure LiquidationVoluntaryResignationOfLiquidatorScotland
+    "liquidation-voluntary-return-of-final-meeting-scotland" -> pure LiquidationVoluntaryReturnOfFinalMeetingScotland
+    "liquidation-voluntary-special-resolution-to-wind-up" -> pure LiquidationVoluntarySpecialResolutionToWindUp
+    "liquidation-voluntary-special-resolution-to-wind-up-case-start-date" -> pure LiquidationVoluntarySpecialResolutionToWindUpCaseStartDate
+    "liquidation-voluntary-statement-of-affairs" -> pure LiquidationVoluntaryStatementOfAffairs
+    "liquidation-voluntary-statement-of-affairs-with-form-attached" -> pure LiquidationVoluntaryStatementOfAffairsWithFormAttached
+    "liquidation-voluntary-statement-of-receipts-and-payments" -> pure LiquidationVoluntaryStatementOfReceiptsAndPayments
+    "liquidation-voluntary-statement-of-receipts-and-payments-with-brought-down-date" -> pure LiquidationVoluntaryStatementOfReceiptsAndPaymentsWithBroughtDownDate
+    "liquidation-voluntary-supervisors-abstracts-of-receipts-payments-scotland" -> pure LiquidationVoluntarySupervisorsAbstractsOfReceiptsPaymentsScotland
+    "liquidation-voluntary-supervisors-abstracts-of-receipts-payments-scotland-with-brought-down-date" -> pure LiquidationVoluntarySupervisorsAbstractsOfReceiptsPaymentsScotlandWithBroughtDownDate
+    "liquidation-voluntary-vacation-liquidator" -> pure LiquidationVoluntaryVacationLiquidator
+    "liquidation-voluntary-vacation-of-liquidator-scotland" -> pure LiquidationVoluntaryVacationOfLiquidatorScotland
+    "liquidation-winding-up-overseas" -> pure LiquidationWindingUpOverseas
+    "liquidation-withdrawal-of-consent-northern-ireland" -> pure LiquidationWithdrawalOfConsentNorthernIreland
+    "members-register-information-on-withdrawal-from-the-public-register" -> pure MembersRegisterInformationOnWithdrawalFromThePublicRegister
+    "memorandum-articles" -> pure MemorandumArticles
+    "miscellaneous" -> pure Miscellaneous
+    "miscellaneous-limited-liability-partnership" -> pure MiscellaneousLimitedLiabilityPartnership
+    "model-articles-adopted" -> pure ModelArticlesAdopted
+    "model-articles-adopted-amended-provisions" -> pure ModelArticlesAdoptedAmendedProvisions
+    "mortgage-acquire-with-deed" -> pure MortgageAcquireWithDeed
+    "mortgage-acquire-with-deed-limited-liability-partnership" -> pure MortgageAcquireWithDeedLimitedLiabilityPartnership
+    "mortgage-acquire-with-deed-with-charge-number" -> pure MortgageAcquireWithDeedWithChargeNumber
+    "mortgage-acquire-with-deed-with-charge-number-charge-acquisition-date" -> pure MortgageAcquireWithDeedWithChargeNumberChargeAcquisitionDate
+    "mortgage-acquire-with-deed-with-charge-number-charge-acquisition-date-limited-liability-partnership" -> pure MortgageAcquireWithDeedWithChargeNumberChargeAcquisitionDateLimitedLiabilityPartnership
+    "mortgage-acquire-with-deed-with-charge-number-limited-liability-partnership" -> pure MortgageAcquireWithDeedWithChargeNumberLimitedLiabilityPartnership
+    "mortgage-acquire-with-deed-with-charles-court-order-extend-with-charge-number-charge-acquisition-date" -> pure MortgageAcquireWithDeedWithCharlesCourtOrderExtendWithChargeNumberChargeAcquisitionDate
+    "mortgage-acquire-with-deed-with-charles-court-order-extend-with-charge-number-charge-acquisition-date-limited-liability-partnership" -> pure MortgageAcquireWithDeedWithCharlesCourtOrderExtendWithChargeNumberChargeAcquisitionDateLimitedLiabilityPartnership
+    "mortgage-acquire-with-deed-with-court-order-extend-with-charge-number-charge-acquisition-date" -> pure MortgageAcquireWithDeedWithCourtOrderExtendWithChargeNumberChargeAcquisitionDate
+    "mortgage-acquire-with-deed-with-court-order-extend-with-charge-number-charge-acquisition-date-limited-liability-partnership" -> pure MortgageAcquireWithDeedWithCourtOrderExtendWithChargeNumberChargeAcquisitionDateLimitedLiabilityPartnership
+    "mortgage-acquire-without-deed" -> pure MortgageAcquireWithoutDeed
+    "mortgage-acquire-without-deed-limited-liability-partnership" -> pure MortgageAcquireWithoutDeedLimitedLiabilityPartnership
+    "mortgage-acquire-without-deed-with-charge-number-charge-creation-date" -> pure MortgageAcquireWithoutDeedWithChargeNumberChargeCreationDate
+    "mortgage-acquire-without-deed-with-charge-number-charge-creation-date-limited-liability-partnership" -> pure MortgageAcquireWithoutDeedWithChargeNumberChargeCreationDateLimitedLiabilityPartnership
+    "mortgage-acquire-without-deed-with-charles-court-order-extend-with-charge-number-charge-acquisition-date" -> pure MortgageAcquireWithoutDeedWithCharlesCourtOrderExtendWithChargeNumberChargeAcquisitionDate
+    "mortgage-acquire-without-deed-with-charles-court-order-extend-with-charge-number-charge-acquisition-date-limited-liability-partnership" -> pure MortgageAcquireWithoutDeedWithCharlesCourtOrderExtendWithChargeNumberChargeAcquisitionDateLimitedLiabilityPartnership
+    "mortgage-acquire-without-deed-with-court-order-extend-charge-number-charge-acquisition-date-limited-liability-partnership" -> pure MortgageAcquireWithoutDeedWithCourtOrderExtendChargeNumberChargeAcquisitionDateLimitedLiabilityPartnership
+    "mortgage-acquire-without-deed-with-court-order-extend-with-charge-number-charge-acquisition-date" -> pure MortgageAcquireWithoutDeedWithCourtOrderExtendWithChargeNumberChargeAcquisitionDate
+    "mortgage-alter-charge" -> pure MortgageAlterCharge
+    "mortgage-alter-charge-with-charge-number" -> pure MortgageAlterChargeWithChargeNumber
+    "mortgage-alter-charge-with-charge-number-charge-creation-date" -> pure MortgageAlterChargeWithChargeNumberChargeCreationDate
+    "mortgage-alter-floating-charge" -> pure MortgageAlterFloatingCharge
+    "mortgage-alter-floating-charge-with-number" -> pure MortgageAlterFloatingChargeWithNumber
+    "mortgage-alter-floating-charge-with-number-date" -> pure MortgageAlterFloatingChargeWithNumberDate
+    "mortgage-alter-post-to-charge-limited-liability-partnership" -> pure MortgageAlterPostToChargeLimitedLiabilityPartnership
+    "mortgage-alter-post-to-charge-with-charge-number-limited-liability-partnership" -> pure MortgageAlterPostToChargeWithChargeNumberLimitedLiabilityPartnership
+    "mortgage-alteration-floating-charge-scotland-limited-liability-partnership" -> pure MortgageAlterationFloatingChargeScotlandLimitedLiabilityPartnership
+    "mortgage-charge-part-both-with-charge-number" -> pure MortgageChargePartBothWithChargeNumber
+    "mortgage-charge-part-cease-and-release-with-charge-number-limited-liability-partnership" -> pure MortgageChargePartCeaseAndReleaseWithChargeNumberLimitedLiabilityPartnership
+    "mortgage-charge-part-cease-and-release-with-charge-number-satisfaction-date" -> pure MortgageChargePartCeaseAndReleaseWithChargeNumberSatisfactionDate
+    "mortgage-charge-part-cease-and-release-with-charge-number-satisfaction-date-limited-liability-partnership" -> pure MortgageChargePartCeaseAndReleaseWithChargeNumberSatisfactionDateLimitedLiabilityPartnership
+    "mortgage-charge-part-cease-with-charge-number" -> pure MortgageChargePartCeaseWithChargeNumber
+    "mortgage-charge-part-cease-with-charge-number-limited-liability-partnership" -> pure MortgageChargePartCeaseWithChargeNumberLimitedLiabilityPartnership
+    "mortgage-charge-part-cease-with-charge-number-satisfaction-date" -> pure MortgageChargePartCeaseWithChargeNumberSatisfactionDate
+    "mortgage-charge-part-cease-with-charge-number-satisfaction-date-limited-liability-partnership" -> pure MortgageChargePartCeaseWithChargeNumberSatisfactionDateLimitedLiabilityPartnership
+    "mortgage-charge-part-release-with-charge-number" -> pure MortgageChargePartReleaseWithChargeNumber
+    "mortgage-charge-part-release-with-charge-number-limited-liability-partnership" -> pure MortgageChargePartReleaseWithChargeNumberLimitedLiabilityPartnership
+    "mortgage-charge-part-release-with-charge-number-satisfaction-date" -> pure MortgageChargePartReleaseWithChargeNumberSatisfactionDate
+    "mortgage-charge-part-release-with-charge-number-satisfaction-date-limited-liability-partnership" -> pure MortgageChargePartReleaseWithChargeNumberSatisfactionDateLimitedLiabilityPartnership
+    "mortgage-charge-whole-cease-and-release-with-charge-number" -> pure MortgageChargeWholeCeaseAndReleaseWithChargeNumber
+    "mortgage-charge-whole-cease-and-release-with-charge-number-limited-liability-partnership" -> pure MortgageChargeWholeCeaseAndReleaseWithChargeNumberLimitedLiabilityPartnership
+    "mortgage-charge-whole-cease-and-release-with-charge-number-satisfaction-date" -> pure MortgageChargeWholeCeaseAndReleaseWithChargeNumberSatisfactionDate
+    "mortgage-charge-whole-cease-and-release-with-charge-number-satisfaction-date-limited-liability-partnership" -> pure MortgageChargeWholeCeaseAndReleaseWithChargeNumberSatisfactionDateLimitedLiabilityPartnership
+    "mortgage-charge-whole-cease-with-charge-number" -> pure MortgageChargeWholeCeaseWithChargeNumber
+    "mortgage-charge-whole-cease-with-charge-number-limited-liability-partnership" -> pure MortgageChargeWholeCeaseWithChargeNumberLimitedLiabilityPartnership
+    "mortgage-charge-whole-cease-with-charge-number-satisfaction-date" -> pure MortgageChargeWholeCeaseWithChargeNumberSatisfactionDate
+    "mortgage-charge-whole-cease-with-charge-number-satisfaction-date-limited-liability-partnership" -> pure MortgageChargeWholeCeaseWithChargeNumberSatisfactionDateLimitedLiabilityPartnership
+    "mortgage-charge-whole-release-with-charge-number" -> pure MortgageChargeWholeReleaseWithChargeNumber
+    "mortgage-charge-whole-release-with-charge-number-limited-liability-partnership" -> pure MortgageChargeWholeReleaseWithChargeNumberLimitedLiabilityPartnership
+    "mortgage-charge-whole-release-with-charge-number-satisfaction-date" -> pure MortgageChargeWholeReleaseWithChargeNumberSatisfactionDate
+    "mortgage-charge-whole-release-with-charge-number-satisfaction-date-limited-liability-partnership" -> pure MortgageChargeWholeReleaseWithChargeNumberSatisfactionDateLimitedLiabilityPartnership
+    "mortgage-court-order" -> pure MortgageCourtOrder
+    "mortgage-create-with-deed" -> pure MortgageCreateWithDeed
+    "mortgage-create-with-deed-limited-liability-partnership" -> pure MortgageCreateWithDeedLimitedLiabilityPartnership
+    "mortgage-create-with-deed-with-charge-number" -> pure MortgageCreateWithDeedWithChargeNumber
+    "mortgage-create-with-deed-with-charge-number-charge-creation-date" -> pure MortgageCreateWithDeedWithChargeNumberChargeCreationDate
+    "mortgage-create-with-deed-with-charge-number-charge-creation-date-limited-liability-partnership" -> pure MortgageCreateWithDeedWithChargeNumberChargeCreationDateLimitedLiabilityPartnership
+    "mortgage-create-with-deed-with-charge-number-limited-liability-partnership" -> pure MortgageCreateWithDeedWithChargeNumberLimitedLiabilityPartnership
+    "mortgage-create-with-deed-with-charles-court-order-extend-with-charge-number-charge-creation-date" -> pure MortgageCreateWithDeedWithCharlesCourtOrderExtendWithChargeNumberChargeCreationDate
+    "mortgage-create-with-deed-with-charles-court-order-extend-with-charge-number-charge-creation-date-limited-liability-partnership" -> pure MortgageCreateWithDeedWithCharlesCourtOrderExtendWithChargeNumberChargeCreationDateLimitedLiabilityPartnership
+    "mortgage-create-with-deed-with-court-order-extend-with-charge-number-charge-creation-date-limited-liability-partnership" -> pure MortgageCreateWithDeedWithCourtOrderExtendWithChargeNumberChargeCreationDateLimitedLiabilityPartnership
+    "mortgage-create-without-deed" -> pure MortgageCreateWithoutDeed
+    "mortgage-create-without-deed-limited-liability-partnership" -> pure MortgageCreateWithoutDeedLimitedLiabilityPartnership
+    "mortgage-create-without-deed-with-charge-number-charge-creation-date" -> pure MortgageCreateWithoutDeedWithChargeNumberChargeCreationDate
+    "mortgage-create-without-deed-with-charge-number-charge-creation-date-limited-liability-partnership" -> pure MortgageCreateWithoutDeedWithChargeNumberChargeCreationDateLimitedLiabilityPartnership
+    "mortgage-create-without-deed-with-charge-number-limited-liability-partnership" -> pure MortgageCreateWithoutDeedWithChargeNumberLimitedLiabilityPartnership
+    "mortgage-create-without-deed-with-charles-court-order-extend-with-charge-number-charge-creation-date" -> pure MortgageCreateWithoutDeedWithCharlesCourtOrderExtendWithChargeNumberChargeCreationDate
+    "mortgage-create-without-deed-with-charles-court-order-extend-with-charge-number-charge-creation-date-limited-liability-partnership" -> pure MortgageCreateWithoutDeedWithCharlesCourtOrderExtendWithChargeNumberChargeCreationDateLimitedLiabilityPartnership
+    "mortgage-create-without-deed-with-court-order-extend-charge-number-charge-creation-date-limited-liability-partnership" -> pure MortgageCreateWithoutDeedWithCourtOrderExtendChargeNumberChargeCreationDateLimitedLiabilityPartnership
+    "mortgage-create-without-deed-with-court-order-extend-with-charge-number-charge-creation-date" -> pure MortgageCreateWithoutDeedWithCourtOrderExtendWithChargeNumberChargeCreationDate
+    "mortgage-debenture-with-deed" -> pure MortgageDebentureWithDeed
+    "mortgage-debenture-with-deed-limited-liability-partnership" -> pure MortgageDebentureWithDeedLimitedLiabilityPartnership
+    "mortgage-debenture-with-deed-with-charge-number-charge-creation-date" -> pure MortgageDebentureWithDeedWithChargeNumberChargeCreationDate
+    "mortgage-debenture-with-deed-with-charge-number-charge-creation-date-limited-liability-partnership" -> pure MortgageDebentureWithDeedWithChargeNumberChargeCreationDateLimitedLiabilityPartnership
+    "mortgage-debenture-with-deed-with-charge-number-limited-liability-partnership" -> pure MortgageDebentureWithDeedWithChargeNumberLimitedLiabilityPartnership
+    "mortgage-debenture-with-deed-with-charles-court-order-extend-with-charge-number-charge-creation-date" -> pure MortgageDebentureWithDeedWithCharlesCourtOrderExtendWithChargeNumberChargeCreationDate
+    "mortgage-debenture-with-deed-with-charles-court-order-extend-with-charge-number-charge-creation-date-limited-liability-partnership" -> pure MortgageDebentureWithDeedWithCharlesCourtOrderExtendWithChargeNumberChargeCreationDateLimitedLiabilityPartnership
+    "mortgage-debenture-with-deed-with-court-order-extend-with-charge-number-charge-creation-date" -> pure MortgageDebentureWithDeedWithCourtOrderExtendWithChargeNumberChargeCreationDate
+    "mortgage-debenture-with-deed-with-court-order-extend-with-charge-number-charge-creation-date-limited-liability-partnership" -> pure MortgageDebentureWithDeedWithCourtOrderExtendWithChargeNumberChargeCreationDateLimitedLiabilityPartnership
+    "mortgage-debenture-without-deed" -> pure MortgageDebentureWithoutDeed
+    "mortgage-debenture-without-deed-limited-liability-partnership" -> pure MortgageDebentureWithoutDeedLimitedLiabilityPartnership
+    "mortgage-debenture-without-deed-with-charge-number-charge-creation-date" -> pure MortgageDebentureWithoutDeedWithChargeNumberChargeCreationDate
+    "mortgage-debenture-without-deed-with-charge-number-charge-creation-date-limited-liability-partnership" -> pure MortgageDebentureWithoutDeedWithChargeNumberChargeCreationDateLimitedLiabilityPartnership
+    "mortgage-debenture-without-deed-with-charles-court-order-extend-with-charge-number-charge-creation-date" -> pure MortgageDebentureWithoutDeedWithCharlesCourtOrderExtendWithChargeNumberChargeCreationDate
+    "mortgage-debenture-without-deed-with-charles-court-order-extend-with-charge-number-charge-creation-date-limited-liability-partnership" -> pure MortgageDebentureWithoutDeedWithCharlesCourtOrderExtendWithChargeNumberChargeCreationDateLimitedLiabilityPartnership
+    "mortgage-debenture-without-deed-with-court-order-extend-with-charge-number-charge-creation-date" -> pure MortgageDebentureWithoutDeedWithCourtOrderExtendWithChargeNumberChargeCreationDate
+    "mortgage-debenture-without-deed-with-court-order-extend-with-charge-number-charge-creation-date-limited-liability-partnership" -> pure MortgageDebentureWithoutDeedWithCourtOrderExtendWithChargeNumberChargeCreationDateLimitedLiabilityPartnership
+    "mortgage-deed" -> pure MortgageDeed
+    "mortgage-miscellaneous" -> pure MortgageMiscellaneous
+    "mortgage-rectification-order" -> pure MortgageRectificationOrder
+    "mortgage-release-cease-charge" -> pure MortgageReleaseCeaseCharge
+    "mortgage-release-cease-charge-limited-liability-partnership" -> pure MortgageReleaseCeaseChargeLimitedLiabilityPartnership
+    "mortgage-resolution" -> pure MortgageResolution
+    "mortgage-satisfy-charge" -> pure MortgageSatisfyCharge
+    "mortgage-satisfy-charge-full" -> pure MortgageSatisfyChargeFull
+    "mortgage-satisfy-charge-full-limited-liability-partnership" -> pure MortgageSatisfyChargeFullLimitedLiabilityPartnership
+    "mortgage-satisfy-charge-full-with-date" -> pure MortgageSatisfyChargeFullWithDate
+    "mortgage-satisfy-charge-full-with-mortgage-satisfaction-date-limited-liability-partnership" -> pure MortgageSatisfyChargeFullWithMortgageSatisfactionDateLimitedLiabilityPartnership
+    "mortgage-satisfy-charge-limited-liability-partnership" -> pure MortgageSatisfyChargeLimitedLiabilityPartnership
+    "mortgage-satisfy-charge-part" -> pure MortgageSatisfyChargePart
+    "mortgage-satisfy-charge-part-limited-liability-partnership" -> pure MortgageSatisfyChargePartLimitedLiabilityPartnership
+    "mortgage-satisfy-charge-part-with-date" -> pure MortgageSatisfyChargePartWithDate
+    "mortgage-satisfy-charge-part-with-mortgage-satisfaction-date-limited-liability-partnership" -> pure MortgageSatisfyChargePartWithMortgageSatisfactionDateLimitedLiabilityPartnership
+    "mortgage-trustee-acting-as" -> pure MortgageTrusteeActingAs
+    "mortgage-trustee-acting-as-trustee-limited-liability-partnership" -> pure MortgageTrusteeActingAsTrusteeLimitedLiabilityPartnership
+    "mortgage-trustee-acting-as-trustee-with-charge-number-limited-liability-partnership" -> pure MortgageTrusteeActingAsTrusteeWithChargeNumberLimitedLiabilityPartnership
+    "move-registers-to-registered-office-company" -> pure MoveRegistersToRegisteredOfficeCompany
+    "move-registers-to-registered-office-company-with-new-address" -> pure MoveRegistersToRegisteredOfficeCompanyWithNewAddress
+    "move-registers-to-registered-office-limited-liability-partnership" -> pure MoveRegistersToRegisteredOfficeLimitedLiabilityPartnership
+    "move-registers-to-registered-office-limited-liability-partnership-with-new-address" -> pure MoveRegistersToRegisteredOfficeLimitedLiabilityPartnershipWithNewAddress
+    "move-registers-to-sail-company" -> pure MoveRegistersToSailCompany
+    "move-registers-to-sail-company-with-new-address" -> pure MoveRegistersToSailCompanyWithNewAddress
+    "move-registers-to-sail-limited-liability-partnership" -> pure MoveRegistersToSailLimitedLiabilityPartnership
+    "move-registers-to-sail-limited-liability-partnership-with-new-address" -> pure MoveRegistersToSailLimitedLiabilityPartnershipWithNewAddress
+    "no-description-available" -> pure NoDescriptionAvailable
+    "notice-appeal-to-remove-company-from-social-landlord-register" -> pure NoticeAppealToRemoveCompanyFromSocialLandlordRegister
+    "notice-carry-on-business-as-investment-company" -> pure NoticeCarryOnBusinessAsInvestmentCompany
+    "notice-from-overseas-registry-transfer-from-uk" -> pure NoticeFromOverseasRegistryTransferFromUk
+    "notice-no-longer-an-investment-company" -> pure NoticeNoLongerAnInvestmentCompany
+    "notice-objection-to-request-to-rectify-register" -> pure NoticeObjectionToRequestToRectifyRegister
+    "notice-of-ceasing-to-be-a-qualifying-partnership" -> pure NoticeOfCeasingToBeAQualifyingPartnership
+    "notice-of-closure-branch-overseas-company" -> pure NoticeOfClosureBranchOverseasCompany
+    "notice-of-insolvency-proceedings-for-a-further-education-or-sixth-form-college-corporation" -> pure NoticeOfInsolvencyProceedingsForAFurtherEducationOrSixthFormCollegeCorporation
+    "notice-of-removal-of-a-corporate-director" -> pure NoticeOfRemovalOfACorporateDirector
+    "notice-of-removal-of-a-director" -> pure NoticeOfRemovalOfADirector
+    "notice-removal-restriction-on-company-articles" -> pure NoticeRemovalRestrictionOnCompanyArticles
+    "notice-restriction-on-company-articles" -> pure NoticeRestrictionOnCompanyArticles
+    "notice-satisfaction-of-conditions-formation-of-societas-europaea" -> pure NoticeSatisfactionOfConditionsFormationOfSocietasEuropaea
+    "notice-to-cancel-reregistration-by-applicants" -> pure NoticeToCancelReregistrationByApplicants
+    "notice-to-cancel-reregistration-by-company" -> pure NoticeToCancelReregistrationByCompany
+    "notification-of-a-person-with-significant-control" -> pure NotificationOfAPersonWithSignificantControl
+    "notification-of-a-person-with-significant-control-limited-liability-partnership" -> pure NotificationOfAPersonWithSignificantControlLimitedLiabilityPartnership
+    "notification-of-a-person-with-significant-control-scottish-limited-partnership" -> pure NotificationOfAPersonWithSignificantControlScottishLimitedPartnership
+    "notification-of-a-person-with-significant-control-scottish-partnership" -> pure NotificationOfAPersonWithSignificantControlScottishPartnership
+    "notification-of-a-person-with-significant-control-statement" -> pure NotificationOfAPersonWithSignificantControlStatement
+    "notification-of-a-person-with-significant-control-statement-limited-liability-partnership" -> pure NotificationOfAPersonWithSignificantControlStatementLimitedLiabilityPartnership
+    "notification-of-a-person-with-significant-control-statement-scottish-limited-partnership" -> pure NotificationOfAPersonWithSignificantControlStatementScottishLimitedPartnership
+    "notification-of-a-person-with-significant-control-statement-scottish-partnership" -> pure NotificationOfAPersonWithSignificantControlStatementScottishPartnership
+    "notification-of-a-person-with-significant-control-without-name-date" -> pure NotificationOfAPersonWithSignificantControlWithoutNameDate
+    "notification-of-a-super-secure-person-with-significant-control" -> pure NotificationOfASuperSecurePersonWithSignificantControl
+    "notification-of-a-super-secure-person-with-significant-control-limited-liability-partnership" -> pure NotificationOfASuperSecurePersonWithSignificantControlLimitedLiabilityPartnership
+    "order-of-court-registered-office-address-change" -> pure OrderOfCourtRegisteredOfficeAddressChange
+    "order-of-court-registered-office-address-change-def" -> pure OrderOfCourtRegisteredOfficeAddressChangeDef
+    "order-of-court-restoration-previously-compulsory-liquidation" -> pure OrderOfCourtRestorationPreviouslyCompulsoryLiquidation
+    "order-of-court-restoration-previously-creditors-voluntary-liquidation" -> pure OrderOfCourtRestorationPreviouslyCreditorsVoluntaryLiquidation
+    "order-of-court-restoration-previously-members-voluntary-liquidation" -> pure OrderOfCourtRestorationPreviouslyMembersVoluntaryLiquidation
+    "order-of-court-restructuring-plan" -> pure OrderOfCourtRestructuringPlan
+    "order-of-court-restructuring-plan-and-change-share-capital" -> pure OrderOfCourtRestructuringPlanAndChangeShareCapital
+    "ordinary-resolution" -> pure OrdinaryResolution
+    "ordinary-resolution-acquisition" -> pure OrdinaryResolutionAcquisition
+    "ordinary-resolution-adopt-memorandum" -> pure OrdinaryResolutionAdoptMemorandum
+    "ordinary-resolution-alteration-memorandum" -> pure OrdinaryResolutionAlterationMemorandum
+    "ordinary-resolution-capitalisation" -> pure OrdinaryResolutionCapitalisation
+    "ordinary-resolution-change-of-name" -> pure OrdinaryResolutionChangeOfName
+    "ordinary-resolution-decrease-capital" -> pure OrdinaryResolutionDecreaseCapital
+    "ordinary-resolution-exemption" -> pure OrdinaryResolutionExemption
+    "ordinary-resolution-increase-capital" -> pure OrdinaryResolutionIncreaseCapital
+    "ordinary-resolution-memorandum" -> pure OrdinaryResolutionMemorandum
+    "ordinary-resolution-purchase-number-shares" -> pure OrdinaryResolutionPurchaseNumberShares
+    "ordinary-resolution-purchase-shares" -> pure OrdinaryResolutionPurchaseShares
+    "ordinary-resolution-redeem-shares" -> pure OrdinaryResolutionRedeemShares
+    "ordinary-resolution-reduction-capital" -> pure OrdinaryResolutionReductionCapital
+    "ordinary-resolution-removal-pre-emption" -> pure OrdinaryResolutionRemovalPreEmption
+    "ordinary-resolution-securities" -> pure OrdinaryResolutionSecurities
+    "ordindary-resolution-varying-share-rights" -> pure OrdindaryResolutionVaryingShareRights
+    "particulars-of-a-mortgage-charge" -> pure ParticularsOfAMortgageCharge
+    "persons-with-significant-control-register-information-on-withdrawal-from-the-public-register" -> pure PersonsWithSignificantControlRegisterInformationOnWithdrawalFromThePublicRegister
+    "proposed-transfer-societas-europaea-from-uk" -> pure ProposedTransferSocietasEuropaeaFromUk
+    "proposed-transfer-societas-europaea-to-uk" -> pure ProposedTransferSocietasEuropaeaToUk
+    "re-registration-court-order-to-reduce-share-capital" -> pure ReRegistrationCourtOrderToReduceShareCapital
+    "re-registration-memorandum-articles" -> pure ReRegistrationMemorandumArticles
+    "register-overseas-company" -> pure RegisterOverseasCompany
+    "register-overseas-company-with-date" -> pure RegisterOverseasCompanyWithDate
+    "registration-and-designation-as-a-private-fund-limited-partnership" -> pure RegistrationAndDesignationAsAPrivateFundLimitedPartnership
+    "registration-company-as-social-landlord" -> pure RegistrationCompanyAsSocialLandlord
+    "registration-of-a-limited-partnership" -> pure RegistrationOfALimitedPartnership
+    "registration-of-a-scottish-partnership" -> pure RegistrationOfAScottishPartnership
+    "registration-of-european-economic-interest-group-address-in-uk" -> pure RegistrationOfEuropeanEconomicInterestGroupAddressInUk
+    "registration-of-uk-establishment" -> pure RegistrationOfUkEstablishment
+    "removal-company-as-social-landlord" -> pure RemovalCompanyAsSocialLandlord
+    "removal-company-as-social-landlord-with-removal-date" -> pure RemovalCompanyAsSocialLandlordWithRemovalDate
+    "reregistration" -> pure Reregistration
+    "reregistration-assent" -> pure ReregistrationAssent
+    "reregistration-private-limited-to-private-unlimited-company" -> pure ReregistrationPrivateLimitedToPrivateUnlimitedCompany
+    "reregistration-private-to-public-company" -> pure ReregistrationPrivateToPublicCompany
+    "reregistration-private-to-public-company-appoint-secretary" -> pure ReregistrationPrivateToPublicCompanyAppointSecretary
+    "reregistration-private-unlimited-to-private-limited-company" -> pure ReregistrationPrivateUnlimitedToPrivateLimitedCompany
+    "reregistration-public-to-private-company" -> pure ReregistrationPublicToPrivateCompany
+    "reregistration-public-to-private-following-cancellation-of-shares" -> pure ReregistrationPublicToPrivateFollowingCancellationOfShares
+    "reregistration-public-to-private-following-capital-reduction" -> pure ReregistrationPublicToPrivateFollowingCapitalReduction
+    "reregistration-public-to-private-following-court-order" -> pure ReregistrationPublicToPrivateFollowingCourtOrder
+    "reregistration-public-to-private-unlimited-company" -> pure ReregistrationPublicToPrivateUnlimitedCompany
+    "resolution" -> pure Resolution
+    "resolution-acquisition" -> pure ResolutionAcquisition
+    "resolution-adopt-articles" -> pure ResolutionAdoptArticles
+    "resolution-adopt-memorandum" -> pure ResolutionAdoptMemorandum
+    "resolution-adopt-memorandum-and-articles" -> pure ResolutionAdoptMemorandumAndArticles
+    "resolution-alteration-articles" -> pure ResolutionAlterationArticles
+    "resolution-alteration-memorandum" -> pure ResolutionAlterationMemorandum
+    "resolution-alteration-memorandum-and-articles" -> pure ResolutionAlterationMemorandumAndArticles
+    "resolution-capitalisation" -> pure ResolutionCapitalisation
+    "resolution-change-of-name" -> pure ResolutionChangeOfName
+    "resolution-decrease-capital" -> pure ResolutionDecreaseCapital
+    "resolution-exemption" -> pure ResolutionExemption
+    "resolution-increase-capital" -> pure ResolutionIncreaseCapital
+    "resolution-memorandum" -> pure ResolutionMemorandum
+    "resolution-memorandum-and-articles" -> pure ResolutionMemorandumAndArticles
+    "resolution-purchase-number-shares" -> pure ResolutionPurchaseNumberShares
+    "resolution-purchase-shares" -> pure ResolutionPurchaseShares
+    "resolution-re-registration" -> pure ResolutionReRegistration
+    "resolution-redeem-shares" -> pure ResolutionRedeemShares
+    "resolution-redonominate-shares" -> pure ResolutionRedonominateShares
+    "resolution-reduce-capital" -> pure ResolutionReduceCapital
+    "resolution-reduction-capital" -> pure ResolutionReductionCapital
+    "resolution-removal-pre-emption" -> pure ResolutionRemovalPreEmption
+    "resolution-securities" -> pure ResolutionSecurities
+    "resolution-varying-share-rights" -> pure ResolutionVaryingShareRights
+    "restoration-order-of-court" -> pure RestorationOrderOfCourt
+    "scheme-of-arrangement" -> pure SchemeOfArrangement
+    "second-filing-capital-allotment-shares" -> pure SecondFilingCapitalAllotmentShares
+    "second-filing-capital-alter-shares" -> pure SecondFilingCapitalAlterShares
+    "second-filing-capital-alter-shares-consolidation" -> pure SecondFilingCapitalAlterSharesConsolidation
+    "second-filing-capital-alter-shares-consolidation-reconversion" -> pure SecondFilingCapitalAlterSharesConsolidationReconversion
+    "second-filing-capital-alter-shares-consolidation-reconversion-statement-of-capital" -> pure SecondFilingCapitalAlterSharesConsolidationReconversionStatementOfCapital
+    "second-filing-capital-alter-shares-consolidation-statement-of-capital" -> pure SecondFilingCapitalAlterSharesConsolidationStatementOfCapital
+    "second-filing-capital-alter-shares-consolidation-subdivision" -> pure SecondFilingCapitalAlterSharesConsolidationSubdivision
+    "second-filing-capital-alter-shares-consolidation-subdivision-reconversion" -> pure SecondFilingCapitalAlterSharesConsolidationSubdivisionReconversion
+    "second-filing-capital-alter-shares-consolidation-subdivision-reconversion-statement-of-capital" -> pure SecondFilingCapitalAlterSharesConsolidationSubdivisionReconversionStatementOfCapital
+    "second-filing-capital-alter-shares-consolidation-subdivision-statement-of-capital" -> pure SecondFilingCapitalAlterSharesConsolidationSubdivisionStatementOfCapital
+    "second-filing-capital-alter-shares-reconversion" -> pure SecondFilingCapitalAlterSharesReconversion
+    "second-filing-capital-alter-shares-reconversion-statement-of-capital" -> pure SecondFilingCapitalAlterSharesReconversionStatementOfCapital
+    "second-filing-capital-alter-shares-redemption" -> pure SecondFilingCapitalAlterSharesRedemption
+    "second-filing-capital-alter-shares-redemption-statement-of-capital" -> pure SecondFilingCapitalAlterSharesRedemptionStatementOfCapital
+    "second-filing-capital-alter-shares-subdivision" -> pure SecondFilingCapitalAlterSharesSubdivision
+    "second-filing-capital-alter-shares-subdivision-reconversion" -> pure SecondFilingCapitalAlterSharesSubdivisionReconversion
+    "second-filing-capital-alter-shares-subdivision-reconversion-statement-of-capital" -> pure SecondFilingCapitalAlterSharesSubdivisionReconversionStatementOfCapital
+    "second-filing-capital-alter-shares-subdivision-statement-of-capital" -> pure SecondFilingCapitalAlterSharesSubdivisionStatementOfCapital
+    "second-filing-capital-cancellation-shares" -> pure SecondFilingCapitalCancellationShares
+    "second-filing-capital-cancellation-shares-by-plc" -> pure SecondFilingCapitalCancellationSharesByPlc
+    "second-filing-capital-cancellation-treasury-shares-with-date-currency-capital-figure" -> pure SecondFilingCapitalCancellationTreasurySharesWithDateCurrencyCapitalFigure
+    "second-filing-capital-cancellation-treasury-shares-with-date-treasury-capital-figure" -> pure SecondFilingCapitalCancellationTreasurySharesWithDateTreasuryCapitalFigure
+    "second-filing-capital-redomination-of-shares" -> pure SecondFilingCapitalRedominationOfShares
+    "second-filing-capital-reduction-of-capital-redomination" -> pure SecondFilingCapitalReductionOfCapitalRedomination
+    "second-filing-cessation-of-a-person-with-significant-control" -> pure SecondFilingCessationOfAPersonWithSignificantControl
+    "second-filing-cessation-of-a-person-with-significant-control-limited-liability-partnership" -> pure SecondFilingCessationOfAPersonWithSignificantControlLimitedLiabilityPartnership
+    "second-filing-cessation-of-a-person-with-significant-control-without-name-date" -> pure SecondFilingCessationOfAPersonWithSignificantControlWithoutNameDate
+    "second-filing-change-details-of-a-person-with-significant-control" -> pure SecondFilingChangeDetailsOfAPersonWithSignificantControl
+    "second-filing-change-details-of-a-person-with-significant-control-limited-liability-partnership" -> pure SecondFilingChangeDetailsOfAPersonWithSignificantControlLimitedLiabilityPartnership
+    "second-filing-change-to-a-person-with-significant-control-without-name-date" -> pure SecondFilingChangeToAPersonWithSignificantControlWithoutNameDate
+    "second-filing-notification-of-a-person-with-significant-control" -> pure SecondFilingNotificationOfAPersonWithSignificantControl
+    "second-filing-notification-of-a-person-with-significant-control-limited-liability-partnership" -> pure SecondFilingNotificationOfAPersonWithSignificantControlLimitedLiabilityPartnership
+    "second-filing-notification-of-a-person-with-significant-control-statement" -> pure SecondFilingNotificationOfAPersonWithSignificantControlStatement
+    "second-filing-notification-of-a-person-with-significant-control-statement-limited-liability-partnership" -> pure SecondFilingNotificationOfAPersonWithSignificantControlStatementLimitedLiabilityPartnership
+    "second-filing-notification-of-a-person-with-significant-control-without-name-date" -> pure SecondFilingNotificationOfAPersonWithSignificantControlWithoutNameDate
+    "second-filing-of-annual-return-with-made-up-date" -> pure SecondFilingOfAnnualReturnWithMadeUpDate
+    "second-filing-of-change-of-director-details-with-name" -> pure SecondFilingOfChangeOfDirectorDetailsWithName
+    "second-filing-of-change-of-member-details-with-name" -> pure SecondFilingOfChangeOfMemberDetailsWithName
+    "second-filing-of-change-of-secretary-details-with-name" -> pure SecondFilingOfChangeOfSecretaryDetailsWithName
+    "second-filing-of-confirmation-statement-with-made-up-date" -> pure SecondFilingOfConfirmationStatementWithMadeUpDate
+    "second-filing-of-director-appointment-with-name" -> pure SecondFilingOfDirectorAppointmentWithName
+    "second-filing-of-director-termination-with-name" -> pure SecondFilingOfDirectorTerminationWithName
+    "second-filing-of-form" -> pure SecondFilingOfForm
+    "second-filing-of-form-with-form-type" -> pure SecondFilingOfFormWithFormType
+    "second-filing-of-form-with-form-type-made-up-date" -> pure SecondFilingOfFormWithFormTypeMadeUpDate
+    "second-filing-of-member-appointment-with-name" -> pure SecondFilingOfMemberAppointmentWithName
+    "second-filing-of-member-termination-with-name" -> pure SecondFilingOfMemberTerminationWithName
+    "second-filing-of-secretary-appointment-with-name" -> pure SecondFilingOfSecretaryAppointmentWithName
+    "second-filing-of-secretary-termination-with-name" -> pure SecondFilingOfSecretaryTerminationWithName
+    "second-filing-withdrawal-of-a-person-with-significant-control-statement" -> pure SecondFilingWithdrawalOfAPersonWithSignificantControlStatement
+    "second-filing-withdrawal-of-a-person-with-significant-control-statement-limited-liability-partnership" -> pure SecondFilingWithdrawalOfAPersonWithSignificantControlStatementLimitedLiabilityPartnership
+    "secretaries-register-information-on-withdrawal-from-the-public-register" -> pure SecretariesRegisterInformationOnWithdrawalFromThePublicRegister
+    "selection-of-documents-registered-before-April-2014" -> pure SelectionOfDocumentsRegisteredBeforeApril2014
+    "selection-of-documents-registered-before-January-1995" -> pure SelectionOfDocumentsRegisteredBeforeJanuary1995
+    "selection-of-mortgage-documents-registered-before-January-1995" -> pure SelectionOfMortgageDocumentsRegisteredBeforeJanuary1995
+    "special-resolution" -> pure SpecialResolution
+    "special-resolution-acquisition" -> pure SpecialResolutionAcquisition
+    "special-resolution-adopt-memorandum" -> pure SpecialResolutionAdoptMemorandum
+    "special-resolution-alteration-memorandum" -> pure SpecialResolutionAlterationMemorandum
+    "special-resolution-capitalisation" -> pure SpecialResolutionCapitalisation
+    "special-resolution-decrease-capital" -> pure SpecialResolutionDecreaseCapital
+    "special-resolution-exemption" -> pure SpecialResolutionExemption
+    "special-resolution-increase-capital" -> pure SpecialResolutionIncreaseCapital
+    "special-resolution-memorandum" -> pure SpecialResolutionMemorandum
+    "special-resolution-purchase-number-shares" -> pure SpecialResolutionPurchaseNumberShares
+    "special-resolution-purchase-shares" -> pure SpecialResolutionPurchaseShares
+    "special-resolution-re-registration" -> pure SpecialResolutionReRegistration
+    "special-resolution-redeem-shares" -> pure SpecialResolutionRedeemShares
+    "special-resolution-reduction-capital" -> pure SpecialResolutionReductionCapital
+    "special-resolution-removal-pre-emption" -> pure SpecialResolutionRemovalPreEmption
+    "special-resolution-securities" -> pure SpecialResolutionSecurities
+    "special-resolution-varying-share-rights" -> pure SpecialResolutionVaryingShareRights
+    "statement-compliance-articles-restricted" -> pure StatementComplianceArticlesRestricted
+    "statement-guarantee-by-parent-undertaking-of-subsidiary-company" -> pure StatementGuaranteeByParentUndertakingOfSubsidiaryCompany
+    "statement-guarantee-by-parent-undertaking-of-subsidiary-limited-liability-partnership" -> pure StatementGuaranteeByParentUndertakingOfSubsidiaryLimitedLiabilityPartnership
+    "statement-of-affairs" -> pure StatementOfAffairs
+    "statement-of-capital" -> pure StatementOfCapital
+    "statement-of-companys-objects" -> pure StatementOfCompanysObjects
+    "statement-solvency-by-members-societas-euopaea-proposing-to-transfer-from-uk" -> pure StatementSolvencyByMembersSocietasEuopaeaProposingToTransferFromUk
+    "termination-director-company" -> pure TerminationDirectorCompany
+    "termination-director-company-with-name" -> pure TerminationDirectorCompanyWithName
+    "termination-director-company-with-name-termination-date" -> pure TerminationDirectorCompanyWithNameTerminationDate
+    "termination-manager-company" -> pure TerminationManagerCompany
+    "termination-manager-company-with-termination-date" -> pure TerminationManagerCompanyWithTerminationDate
+    "termination-member-limited-liability-partnership" -> pure TerminationMemberLimitedLiabilityPartnership
+    "termination-member-limited-liability-partnership-with-name" -> pure TerminationMemberLimitedLiabilityPartnershipWithName
+    "termination-member-limited-liability-partnership-with-name-termination-date" -> pure TerminationMemberLimitedLiabilityPartnershipWithNameTerminationDate
+    "termination-member-societas-europaea" -> pure TerminationMemberSocietasEuropaea
+    "termination-member-societas-europaea-with-name" -> pure TerminationMemberSocietasEuropaeaWithName
+    "termination-member-societas-europaea-with-name-termination-date" -> pure TerminationMemberSocietasEuropaeaWithNameTerminationDate
+    "termination-person-authorised-overseas-company" -> pure TerminationPersonAuthorisedOverseasCompany
+    "termination-person-director-overseas-company" -> pure TerminationPersonDirectorOverseasCompany
+    "termination-person-director-overseas-company-with-name" -> pure TerminationPersonDirectorOverseasCompanyWithName
+    "termination-person-director-overseas-company-with-name-termination-date" -> pure TerminationPersonDirectorOverseasCompanyWithNameTerminationDate
+    "termination-person-judicial-factor-overseas-company" -> pure TerminationPersonJudicialFactorOverseasCompany
+    "termination-person-judicial-factor-overseas-company-with-name" -> pure TerminationPersonJudicialFactorOverseasCompanyWithName
+    "termination-person-judicial-factor-overseas-company-with-name-termination-date" -> pure TerminationPersonJudicialFactorOverseasCompanyWithNameTerminationDate
+    "termination-person-secretary-overseas-company" -> pure TerminationPersonSecretaryOverseasCompany
+    "termination-person-secretary-overseas-company-with-name" -> pure TerminationPersonSecretaryOverseasCompanyWithName
+    "termination-person-secretary-overseas-company-with-name-termination-date" -> pure TerminationPersonSecretaryOverseasCompanyWithNameTerminationDate
+    "termination-secretary-company" -> pure TerminationSecretaryCompany
+    "termination-secretary-company-with-name" -> pure TerminationSecretaryCompanyWithName
+    "termination-secretary-company-with-name-termination-date" -> pure TerminationSecretaryCompanyWithNameTerminationDate
+    "transfer-societas-europaea-from-uk" -> pure TransferSocietasEuropaeaFromUk
+    "transfer-societas-europaea-to-uk" -> pure TransferSocietasEuropaeaToUk
+    "transformation-public-limited-company-to-societas-europaea" -> pure TransformationPublicLimitedCompanyToSocietasEuropaea
+    "update-to-the-members-register-information-on-the-public-register" -> pure UpdateToTheMembersRegisterInformationOnThePublicRegister
+    "withdrawal-of-a-person-with-significant-control-statement" -> pure WithdrawalOfAPersonWithSignificantControlStatement
+    "withdrawal-of-a-person-with-significant-control-statement-limited-liability-partnership" -> pure WithdrawalOfAPersonWithSignificantControlStatementLimitedLiabilityPartnership
+    "withdrawal-of-a-person-with-significant-control-statement-scottish-limited-partnership" -> pure WithdrawalOfAPersonWithSignificantControlStatementScottishLimitedPartnership
+    "withdrawal-of-a-person-with-significant-control-statement-scottish-partnership" -> pure WithdrawalOfAPersonWithSignificantControlStatementScottishPartnership
+    "withdrawal-of-the-directors-register-information-from-the-public-register" -> pure WithdrawalOfTheDirectorsRegisterInformationFromThePublicRegister
+    "withdrawal-of-the-directors-residential-address-register-information-from-the-public-register" -> pure WithdrawalOfTheDirectorsResidentialAddressRegisterInformationFromThePublicRegister
+    "withdrawal-of-the-limited-liability-partnership-members-register-information-from-the-public-register" -> pure WithdrawalOfTheLimitedLiabilityPartnershipMembersRegisterInformationFromThePublicRegister
+    "withdrawal-of-the-limited-liability-partnership-members-residential-address-register-information-from-the-public-register" -> pure WithdrawalOfTheLimitedLiabilityPartnershipMembersResidentialAddressRegisterInformationFromThePublicRegister
+    "withdrawal-of-the-limited-liability-partnership-persons-with-significant-control-register-information-from-the-public-register" -> pure WithdrawalOfTheLimitedLiabilityPartnershipPersonsWithSignificantControlRegisterInformationFromThePublicRegister
+    "withdrawal-of-the-members-register-information-from-the-public-register" -> pure WithdrawalOfTheMembersRegisterInformationFromThePublicRegister
+    "withdrawal-of-the-persons-with-significant-control-register-information-from-the-public-register" -> pure WithdrawalOfThePersonsWithSignificantControlRegisterInformationFromThePublicRegister
+    "withdrawal-of-the-secretaries-register-information-from-the-public-register" -> pure WithdrawalOfTheSecretariesRegisterInformationFromThePublicRegister
+    "written-resolution" -> pure WrittenResolution
+    "written-resolution-acquisition" -> pure WrittenResolutionAcquisition
+    "written-resolution-adopt-memorandum" -> pure WrittenResolutionAdoptMemorandum
+    "written-resolution-alteration-memorandum" -> pure WrittenResolutionAlterationMemorandum
+    "written-resolution-capitalisation" -> pure WrittenResolutionCapitalisation
+    "written-resolution-change-of-name" -> pure WrittenResolutionChangeOfName
+    "written-resolution-decrease-capital" -> pure WrittenResolutionDecreaseCapital
+    "written-resolution-exemption" -> pure WrittenResolutionExemption
+    "written-resolution-increase-capital" -> pure WrittenResolutionIncreaseCapital
+    "written-resolution-memorandum" -> pure WrittenResolutionMemorandum
+    "written-resolution-purchase-number-shares" -> pure WrittenResolutionPurchaseNumberShares
+    "written-resolution-purchase-shares" -> pure WrittenResolutionPurchaseShares
+    "written-resolution-re-registration" -> pure WrittenResolutionReRegistration
+    "written-resolution-redeem-shares" -> pure WrittenResolutionRedeemShares
+    "written-resolution-reduction-capital" -> pure WrittenResolutionReductionCapital
+    "written-resolution-removal-pre-emption" -> pure WrittenResolutionRemovalPreEmption
+    "written-resolution-securities" -> pure WrittenResolutionSecurities
+    "written-resolution-varying-share-rights" -> pure WrittenResolutionVaryingShareRights
+    desc -> error $ "Unknown description: " <> T.unpack desc
+
+isAccounts :: Description -> Bool
+isAccounts desc = case desc of
+  Accounts -> True
+  AccountsAmended -> True
+  AccountsAmendedWithAccountsTypeAuditExemptionSubsiduary -> True
+  AccountsAmendedWithAccountsTypeDormant -> True
+  AccountsAmendedWithAccountsTypeFull -> True
+  AccountsAmendedWithAccountsTypeFullGroup -> True
+  AccountsAmendedWithAccountsTypeGroup -> True
+  AccountsAmendedWithAccountsTypeInitial -> True
+  AccountsAmendedWithAccountsTypeInterim -> True
+  AccountsAmendedWithAccountsTypeMedium -> True
+  AccountsAmendedWithAccountsTypeMediumGroup -> True
+  AccountsAmendedWithAccountsTypeMicroEntity -> True
+  AccountsAmendedWithAccountsTypePartialExemption -> True
+  AccountsAmendedWithAccountsTypeSmall -> True
+  AccountsAmendedWithAccountsTypeSmallGroup -> True
+  AccountsAmendedWithAccountsTypeTotalExemptionFull -> True
+  AccountsAmendedWithAccountsTypeTotalExemptionSmall -> True
+  AccountsAmendedWithMadeUpDate -> True
+  AccountsBalanceSheet -> True
+  AccountsDormantCompany -> True
+  AccountsWithAccountsTypeAuditExemptionSubsiduary -> True
+  AccountsWithAccountsTypeAuditedAbridged -> True
+  AccountsWithAccountsTypeDormant -> True
+  AccountsWithAccountsTypeFull -> True
+  AccountsWithAccountsTypeFullGroup -> True
+  AccountsWithAccountsTypeGroup -> True
+  AccountsWithAccountsTypeInitial -> True
+  AccountsWithAccountsTypeInterim -> True
+  AccountsWithAccountsTypeMedium -> True
+  AccountsWithAccountsTypeMediumGroup -> True
+  AccountsWithAccountsTypeMicroEntity -> True
+  AccountsWithAccountsTypePartialExemption -> True
+  AccountsWithAccountsTypeSmall -> True
+  AccountsWithAccountsTypeSmallGroup -> True
+  AccountsWithAccountsTypeTotalExemptionFull -> True
+  AccountsWithAccountsTypeTotalExemptionSmall -> True
+  AccountsWithAccountsTypeUnauditedAbridged -> True
+  AccountsWithMadeUpDate -> True
+  _ -> False
