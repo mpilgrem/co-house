@@ -1,4 +1,8 @@
 cradle:
   stack:
+  - path: "./app"
+    component: "co-house:exe:co-house"
   - path: "./tool"
     component: "co-house:exe:tool-description"
+  - path: "./src"
+    component: "co-house:lib"
