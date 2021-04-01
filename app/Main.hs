@@ -42,6 +42,7 @@ import Web.CoHouse.Types (AccountsProfile (..), Address (..),
   CompanySearchResponse (..), DayMonth (..), DescriptionValue (..),
   DocumentMetaDataResponse (..), FilingHistory (..), FilingHistoryResponse (..),
   Links (..), LastAccounts (..), Resources (..), PreviousCompanyName (pcnName, pcnEffectiveFrom, pcnCeasedOn))
+import Web.CoHouse.Types.Description (isAccounts)
 
 data Options = Options
   { optApiKey  :: !(Maybe ByteString)
@@ -185,9 +186,10 @@ main' opts = do
               fhs <- fetchFilingHistory mgr auth
                                         coNo
                                         (Just CategoryAccounts)
-              T.putStrLn $ (T.pack . show . length) fhs <>
+              let fhs' = filter (isAccounts . fhDescription) fhs
+              T.putStrLn $ (T.pack . show . length) fhs' <>
                 " accounts found for company " <> coName <> " (" <> coNo <> ")."
-              mapM_ (getPdf mgr auth outputPath coName overwrite) fhs
+              mapM_ (getPdf mgr auth outputPath coName overwrite) fhs'
             Left err -> print err
 
 class Display a where
