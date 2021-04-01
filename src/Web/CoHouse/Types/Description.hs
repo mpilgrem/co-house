@@ -393,6 +393,7 @@ data Description
   | IncorporationCompanyWithTypeDate
   | IncorporationLimitedLiabilityPartnership
   | IncorporationLimitedLiabilityPartnershipWithDate
+  | Legacy
   | LimitedLiabilityPartnershipMembersRegisterInformationOnWithdrawalFromThePublicRegister
   | LimitedLiabilityPartnershipMembersUsualResidentialAddressRegisterInformationOnWithdrawalFromThePublicRegister
   | LimitedLiabilityPartnershipPersonsWithSignificantControlRegisterInformationOnWithdrawalFromThePublicRegister
@@ -1501,6 +1502,7 @@ instance FromJSON Description where
     "incorporation-company-with-type-date" -> pure IncorporationCompanyWithTypeDate
     "incorporation-limited-liability-partnership" -> pure IncorporationLimitedLiabilityPartnership
     "incorporation-limited-liability-partnership-with-date" -> pure IncorporationLimitedLiabilityPartnershipWithDate
+    "legacy" -> pure Legacy
     "limited-liability-partnership-members-register-information-on-withdrawal-from-the-public-register" -> pure LimitedLiabilityPartnershipMembersRegisterInformationOnWithdrawalFromThePublicRegister
     "limited-liability-partnership-members-usual-residential-address-register-information-on-withdrawal-from-the-public-register" -> pure LimitedLiabilityPartnershipMembersUsualResidentialAddressRegisterInformationOnWithdrawalFromThePublicRegister
     "limited-liability-partnership-persons-with-significant-control-register-information-on-withdrawal-from-the-public-register" -> pure LimitedLiabilityPartnershipPersonsWithSignificantControlRegisterInformationOnWithdrawalFromThePublicRegister

@@ -35,59 +35,61 @@ main = do
   let bs = responseBody response
       result = decodeEither' (B.toStrict bs) :: Either ParseException Value
   case result of
-    Right yml -> do
-      T.putStr $
-        "-- This file was generated using tool-description\n" <>
-        "\n" <>
-        "{-# LANGUAGE OverloadedStrings #-}\n" <>
-        "\n" <>
-        "{- |\n" <>
-        "Module      : Web.CoHouse.Types.Description\n" <>
-        "Description : Types defining the UK's Companies House APIs\n" <>
-        "Copyright   : (c) Mike Pilgrem 2021\n" <>
-        "Maintainer  : public@pilgrem.com\n" <>
-        "Stability   : Experimental\n" <>
-        "\n" <>
-        "This module has no connection with the UK's Companies House or its affiliates.\n" <>
-        "-}\n" <>
-        "module Web.CoHouse.Types.Description\n" <>
-        "  ( Description (..)\n" <>
-        "  , isAccounts\n" <>
-        "  ) where\n" <>
-        "\n" <>
-        "import Data.Aeson (FromJSON (..), withText)\n" <>
-        "import qualified Data.Text as T (unpack)\n" <>
-        "\n" <>
-        "data Description\n" <>
-        "  = " <> ymlToEnum yml <> "\n" <>
-        "  deriving (Eq, Show)\n" <>
-        "\n" <>
-        "instance FromJSON Description where\n" <>
-        "  parseJSON = withText \"Description\" $ \\t -> case t of\n" <>
-        ymlToParseJSON yml <>
-        "    desc -> error $ \"Unknown description: \" <> T.unpack desc\n" <>
-        "\n" <>
-        "isAccounts :: Description -> Bool\n" <>
-        "isAccounts desc = case desc of\n" <>
-        ymlToIsAccounts yml <>
-        "  _ -> False\n"
+    Right yml -> T.putStr $ code yml
     Left err -> print err
+
+code :: Value -> Text
+code yml =
+  "-- This file was generated using tool-description\n" <>
+  "\n" <>
+  "{-# LANGUAGE OverloadedStrings #-}\n" <>
+  "\n" <>
+  "{- |\n" <>
+  "Module      : Web.CoHouse.Types.Description\n" <>
+  "Description : Types defining the UK's Companies House APIs\n" <>
+  "Copyright   : (c) Mike Pilgrem 2021\n" <>
+  "Maintainer  : public@pilgrem.com\n" <>
+  "Stability   : Experimental\n" <>
+  "\n" <>
+  "This module has no connection with the UK's Companies House or its affiliates.\n" <>
+  "-}\n" <>
+  "module Web.CoHouse.Types.Description\n" <>
+  "  ( Description (..)\n" <>
+  "  , isAccounts\n" <>
+  "  ) where\n" <>
+  "\n" <>
+  "import Data.Aeson (FromJSON (..), withText)\n" <>
+  "import qualified Data.Text as T (unpack)\n" <>
+  "\n" <>
+  "data Description\n" <>
+  "  = " <> ymlToEnum <> "\n" <>
+  "  deriving (Eq, Show)\n" <>
+  "\n" <>
+  "instance FromJSON Description where\n" <>
+  "  parseJSON = withText \"Description\" $ \\t -> case t of\n" <>
+  ymlToParseJSON <>
+  "    desc -> error $ \"Unknown description: \" <> T.unpack desc\n" <>
+  "\n" <>
+  "isAccounts :: Description -> Bool\n" <>
+  "isAccounts desc = case desc of\n" <>
+  ymlToIsAccounts <>
+  "  _ -> False\n"
  where
-  desc' yml = sort $ HM.keys $ case yml of
+  ds = HM.keys $ case yml of
     Object obj -> case obj HM.!? "description" of
       Just (Object obj') -> obj'
       _ -> error "No expected 'description' object."
     _ -> error "No expected 'description' object."
-  desc yml = map kebabToList $ desc' yml
-  desc'' yml = map toPascalCase $ desc yml
-  accounts yml = filter (\p -> head p == "accounts") (desc yml)
-  ymlToEnum yml = T.intercalate "\n  | " (desc'' yml)
-  ymlToIsAccounts yml = T.concat $
-    map ((\t -> "  " <> t <> " -> True\n") . toPascalCase) (accounts yml)
-  ymlToParseJSON yml = T.concat $
-    zipWith (\t1 t2 -> "    \"" <> t1 <> "\" -> pure " <> t2 <> "\n")
-            (desc' yml)
-            (desc'' yml)
+  -- Add "legacy" because omitted from filing_history_descriptions.yml
+  ds' = sort $ "legacy" : ds
+  ds'' = map kebabToList ds'
+  ds''' = map toPascalCase ds''
+  accounts = filter (\p -> head p == "accounts") ds''
+  ymlToEnum = T.intercalate "\n  | " ds'''
+  ymlToIsAccounts = T.concat $ map (ymlToIsAccounts' . toPascalCase) accounts
+  ymlToIsAccounts' t = "  " <> t <> " -> True\n"
+  ymlToParseJSON = T.concat $ zipWith ymlToParseJSON' ds' ds'''
+  ymlToParseJSON' t1 t2 = "    \"" <> t1 <> "\" -> pure " <> t2 <> "\n"
 
 toPascalCase :: [Text] -> Text
 toPascalCase ts =
