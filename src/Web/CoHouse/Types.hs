@@ -3,6 +3,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses      #-}
 {-# LANGUAGE OverloadedStrings          #-}
+{-# LANGUAGE RecordWildCards            #-}
 {-# LANGUAGE TypeOperators              #-}
 
 {- |
@@ -16,8 +17,11 @@ This module has no connection with the UK's Companies House or its affiliates.
 -}
 module Web.CoHouse.Types where
 
-import Data.Aeson ((.:), FromJSON(..), Options(fieldLabelModifier),
-  genericParseJSON, defaultOptions, camelTo2, withObject)
+import Data.Foldable(asum)
+import Text.Read (readMaybe)
+
+import Data.Aeson (FromJSON (..), Options (fieldLabelModifier), (.:), (.:?), 
+  camelTo2, defaultOptions, genericParseJSON, withObject)
 import Data.Aeson.Types (withText)
 import Data.ByteString.Lazy (ByteString)
 import Data.Text (Text)
@@ -355,12 +359,30 @@ data FilingHistoryResponse = FilingHistoryResponse
   , fhrTotalCount          :: !Int
   } deriving (Eq, Generic, Show)
 
+-- Instance implemented 'by hand', due to need for patch (see below).
 instance FromJSON FilingHistoryResponse where
-  parseJSON =
-    genericParseJSON
-      defaultOptions
-      { fieldLabelModifier = camelTo2 '_' . drop 3 }
-
+  parseJSON = withObject "FilingHistoryResponse" $ \obj -> do
+    fhrEtag                <- obj .:? "etag"
+    fhrFilingHistoryStatus <- obj .:? "filing_history_status"
+    fhrItems               <- obj .: "items"
+    fhrItemsPerPage        <- obj .: "items_per_page"
+    fhrKind                <- obj .:? "kind"
+    -- As of 2 April 2021, there is a bug in the Companies House API which
+    -- means that the value associated with name start_index can be a number (0)
+    -- or a string. See
+    -- https://forum.aws.chdev.org/t/search-companies-pagination-problem-if-items-per-page-1/3774
+    fhrStartIndex          <- patch obj "start_index"
+    fhrTotalCount          <- obj .: "total_count"
+    pure FilingHistoryResponse {..}
+   where
+    patch obj name = asum
+      [ obj .: name
+      , do s <- obj .: name
+           case readMaybe s of
+             Nothing -> fail $ T.unpack name <> " is not a number"
+             Just x  -> pure x
+      ]
+   
 data FilingHistory = FilingHistory
   { fhAnnotations       :: !(Maybe [Annotation])
   , fhAssociatedFilings :: !(Maybe [AssociatedFiling])

@@ -28,6 +28,8 @@ module Web.CoHouse
   , docPdf
   ) where
 
+import Data.Maybe (isNothing)
+
 import Data.ByteString.Lazy (ByteString)
 import Data.Proxy (Proxy (..))
 import Data.Text (Text)
@@ -39,7 +41,8 @@ import Servant.Client (BaseUrl (BaseUrl), ClientEnv (ClientEnv), ClientError,
   ClientM, Scheme (Https), client, defaultMakeClientRequest, runClientM)
 
 import Web.CoHouse.Types (Category, CoHouseDocumentApi, CoHousePublicDataApi,
-  CompanyProfile, CompanySearchResponse, DocumentMetaDataResponse, FilingHistoryResponse, OfficersResponse, OrderBy, RegisterType
+  CompanyProfile, CompanySearchResponse (..), DocumentMetaDataResponse,
+  FilingHistoryResponse, OfficersResponse, OrderBy, RegisterType
   )
 
 dataApi :: Proxy CoHousePublicDataApi
@@ -118,10 +121,25 @@ companySearch
   -> Maybe Int  -- ^ Items per page.
   -> Maybe Int  -- ^ Start index.
   -> IO (Either ClientError CompanySearchResponse)
-companySearch mgr auth q itemsPerPage startIndex =
-  runClientM
-    (companySearch' auth q itemsPerPage startIndex)
-    (ClientEnv mgr coHousePublicDataApis Nothing defaultMakeClientRequest)
+companySearch mgr auth q itemsPerPage startIndex
+  -- As of 2 Apr 2021, there is a bug in the Companies House API which needs to
+  -- be patched. See
+  -- https://forum.aws.chdev.org/t/search-companies-pagination-problem-if-items-per-page-1/3774
+  | itemsPerPage == Just 1
+  , isNothing startIndex || startIndex == Just 0 = do
+      result <- runClientM
+        (companySearch' auth q (Just 2) startIndex)
+        (ClientEnv mgr coHousePublicDataApis Nothing defaultMakeClientRequest)
+      pure $ fmap patch result
+  | otherwise =
+      runClientM
+        (companySearch' auth q itemsPerPage startIndex)
+        (ClientEnv mgr coHousePublicDataApis Nothing defaultMakeClientRequest)
+ where
+  patch csr = case csrItems csr of
+    []    -> csr { csrItemsPerPage = Just 1 }
+    [_]   -> csr { csrItemsPerPage = Just 1 }
+    (i:_) -> csr { csrItemsPerPage = Just 1, csrItems = [i] }
 
 filingHistory
   :: Manager
