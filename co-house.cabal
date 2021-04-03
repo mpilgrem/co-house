@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: e62f4f1e3c382480122e0cb98fc9e8f6af25b4fb3f34e0e40a0dcda585b2b412
+-- hash: 989698a090b6d485d007535aef61b85a2aa4be24b7d886c8bac98b7f3d1f8a37
 
 name:           co-house
 version:        0.1.0.0
@@ -58,6 +58,7 @@ library
     , servant-client
     , text
     , time
+    , yaml
   default-language: Haskell2010
 
 executable co-house
@@ -84,6 +85,7 @@ executable co-house
     , servant-client
     , text
     , time
+    , yaml
   default-language: Haskell2010
 
 executable tool-description

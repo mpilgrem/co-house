@@ -23,6 +23,7 @@ import System.Environment (lookupEnv)
 import Data.Text (Text)
 import qualified Data.Text as T (concat, intercalate, pack, unpack)
 import qualified Data.Text.IO as T
+import Data.Yaml (decodeFileEither)
 import Options.Applicative (Parser, (<**>), auto, command, execParser, fullDesc,
   header, help, helper, info, infoOption, long, metavar, option, progDesc,
   short, strOption, subparser, switch, value)
@@ -66,11 +67,13 @@ data SearchOptions = SearchOptions
   } deriving (Eq, Show)
 
 data ProfileOptions = ProfileOptions
-  { poCoNo :: !Text
+  { poCoNo  :: !(Maybe Text)
+  , poCoNos :: !(Maybe Text)
   } deriving (Eq, Show)
 
 data OfficersOptions = OfficersOptions
-  { ooCoNo         :: !Text
+  { ooCoNo         :: !(Maybe Text)
+  , ooCoNos        :: !(Maybe Text)
   , ooOrderBy      :: !(Maybe OrderBy)
   , ooRegisterType :: !(Maybe RegisterType)
   , ooItemsPerPage :: !Int
@@ -78,7 +81,8 @@ data OfficersOptions = OfficersOptions
   } deriving (Eq, Show)
 
 data AccountsOptions = AccountsOptions
-  { aoCoNo       :: !Text
+  { aoCoNo       :: !(Maybe Text)
+  , aoCoNos      :: !(Maybe Text)
   , aoOutputPath :: !Text
   , aoOverwrite  :: !Bool
   } deriving (Eq, Show)
@@ -129,19 +133,31 @@ searchOptions = Search <$> (SearchOptions
 
 profileOptions :: Parser Command
 profileOptions = Profile <$> (ProfileOptions
-  <$> strOption
+  <$> optional ( strOption
       ( long "co-no"
      <> short 'c'
      <> metavar "CO_NUMBER"
-     <> help "Company number." ))
+     <> help "Company number." ) )
+  <*> optional ( strOption
+      ( long "input"
+     <> short 'i'
+     <> metavar "FILEPATH"
+     <> help ("File path to list of one or more company numbers (in YAML " <>
+               "format). Takes precedence over 'co-no' option.") ) ) )
 
 officersOptions :: Parser Command
 officersOptions = Officers <$> (OfficersOptions
-  <$> strOption
+  <$> optional ( strOption
       ( long "co-no"
      <> short 'c'
      <> metavar "CO_NUMBER"
-     <> help "Company number." )
+     <> help "Company number." ) )
+  <*> optional ( strOption
+      ( long "input"
+     <> short 'i'
+     <> metavar "FILEPATH"
+     <> help ("File path to list of one or more company numbers (in YAML " <>
+               "format). Takes precedence over 'co-no' option.") ) )
   <*> optional ( option auto
       ( long "sort-by"
      <> short 's'
@@ -164,11 +180,17 @@ officersOptions = Officers <$> (OfficersOptions
 
 accountsOptions :: Parser Command
 accountsOptions = Accounts <$> (AccountsOptions
-  <$> strOption
+  <$> optional ( strOption
       ( long "co-no"
      <> short 'c'
      <> metavar "CO_NUMBER"
-     <> help "Company number." )
+     <> help "Company number." ) )
+  <*> optional ( strOption
+      ( long "input"
+     <> short 'i'
+     <> metavar "FILEPATH"
+     <> help ("File path to list of one or more company numbers (in YAML " <>
+              "format). Takes precedence over 'co-no' option.") ) )
   <*> strOption
       ( long "output"
      <> short 'o'
@@ -213,37 +235,45 @@ main' opts = do
               T.putStr (T.concat $ map display (csrItems result))
             Left err -> print err
         Profile profileOpts -> do
-          companyProfile mgr auth (poCoNo profileOpts) >>= \case
+          coNos <- readCoNos (poCoNos profileOpts) (poCoNo profileOpts)
+          mapM_ (\coNo -> companyProfile mgr auth coNo >>= \case
             Right result -> T.putStr $ display result
-            Left err -> print err
+            Left err -> print err) coNos
         Officers officersOpts -> do
-          companyOfficers mgr auth (ooCoNo officersOpts)
-                                   (ooRegisterType officersOpts)
-                                   (ooOrderBy officersOpts)
-                                   (Just $ ooItemsPerPage officersOpts)
-                                   (Just $ ooStartIndex officersOpts) >>= \case
-            Right result -> do
-              T.putStrLn $ "Total items available: " <> (T.pack . show)
-                (orTotalResults result)
-              T.putStr (T.concat $ map display (orItems result))
-            Left err -> print err
+          coNos <- readCoNos (ooCoNos officersOpts) (ooCoNo officersOpts)
+          mapM_ (\coNo -> do
+            companyProfile mgr auth coNo >>= \case
+              Right result -> T.putStrLn $ cpCompanyName result
+              Left err -> print err
+            companyOfficers mgr auth coNo
+                                     (ooRegisterType officersOpts)
+                                     (ooOrderBy officersOpts)
+                                     (Just $ ooItemsPerPage officersOpts)
+                                     (Just $ ooStartIndex officersOpts) >>= \case
+              Right result -> do
+                T.putStrLn $ "Total items available: " <> (T.pack . show)
+                  (orTotalResults result)
+                T.putStr (T.concat $ map display (orItems result))
+              Left err -> print err) coNos
         Accounts accsOpts -> do
-          let coNo       = aoCoNo accsOpts
-              outputPath = aoOutputPath accsOpts
+          let outputPath = aoOutputPath accsOpts
               overwrite  = aoOverwrite accsOpts
-          when (outputPath /= "") $ do
-            createDirectoryIfMissing True (T.unpack outputPath)
-          companyProfile mgr auth coNo >>= \case
-            Right cp -> do
-              let coName = cpCompanyName cp
-              fhs <- fetchFilingHistory mgr auth
-                                        coNo
-                                        (Just CategoryAccounts)
-              let fhs' = filter (isAccounts . fhDescription) fhs
-              T.putStrLn $ (T.pack . show . length) fhs' <>
-                " accounts found for company " <> coName <> " (" <> coNo <> ")."
-              mapM_ (getPdf mgr auth outputPath coName overwrite) fhs'
-            Left err -> print err
+          coNos <- readCoNos (aoCoNos accsOpts) (aoCoNo accsOpts)
+          mapM_ (\coNo -> do
+            when (outputPath /= "") $ do
+              createDirectoryIfMissing True (T.unpack outputPath)
+            companyProfile mgr auth coNo >>= \case
+              Right cp -> do
+                let coName = cpCompanyName cp
+                fhs <- fetchFilingHistory mgr auth
+                                          coNo
+                                          (Just CategoryAccounts)
+                let fhs' = filter (isAccounts . fhDescription) fhs
+                T.putStrLn $ (T.pack . show . length) fhs' <>
+                  " accounts found for company " <> coName <> " (" <> coNo <>
+                  ")."
+                mapM_ (getPdf mgr auth outputPath coName overwrite) fhs'
+              Left err -> print err) coNos
 
 class Display a where
   display :: a -> Text
@@ -460,3 +490,18 @@ uniqueFilePath' n fp = do
   if fpExists
     then uniqueFilePath' (n + 1) fp
     else pure fp''
+
+readCoNos :: Maybe Text -> Maybe Text -> IO [Text]
+readCoNos mFilePath mCoNo = do
+  case mFilePath of
+    Nothing -> do
+      case mCoNo of
+        Nothing -> error "One or more company numbers must be specified."
+        Just coNo -> pure [coNo]
+    Just filePath -> do
+      let filePath' = T.unpack filePath
+      doesFileExist filePath' >>= \case
+        False -> error $ "Cannot find input file: " <> filePath'
+        True -> decodeFileEither filePath' >>= \case
+          Right result -> pure result
+          Left err -> error $ show err

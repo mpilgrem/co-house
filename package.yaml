@@ -39,6 +39,7 @@ dependencies:
 - servant-client
 - text
 - time
+- yaml
 
 library:
   source-dirs: src
@@ -64,6 +65,4 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - casing
     - unordered-containers
-    - yaml
