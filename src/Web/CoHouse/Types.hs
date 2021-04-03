@@ -20,7 +20,7 @@ module Web.CoHouse.Types where
 import Data.Foldable(asum)
 import Text.Read (readMaybe)
 
-import Data.Aeson (FromJSON (..), Options (fieldLabelModifier), (.:), (.:?), 
+import Data.Aeson (FromJSON (..), Options (fieldLabelModifier), (.:), (.:?),
   camelTo2, defaultOptions, genericParseJSON, withObject)
 import Data.Aeson.Types (withText)
 import Data.ByteString.Lazy (ByteString)
@@ -58,27 +58,24 @@ instance MimeUnrender PDF () where
   mimeUnrender _ = const (Right ())
 
 type CoHousePublicDataApi
-  =    BasicAuth "" ()
-  :>   "company"
+  =    BasicAuth "" () :>
+  (   "company"
   :>   Capture "companyNumber" Text
   :>   Get '[JSON] CompanyProfile
-  :<|> BasicAuth "" ()
-  :>   "search"
+  :<|> "search"
   :>   "companies"
   :>   QueryParam "q" Text
   :>   QueryParam "items_per_page" Int
   :>   QueryParam "start_index" Int
   :>   Get '[JSON] CompanySearchResponse
-  :<|> BasicAuth "" ()
-  :>   "company"
+  :<|> "company"
   :>   Capture "companyNumber" Text
   :>   "filing-history"
   :>   QueryParam "category" Category
   :>   QueryParam "items_per_page" Int
   :>   QueryParam "start_index" Int
   :>   Get '[JSON] FilingHistoryResponse
-  :<|> BasicAuth "" ()
-  :>   "company"
+  :<|> "company"
   :>   Capture "companyNumber" Text
   :>   "officers"
   :>   QueryParam "register_view" Bool
@@ -87,6 +84,7 @@ type CoHousePublicDataApi
   :>   QueryParam "items_per_page" Int
   :>   QueryParam "start_index" Int
   :>   Get '[JSON] OfficersResponse
+  )
 
 type CoHouseDocumentApi
   =    BasicAuth "" ()
@@ -382,7 +380,7 @@ instance FromJSON FilingHistoryResponse where
              Nothing -> fail $ T.unpack name <> " is not a number"
              Just x  -> pure x
       ]
-   
+
 data FilingHistory = FilingHistory
   { fhAnnotations       :: !(Maybe [Annotation])
   , fhAssociatedFilings :: !(Maybe [AssociatedFiling])

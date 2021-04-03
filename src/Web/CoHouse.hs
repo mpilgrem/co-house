@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds         #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards   #-}
 
 {- |
 Module      : Web.CoHouse
@@ -51,35 +52,39 @@ dataApi = Proxy
 docApi :: Proxy CoHouseDocumentApi
 docApi = Proxy
 
-companyProfile'
-  :: BasicAuthData
-  -> Text  -- ^ Company number.
-  -> ClientM CompanyProfile
+data DataApi = DataApi
+  { companyProfile'
+      :: Text  -- ^ Company number.
+      -> ClientM CompanyProfile
 
-companySearch'
-  :: BasicAuthData
-  -> Maybe Text  -- ^ Query.
-  -> Maybe Int  -- ^ Items per page.
-  -> Maybe Int  -- ^ Start index.
-  -> ClientM CompanySearchResponse
+  , companySearch'
+      :: Maybe Text  -- ^ Query.
+      -> Maybe Int  -- ^ Items per page.
+      -> Maybe Int  -- ^ Start index.
+      -> ClientM CompanySearchResponse
 
-filingHistory'
-  :: BasicAuthData
-  -> Text
-  -> Maybe Category
-  -> Maybe Int  -- ^ Items per page.
-  -> Maybe Int  -- ^ Start index.
-  -> ClientM FilingHistoryResponse
+  , filingHistory'
+      :: Text
+      -> Maybe Category
+      -> Maybe Int  -- ^ Items per page.
+      -> Maybe Int  -- ^ Start index.
+      -> ClientM FilingHistoryResponse
 
-companyOfficers'
-  :: BasicAuthData
-  -> Text  -- ^ Company number.
-  -> Maybe Bool -- ^ Register view.
-  -> Maybe RegisterType
-  -> Maybe OrderBy
-  -> Maybe Int  -- ^ Items per page.
-  -> Maybe Int  -- ^ Start index.
-  -> ClientM OfficersResponse
+  , companyOfficers'
+      :: Text  -- ^ Company number.
+      -> Maybe Bool -- ^ Register view.
+      -> Maybe RegisterType
+      -> Maybe OrderBy
+      -> Maybe Int  -- ^ Items per page.
+      -> Maybe Int  -- ^ Start index.
+      -> ClientM OfficersResponse
+  }
+
+mkDataApi :: BasicAuthData -> DataApi
+mkDataApi auth =
+  let companyProfile' :<|> companySearch' :<|> filingHistory' :<|>
+        companyOfficers' = client dataApi auth
+  in DataApi {..}
 
 docMetadata'
   :: BasicAuthData
@@ -91,9 +96,6 @@ docPdf'
   -> Text
   -> ClientM ByteString
 
-companyProfile' :<|> companySearch' :<|> filingHistory' :<|> companyOfficers' =
-  client dataApi
-
 docMetadata' :<|> docPdf' = client docApi
 
 coHousePublicDataApis :: BaseUrl
@@ -104,6 +106,10 @@ coHouseDocumentApis :: BaseUrl
 coHouseDocumentApis =
   BaseUrl Https "document-api.company-information.service.gov.uk" 443 ""
 
+dataApiClientEnv :: Manager -> ClientEnv
+dataApiClientEnv mgr =
+  ClientEnv mgr coHousePublicDataApis Nothing defaultMakeClientRequest
+
 companyProfile
   :: Manager
   -> BasicAuthData
@@ -111,8 +117,8 @@ companyProfile
   -> IO (Either ClientError CompanyProfile)
 companyProfile mgr auth coNo =
   runClientM
-    (companyProfile' auth coNo)
-    (ClientEnv mgr coHousePublicDataApis Nothing defaultMakeClientRequest)
+    (companyProfile' (mkDataApi auth) coNo)
+    (dataApiClientEnv mgr)
 
 companySearch
   :: Manager
@@ -128,13 +134,13 @@ companySearch mgr auth q itemsPerPage startIndex
   | itemsPerPage == Just 1
   , isNothing startIndex || startIndex == Just 0 = do
       result <- runClientM
-        (companySearch' auth q (Just 2) startIndex)
-        (ClientEnv mgr coHousePublicDataApis Nothing defaultMakeClientRequest)
+        (companySearch' (mkDataApi auth) q (Just 2) startIndex)
+        (dataApiClientEnv mgr)
       pure $ fmap patch result
   | otherwise =
       runClientM
-        (companySearch' auth q itemsPerPage startIndex)
-        (ClientEnv mgr coHousePublicDataApis Nothing defaultMakeClientRequest)
+        (companySearch' (mkDataApi auth) q itemsPerPage startIndex)
+        (dataApiClientEnv mgr)
  where
   patch csr = case csrItems csr of
     []    -> csr { csrItemsPerPage = Just 1 }
@@ -151,8 +157,8 @@ filingHistory
   -> IO (Either ClientError FilingHistoryResponse)
 filingHistory mgr auth coNo cat itemsPerPage startIndex =
   runClientM
-    (filingHistory' auth coNo cat itemsPerPage startIndex)
-    (ClientEnv mgr coHousePublicDataApis Nothing defaultMakeClientRequest)
+    (filingHistory' (mkDataApi auth) coNo cat itemsPerPage startIndex)
+    (dataApiClientEnv mgr)
 
 companyOfficers
   :: Manager
@@ -166,8 +172,8 @@ companyOfficers
 companyOfficers mgr auth coNo mRegType mOrderBy itemsPerPage startIndex = do
   let mRV = const (Just True) =<< mRegType
   runClientM
-    (companyOfficers' auth coNo mRV mRegType mOrderBy itemsPerPage startIndex)
-    (ClientEnv mgr coHousePublicDataApis Nothing defaultMakeClientRequest)
+    (companyOfficers' (mkDataApi auth) coNo mRV mRegType mOrderBy itemsPerPage startIndex)
+    (dataApiClientEnv mgr)
 
 docMetadata
   :: Manager

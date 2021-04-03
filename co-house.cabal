@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 989698a090b6d485d007535aef61b85a2aa4be24b7d886c8bac98b7f3d1f8a37
+-- hash: 82cd80b94ed434e71482defe2f51640ef87a35c0ffd15003ad12243c7716f572
 
 name:           co-house
 version:        0.1.0.0
@@ -99,7 +99,6 @@ executable tool-description
       aeson
     , base >=4.7 && <5
     , bytestring
-    , casing
     , directory
     , filepath
     , http-client
