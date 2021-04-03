@@ -20,8 +20,9 @@ provides bindings in Haskell to those APIs.
 See the @co-house@ console application for examples of the use of the library.
 -}
 module Web.CoHouse
-  ( companyProfile
-  , companySearch
+  ( companySearch
+  , companyProfile
+  , companyOfficers
   , filingHistory
   , docMetadata
   , docPdf
@@ -38,8 +39,8 @@ import Servant.Client (BaseUrl (BaseUrl), ClientEnv (ClientEnv), ClientError,
   ClientM, Scheme (Https), client, defaultMakeClientRequest, runClientM)
 
 import Web.CoHouse.Types (Category, CoHouseDocumentApi, CoHousePublicDataApi,
-  CompanyProfile, CompanySearchResponse, FilingHistoryResponse,
-  DocumentMetaDataResponse)
+  CompanyProfile, CompanySearchResponse, DocumentMetaDataResponse, FilingHistoryResponse, OfficersResponse, OrderBy, RegisterType
+  )
 
 dataApi :: Proxy CoHousePublicDataApi
 dataApi = Proxy
@@ -49,23 +50,33 @@ docApi = Proxy
 
 companyProfile'
   :: BasicAuthData
-  -> Text
+  -> Text  -- ^ Company number.
   -> ClientM CompanyProfile
 
 companySearch'
   :: BasicAuthData
-  -> Maybe Text
-  -> Maybe Int
-  -> Maybe Int
+  -> Maybe Text  -- ^ Query.
+  -> Maybe Int  -- ^ Items per page.
+  -> Maybe Int  -- ^ Start index.
   -> ClientM CompanySearchResponse
 
 filingHistory'
   :: BasicAuthData
   -> Text
   -> Maybe Category
-  -> Maybe Int
-  -> Maybe Int
+  -> Maybe Int  -- ^ Items per page.
+  -> Maybe Int  -- ^ Start index.
   -> ClientM FilingHistoryResponse
+
+companyOfficers'
+  :: BasicAuthData
+  -> Text  -- ^ Company number.
+  -> Maybe Bool -- ^ Register view.
+  -> Maybe RegisterType
+  -> Maybe OrderBy
+  -> Maybe Int  -- ^ Items per page.
+  -> Maybe Int  -- ^ Start index.
+  -> ClientM OfficersResponse
 
 docMetadata'
   :: BasicAuthData
@@ -77,7 +88,8 @@ docPdf'
   -> Text
   -> ClientM ByteString
 
-companyProfile' :<|> companySearch' :<|> filingHistory' = client dataApi
+companyProfile' :<|> companySearch' :<|> filingHistory' :<|> companyOfficers' =
+  client dataApi
 
 docMetadata' :<|> docPdf' = client docApi
 
@@ -102,9 +114,9 @@ companyProfile mgr auth coNo =
 companySearch
   :: Manager
   -> BasicAuthData
-  -> Maybe Text
-  -> Maybe Int
-  -> Maybe Int
+  -> Maybe Text  -- ^ Query.
+  -> Maybe Int  -- ^ Items per page.
+  -> Maybe Int  -- ^ Start index.
   -> IO (Either ClientError CompanySearchResponse)
 companySearch mgr auth q itemsPerPage startIndex =
   runClientM
@@ -116,12 +128,27 @@ filingHistory
   -> BasicAuthData
   -> Text  -- ^ Company number.
   -> Maybe Category
-  -> Maybe Int
-  -> Maybe Int
+  -> Maybe Int  -- ^ Items per page.
+  -> Maybe Int  -- ^ Start index.
   -> IO (Either ClientError FilingHistoryResponse)
 filingHistory mgr auth coNo cat itemsPerPage startIndex =
   runClientM
     (filingHistory' auth coNo cat itemsPerPage startIndex)
+    (ClientEnv mgr coHousePublicDataApis Nothing defaultMakeClientRequest)
+
+companyOfficers
+  :: Manager
+  -> BasicAuthData
+  -> Text  -- ^ Company number.
+  -> Maybe RegisterType
+  -> Maybe OrderBy
+  -> Maybe Int  -- ^ Items per page.
+  -> Maybe Int  -- ^ Start index.
+  -> IO (Either ClientError OfficersResponse)
+companyOfficers mgr auth coNo mRegType mOrderBy itemsPerPage startIndex = do
+  let mRV = const (Just True) =<< mRegType
+  runClientM
+    (companyOfficers' auth coNo mRV mRegType mOrderBy itemsPerPage startIndex)
     (ClientEnv mgr coHousePublicDataApis Nothing defaultMakeClientRequest)
 
 docMetadata

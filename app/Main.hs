@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds         #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LambdaCase        #-}
 {-# LANGUAGE OverloadedStrings #-}
 
@@ -16,7 +17,7 @@ module Main (main) where
 import Control.Applicative (optional, Alternative ((<|>)))
 import Control.Monad (when)
 import qualified Data.List.NonEmpty as NE (last)
-import Data.Maybe (fromMaybe, isJust)
+import Data.Maybe (catMaybes, fromMaybe, isJust)
 import System.Environment (lookupEnv)
 
 import Data.Text (Text)
@@ -35,13 +36,15 @@ import System.Directory (doesFileExist, createDirectoryIfMissing)
 import System.FilePath ((<.>), (</>), takeExtension, dropExtension)
 import Text.URI (URI(uriPath), mkURI, unRText)
 
-import Web.CoHouse (companyProfile, companySearch, docMetadata, docPdf,
-  filingHistory)
+import Web.CoHouse (companyOfficers, companyProfile, companySearch, docMetadata,
+  docPdf, filingHistory)
 import Web.CoHouse.Types (AccountsProfile (..), Address (..),
   BranchCoProfile (..), Category (..), CompanyProfile (..), CompanySearch (..),
-  CompanySearchResponse (..), DayMonth (..), DescriptionValue (..),
-  DocumentMetaDataResponse (..), FilingHistory (..), FilingHistoryResponse (..),
-  Links (..), LastAccounts (..), Resources (..), PreviousCompanyName (pcnName, pcnEffectiveFrom, pcnCeasedOn))
+  CompanySearchResponse (..), DateOfBirth (..), DayMonth (..),
+  DescriptionValue (..), DocumentMetaDataResponse (..), FilingHistory (..),
+  FilingHistoryResponse (..), Links (..), LastAccounts (..), Name (..),
+  OrderBy (..), Officer (..), OfficersResponse (..), PreviousCompanyName (..),
+  RegisterType (..), Resources (..))
 import Web.CoHouse.Types.Description (isAccounts)
 
 data Options = Options
@@ -52,6 +55,7 @@ data Options = Options
 data Command
   = Search !SearchOptions
   | Profile !ProfileOptions
+  | Officers !OfficersOptions
   | Accounts !AccountsOptions
   deriving (Eq, Show)
 
@@ -63,6 +67,14 @@ data SearchOptions = SearchOptions
 
 data ProfileOptions = ProfileOptions
   { poCoNo :: !Text
+  } deriving (Eq, Show)
+
+data OfficersOptions = OfficersOptions
+  { ooCoNo         :: !Text
+  , ooOrderBy      :: !(Maybe OrderBy)
+  , ooRegisterType :: !(Maybe RegisterType)
+  , ooItemsPerPage :: !Int
+  , ooStartIndex   :: !Int
   } deriving (Eq, Show)
 
 data AccountsOptions = AccountsOptions
@@ -92,7 +104,10 @@ options apiKey = Options . (<|> apiKey)
      <> command "profile" ( info (profileOptions <**> helper)
         ( fullDesc
        <> progDesc "Obtain company profile." ) )
-     <> command "accounts" ( info (accountsOptions <**> helper)
+     <> command "officers" ( info (officersOptions <**> helper)
+        ( fullDesc
+       <> progDesc "Obtain company officers." ) )
+ <> command "accounts" ( info (accountsOptions <**> helper)
         ( fullDesc
        <> progDesc "Download accounts.") ) )
 
@@ -119,6 +134,33 @@ profileOptions = Profile <$> (ProfileOptions
      <> short 'c'
      <> metavar "CO_NUMBER"
      <> help "Company number." ))
+
+officersOptions :: Parser Command
+officersOptions = Officers <$> (OfficersOptions
+  <$> strOption
+      ( long "co-no"
+     <> short 'c'
+     <> metavar "CO_NUMBER"
+     <> help "Company number." )
+  <*> optional ( option auto
+      ( long "sort-by"
+     <> short 's'
+     <> metavar "SORT_ORDER"
+     <> help "Sort order, one of AppointedOn, ResignedOn or Surname." ) )
+  <*> optional ( option auto
+      ( long "register"
+     <> short 'r'
+     <> metavar "REGISTER"
+     <> help "Register, one of Directors, Secretaries or LlpMembers." ) )
+  <*> option auto
+      ( long "items-per-page"
+     <> short 'n'
+     <> value 100
+     <> help "Capped at 100 items." )
+  <*> option auto
+      ( long "start-index"
+     <> short 'i'
+     <> value 0 ))
 
 accountsOptions :: Parser Command
 accountsOptions = Accounts <$> (AccountsOptions
@@ -173,6 +215,17 @@ main' opts = do
         Profile profileOpts -> do
           companyProfile mgr auth (poCoNo profileOpts) >>= \case
             Right result -> T.putStr $ display result
+            Left err -> print err
+        Officers officersOpts -> do
+          companyOfficers mgr auth (ooCoNo officersOpts)
+                                   (ooRegisterType officersOpts)
+                                   (ooOrderBy officersOpts)
+                                   (Just $ ooItemsPerPage officersOpts)
+                                   (Just $ ooStartIndex officersOpts) >>= \case
+            Right result -> do
+              T.putStrLn $ "Total items available: " <> (T.pack . show)
+                (orTotalResults result)
+              T.putStr (T.concat $ map display (orItems result))
             Left err -> print err
         Accounts accsOpts -> do
           let coNo       = aoCoNo accsOpts
@@ -270,6 +323,42 @@ instance Display FilingHistory where
     <> maybe "" (T.pack . show) (dvMadeUpDate =<< fhDescriptionValues fh) <> " "
     <> fromMaybe "" (lDocumentMetadata =<< fhLinks fh) <> " "
     <> (T.pack . show) (fhCategory fh) <> "\n"
+
+instance Display Officer where
+  display o
+    = display [ Just (oName o)
+              , Just $ "(" <> maybe "unknown" (T.pack . show) (oAppointedOn o)
+                <> maybe " to date" (\d -> " to " <> (T.pack . show ) d)
+                                    (oResignedOn o)
+                <> ")"
+              , Just $ oOfficerRole o
+              ]
+    <> maybe "" (\ns -> "(aka: " <> display ns <> "\n") (oFormerNames o)
+    <> display [ oNationality o
+               , oOccupation o
+               , (\dob -> "born " <> display dob) <$> oDateOfBirth o
+               ]
+
+instance Display [Name] where
+  display [] = ""
+  display [n] = display n
+  display (n:ns) = display n <> "; " <> display ns
+
+instance Display Name where
+  display n
+    =  fromMaybe "" (nSurname n)
+    <> maybe "" (", " <>) (nForenames n)
+
+instance Display DateOfBirth where
+  display dob
+    = let my = (T.pack . show) (dobMonth dob) <> "/" <>
+                 (T.pack . show) (dobYear dob)
+      in  maybe my (\d -> (T.pack . show) d <> "/" <> my) (dobDay dob)
+
+instance Display [Maybe Text] where
+  display mts = case catMaybes mts of
+    [] -> ""
+    ts -> T.intercalate " " ts <> "\n"
 
 fetchFilingHistory :: Manager
                     -> BasicAuthData

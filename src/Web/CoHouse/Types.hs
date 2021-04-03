@@ -73,6 +73,16 @@ type CoHousePublicDataApi
   :>   QueryParam "items_per_page" Int
   :>   QueryParam "start_index" Int
   :>   Get '[JSON] FilingHistoryResponse
+  :<|> BasicAuth "" ()
+  :>   "company"
+  :>   Capture "companyNumber" Text
+  :>   "officers"
+  :>   QueryParam "register_view" Bool
+  :>   QueryParam "register_type" RegisterType
+  :>   QueryParam "order_by" OrderBy
+  :>   QueryParam "items_per_page" Int
+  :>   QueryParam "start_index" Int
+  :>   Get '[JSON] OfficersResponse
 
 type CoHouseDocumentApi
   =    BasicAuth "" ()
@@ -313,6 +323,7 @@ instance FromJSON Address where
 data Links = Links
   { lDocument         :: !(Maybe Text)
   , lDocumentMetadata :: !(Maybe Text)
+  , lOfficer          :: !(Maybe OfficerLink)
   , lSelf             :: !(Maybe Text)
   } deriving (Eq, Generic, Show)
 
@@ -522,3 +533,113 @@ instance FromJSON Resource where
     genericParseJSON
       defaultOptions
       { fieldLabelModifier = camelTo2 '_' . drop 1 }
+
+data OfficersResponse = OfficersResponse
+  { orActiveCount   :: !Int
+  , orEtag          :: !Text
+  , orItems         :: ![Officer]
+  , orItemsPerPage  :: !Int
+  , orKind          :: !Text
+  , orLinks         :: !Links
+  , orResignedCount :: !Int
+  , orStartIndex    :: !Int
+  , orTotalResults  :: !Int
+  } deriving (Eq, Generic, Show)
+
+instance FromJSON OfficersResponse where
+  parseJSON =
+    genericParseJSON
+      defaultOptions
+      { fieldLabelModifier = camelTo2 '_' . drop 2 }
+
+data Officer = Officer
+  { oAddress            :: !Address
+  , oAppointedOn        :: !(Maybe Day)
+  , oCountryOfResidence :: !(Maybe Text)
+  , oDateOfBirth        :: !(Maybe DateOfBirth)
+  , oFormerNames        :: !(Maybe [Name])
+  , oIdentification     :: !(Maybe Identification)
+  , oLinks              :: !Links
+  , oName               :: !Text
+  , oNationality        :: !(Maybe Text)
+  , oOccupation         :: !(Maybe Text)
+  , oOfficerRole        :: !Text
+  , oResignedOn         :: !(Maybe Day)
+  } deriving (Eq, Generic, Show)
+
+instance FromJSON Officer where
+  parseJSON =
+    genericParseJSON
+      defaultOptions
+      { fieldLabelModifier = camelTo2 '_' . drop 1 }
+
+data DateOfBirth = DateOfBirth
+  { dobDay   :: !(Maybe Int)
+  , dobMonth :: !Int
+  , dobYear  :: !Int
+  } deriving (Eq, Generic, Show)
+
+instance FromJSON DateOfBirth where
+  parseJSON =
+    genericParseJSON
+      defaultOptions
+      { fieldLabelModifier = camelTo2 '_' . drop 3 }
+
+data Name = Name
+  { nForenames :: !(Maybe Text)
+  , nSurname   :: !(Maybe Text)
+  } deriving (Eq, Generic, Show)
+
+instance FromJSON Name where
+  parseJSON =
+    genericParseJSON
+      defaultOptions
+      { fieldLabelModifier = camelTo2 '_' . drop 1 }
+
+data Identification = Identification
+  { iIdentificationType :: !(Maybe Text)
+  , iLegalAuthority     :: !(Maybe Text)
+  , iLegalForm          :: !(Maybe Text)
+  , iPlaceRegistered    :: !(Maybe Text)
+  , iRegistrationNumber :: !(Maybe Text)
+  } deriving (Eq, Generic, Show)
+
+instance FromJSON Identification where
+  parseJSON =
+    genericParseJSON
+      defaultOptions
+      { fieldLabelModifier = camelTo2 '_' . drop 1 }
+
+data OfficerLink = OfficerLink
+  { olAppointments :: !Text
+  }  deriving (Eq, Generic, Show)
+
+instance FromJSON OfficerLink where
+  parseJSON =
+    genericParseJSON
+      defaultOptions
+      { fieldLabelModifier = camelTo2 '_' . drop 2 }
+
+data OrderBy
+  = AppointedOn
+  | ResignedOn
+  | Surname
+  deriving (Eq, Read, Show)
+
+instance ToHttpApiData OrderBy where
+  toQueryParam orderBy = case orderBy of
+    AppointedOn -> "appointed_on"
+    ResignedOn  -> "resigned_on"
+    Surname     -> "surname"
+
+data RegisterType
+  = Directors
+  | Secretaries
+  | LlpMembers
+  deriving (Eq, Read, Show)
+
+instance ToHttpApiData RegisterType where
+  toQueryParam rt = case rt of
+    Directors   -> "directors"
+    Secretaries -> "secretaries"
+    LlpMembers  -> "llp-members"
