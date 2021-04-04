@@ -33,6 +33,8 @@ import qualified Data.ByteString.Lazy as BL (writeFile)
 import Network.HTTP.Client (Manager, newManager)
 import Network.HTTP.Client.TLS (tlsManagerSettings)
 import Servant.API (BasicAuthData(BasicAuthData))
+import System.Console.ANSI (ConsoleLayer(Foreground), ColorIntensity(Dull),
+      Color(..), SGR(Reset, SetColor), setSGR)
 import System.Directory (doesFileExist, createDirectoryIfMissing)
 import System.FilePath ((<.>), (</>), takeExtension, dropExtension)
 import Text.URI (URI(uriPath), mkURI, unRText)
@@ -50,6 +52,7 @@ import Web.CoHouse.Types.Description (isAccounts)
 
 data Options = Options
   { optApiKey  :: !(Maybe ByteString)
+  , optColor   :: !(Maybe Color)
   , optCommand :: !Command
   } deriving (Eq, Show)
 
@@ -101,6 +104,11 @@ options apiKey = Options . (<|> apiKey)
       ( long "api-key"
      <> metavar "API_KEY"
      <> help (T.unpack apiKeyHelp) ) )
+  <*> optional ( option auto
+      ( long "highlight-colour"
+     <> metavar "ANSI_COLOUR"
+     <> help ("Highlight colour, one of Black, Red, Green, Yellow, Blue, " <>
+              "Magenta, Cyan or White.") ) )
   <*> subparser
       ( command "search" ( info (searchOptions <**> helper)
         ( fullDesc
@@ -224,6 +232,7 @@ main' opts = do
     Just apiKey -> do
       mgr <- newManager tlsManagerSettings
       let auth = BasicAuthData apiKey ""
+          hColor = optColor opts
       case optCommand opts of
         Search searchOpts -> do
           companySearch mgr auth (Just $ soQ searchOpts)
@@ -243,7 +252,7 @@ main' opts = do
           coNos <- readCoNos (ooCoNos officersOpts) (ooCoNo officersOpts)
           mapM_ (\coNo -> do
             companyProfile mgr auth coNo >>= \case
-              Right result -> T.putStrLn $ cpCompanyName result
+              Right result -> displayCo hColor (cpCompanyName result) coNo
               Left err -> print err
             companyOfficers mgr auth coNo
                                      (ooRegisterType officersOpts)
@@ -269,11 +278,22 @@ main' opts = do
                                           coNo
                                           (Just CategoryAccounts)
                 let fhs' = filter (isAccounts . fhDescription) fhs
+                displayCo hColor coName coNo
                 T.putStrLn $ (T.pack . show . length) fhs' <>
-                  " accounts found for company " <> coName <> " (" <> coNo <>
-                  ")."
+                  " accounts found."
                 mapM_ (getPdf mgr auth outputPath coName overwrite) fhs'
               Left err -> print err) coNos
+
+displayCo :: (Maybe Color) -> Text -> Text -> IO ()
+displayCo mColor coName coNo= case mColor of
+  Nothing -> banner
+  Just color -> do
+    setSGR [SetColor Foreground Dull color]
+    banner
+    setSGR [Reset]
+ where
+  banner = T.putStrLn $ coName <> " (" <> coNo <> ")"
+
 
 class Display a where
   display :: a -> Text
