@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 82cd80b94ed434e71482defe2f51640ef87a35c0ffd15003ad12243c7716f572
+-- hash: 5bbff90c0fe959ee36d4d715bdf3eab90f8b7350afec7cd592669000c0943999
 
 name:           co-house
 version:        0.1.0.0
@@ -56,6 +56,7 @@ library
     , optparse-applicative
     , servant
     , servant-client
+    , servant-flatten
     , text
     , time
     , yaml
@@ -83,6 +84,7 @@ executable co-house
     , optparse-applicative
     , servant
     , servant-client
+    , servant-flatten
     , text
     , time
     , yaml
@@ -109,6 +111,7 @@ executable tool-description
     , optparse-applicative
     , servant
     , servant-client
+    , servant-flatten
     , text
     , time
     , unordered-containers

@@ -37,6 +37,7 @@ dependencies:
 - optparse-applicative
 - servant
 - servant-client
+- servant-flatten
 - text
 - time
 - yaml

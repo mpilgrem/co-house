@@ -58,44 +58,40 @@ instance MimeUnrender PDF () where
   mimeUnrender _ = const (Right ())
 
 type CoHousePublicDataApi
-  =    BasicAuth "" () :>
-  (   "company"
-  :>   Capture "companyNumber" Text
-  :>   Get '[JSON] CompanyProfile
-  :<|> "search"
-  :>   "companies"
-  :>   QueryParam "q" Text
-  :>   QueryParam "items_per_page" Int
-  :>   QueryParam "start_index" Int
-  :>   Get '[JSON] CompanySearchResponse
-  :<|> "company"
-  :>   Capture "companyNumber" Text
-  :>   "filing-history"
-  :>   QueryParam "category" Category
-  :>   QueryParam "items_per_page" Int
-  :>   QueryParam "start_index" Int
-  :>   Get '[JSON] FilingHistoryResponse
-  :<|> "company"
-  :>   Capture "companyNumber" Text
-  :>   "officers"
-  :>   QueryParam "register_view" Bool
-  :>   QueryParam "register_type" RegisterType
-  :>   QueryParam "order_by" OrderBy
-  :>   QueryParam "items_per_page" Int
-  :>   QueryParam "start_index" Int
-  :>   Get '[JSON] OfficersResponse
-  )
+  =    BasicAuth "" ()
+  :>   (   "company"
+       :>  Capture "companyNumber" Text
+       :>  (    Get '[JSON] CompanyProfile
+           :<|> "filing-history"
+           :>   QueryParam "category" Category
+           :>   QueryParam "items_per_page" Int
+           :>   QueryParam "start_index" Int
+           :>   Get '[JSON] FilingHistoryResponse
+           :<|> "officers"
+           :>   QueryParam "register_view" Bool
+           :>   QueryParam "register_type" RegisterType
+           :>   QueryParam "order_by" OrderBy
+           :>   QueryParam "items_per_page" Int
+           :>   QueryParam "start_index" Int
+           :>   Get '[JSON] OfficersResponse
+           )
+      :<|> "search"
+      :>   "companies"
+      :>   QueryParam "q" Text
+      :>   QueryParam "items_per_page" Int
+      :>   QueryParam "start_index" Int
+      :>   Get '[JSON] CompanySearchResponse
+      )
 
 type CoHouseDocumentApi
-  =    BasicAuth "" ()
-  :>   "document"
-  :>   Capture "document_id" Text
-  :>   Get '[JSON] DocumentMetaDataResponse
-  :<|> BasicAuth "" ()
-  :>   "document"
-  :>   Capture "document_id" Text
-  :>   "content"
-  :>   Get '[PDF] ByteString
+  =  BasicAuth "" ()
+  :> (  "document"
+     :> Capture "document_id" Text
+     :> (    Get '[JSON] DocumentMetaDataResponse
+        :<|> "content"
+        :> Get '[PDF] ByteString
+        )
+     )
 
 data CompanyProfile = CompanyProfile
   { cpAccounts                             :: !(Maybe AccountsProfile)

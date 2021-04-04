@@ -38,6 +38,7 @@ import Network.HTTP.Client (Manager, Request (shouldStripHeaderOnRedirect))
 import Network.HTTP.Types.Header (HeaderName)
 import Servant.API (BasicAuthData)
 import Servant.API.Alternative ((:<|>)((:<|>)))
+import Servant.API.Flatten (flatten)
 import Servant.Client (BaseUrl (BaseUrl), ClientEnv (ClientEnv), ClientError,
   ClientM, Scheme (Https), client, defaultMakeClientRequest, runClientM)
 
@@ -52,39 +53,38 @@ dataApi = Proxy
 docApi :: Proxy CoHouseDocumentApi
 docApi = Proxy
 
-data DataApi = DataApi
-  { companyProfile'
-      :: Text  -- ^ Company number.
-      -> ClientM CompanyProfile
+companyProfile'
+  :: BasicAuthData
+  -> Text  -- ^ Company number.
+  -> ClientM CompanyProfile
 
-  , companySearch'
-      :: Maybe Text  -- ^ Query.
-      -> Maybe Int  -- ^ Items per page.
-      -> Maybe Int  -- ^ Start index.
-      -> ClientM CompanySearchResponse
+companySearch'
+  :: BasicAuthData
+  -> Maybe Text  -- ^ Query
+  -> Maybe Int  -- ^ Items per page
+  -> Maybe Int  -- ^ Start index
+  -> ClientM CompanySearchResponse
 
-  , filingHistory'
-      :: Text
-      -> Maybe Category
-      -> Maybe Int  -- ^ Items per page.
-      -> Maybe Int  -- ^ Start index.
-      -> ClientM FilingHistoryResponse
+filingHistory'
+  :: BasicAuthData
+  -> Text
+  -> Maybe Category
+  -> Maybe Int  -- ^ Items per page.
+  -> Maybe Int  -- ^ Start index.
+  -> ClientM FilingHistoryResponse
 
-  , companyOfficers'
-      :: Text  -- ^ Company number.
-      -> Maybe Bool -- ^ Register view.
-      -> Maybe RegisterType
-      -> Maybe OrderBy
-      -> Maybe Int  -- ^ Items per page.
-      -> Maybe Int  -- ^ Start index.
-      -> ClientM OfficersResponse
-  }
+companyOfficers'
+  :: BasicAuthData
+  -> Text  -- ^ Company number.
+  -> Maybe Bool -- ^ Register view.
+  -> Maybe RegisterType
+  -> Maybe OrderBy
+  -> Maybe Int  -- ^ Items per page.
+  -> Maybe Int  -- ^ Start index.
+  -> ClientM OfficersResponse
 
-mkDataApi :: BasicAuthData -> DataApi
-mkDataApi auth =
-  let companyProfile' :<|> companySearch' :<|> filingHistory' :<|>
-        companyOfficers' = client dataApi auth
-  in DataApi {..}
+companyProfile' :<|> filingHistory' :<|> companyOfficers' :<|> companySearch' =
+  client $ flatten dataApi
 
 docMetadata'
   :: BasicAuthData
@@ -96,7 +96,7 @@ docPdf'
   -> Text
   -> ClientM ByteString
 
-docMetadata' :<|> docPdf' = client docApi
+docMetadata' :<|> docPdf' = client $ flatten docApi
 
 coHousePublicDataApis :: BaseUrl
 coHousePublicDataApis =
@@ -116,9 +116,7 @@ companyProfile
   -> Text  -- ^ Company number.
   -> IO (Either ClientError CompanyProfile)
 companyProfile mgr auth coNo =
-  runClientM
-    (companyProfile' (mkDataApi auth) coNo)
-    (dataApiClientEnv mgr)
+  runClientM (companyProfile' auth coNo) (dataApiClientEnv mgr)
 
 companySearch
   :: Manager
@@ -134,12 +132,12 @@ companySearch mgr auth q itemsPerPage startIndex
   | itemsPerPage == Just 1
   , isNothing startIndex || startIndex == Just 0 = do
       result <- runClientM
-        (companySearch' (mkDataApi auth) q (Just 2) startIndex)
+        (companySearch' auth q (Just 2) startIndex)
         (dataApiClientEnv mgr)
       pure $ fmap patch result
   | otherwise =
       runClientM
-        (companySearch' (mkDataApi auth) q itemsPerPage startIndex)
+        (companySearch' auth q itemsPerPage startIndex)
         (dataApiClientEnv mgr)
  where
   patch csr = case csrItems csr of
@@ -157,7 +155,7 @@ filingHistory
   -> IO (Either ClientError FilingHistoryResponse)
 filingHistory mgr auth coNo cat itemsPerPage startIndex =
   runClientM
-    (filingHistory' (mkDataApi auth) coNo cat itemsPerPage startIndex)
+    (filingHistory' auth coNo cat itemsPerPage startIndex)
     (dataApiClientEnv mgr)
 
 companyOfficers
@@ -172,7 +170,7 @@ companyOfficers
 companyOfficers mgr auth coNo mRegType mOrderBy itemsPerPage startIndex = do
   let mRV = const (Just True) =<< mRegType
   runClientM
-    (companyOfficers' (mkDataApi auth) coNo mRV mRegType mOrderBy itemsPerPage startIndex)
+    (companyOfficers' auth coNo mRV mRegType mOrderBy itemsPerPage startIndex)
     (dataApiClientEnv mgr)
 
 docMetadata
