@@ -1,6 +1,7 @@
 -- This file was generated using tool-description
 
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE LambdaCase        #-}
 
 {- |
 Module      : Web.CoHouse.Types.Description
@@ -1128,7 +1129,7 @@ data Description
   deriving (Eq, Show)
 
 instance FromJSON Description where
-  parseJSON = withText "Description" $ \t -> case t of
+  parseJSON = withText "Description" $ \case
     "accounts" -> pure Accounts
     "accounts-amended" -> pure AccountsAmended
     "accounts-amended-with-accounts-type-audit-exemption-subsiduary" -> pure AccountsAmendedWithAccountsTypeAuditExemptionSubsiduary

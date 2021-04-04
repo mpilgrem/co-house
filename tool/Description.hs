@@ -43,6 +43,7 @@ code yml =
   "-- This file was generated using tool-description\n" <>
   "\n" <>
   "{-# LANGUAGE OverloadedStrings #-}\n" <>
+  "{-# LANGUAGE LambdaCase        #-}\n" <>
   "\n" <>
   "{- |\n" <>
   "Module      : Web.CoHouse.Types.Description\n" <>
@@ -66,7 +67,7 @@ code yml =
   "  deriving (Eq, Show)\n" <>
   "\n" <>
   "instance FromJSON Description where\n" <>
-  "  parseJSON = withText \"Description\" $ \\t -> case t of\n" <>
+  "  parseJSON = withText \"Description\" $ \\case\n" <>
   ymlToParseJSON <>
   "    desc -> error $ \"Unknown description: \" <> T.unpack desc\n" <>
   "\n" <>

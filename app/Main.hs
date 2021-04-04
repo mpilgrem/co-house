@@ -15,7 +15,7 @@ This module has no connection with the UK's Companies House or its affiliates.
 module Main (main) where
 
 import Control.Applicative (optional, Alternative ((<|>)))
-import Control.Monad (when)
+import Control.Monad ((>=>), when)
 import qualified Data.List.NonEmpty as NE (last)
 import Data.Maybe (catMaybes, fromMaybe, isJust)
 import System.Environment (lookupEnv)
@@ -245,7 +245,7 @@ main' opts = do
             Left err -> print err
         Profile profileOpts -> do
           coNos <- readCoNos (poCoNos profileOpts) (poCoNo profileOpts)
-          mapM_ (\coNo -> companyProfile mgr auth coNo >>= \case
+          mapM_ (companyProfile mgr auth >=> \case
             Right result -> T.putStr $ display result
             Left err -> print err) coNos
         Officers officersOpts -> do
@@ -284,7 +284,7 @@ main' opts = do
                 mapM_ (getPdf mgr auth outputPath coName overwrite) fhs'
               Left err -> print err) coNos
 
-displayCo :: (Maybe Color) -> Text -> Text -> IO ()
+displayCo :: Maybe Color -> Text -> Text -> IO ()
 displayCo mColor coName coNo= case mColor of
   Nothing -> banner
   Just color -> do
