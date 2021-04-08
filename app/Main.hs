@@ -45,7 +45,7 @@ import Web.CoHouse.Types (AccountsProfile (..), Address (..),
   BranchCoProfile (..), Category (..), CompanyProfile (..), CompanySearch (..),
   CompanySearchResponse (..), DateOfBirth (..), DayMonth (..),
   DescriptionValue (..), DocumentMetaDataResponse (..), FilingHistory (..),
-  FilingHistoryResponse (..), Links (..), LastAccounts (..), Name (..),
+  FilingHistoryResponse (..), Links (..), LastAccounts (..), Maybe' (..), Name (..),
   OrderBy (..), Officer (..), OfficersResponse (..), PreviousCompanyName (..),
   RegisterType (..), Resources (..))
 import Web.CoHouse.Types.Description (isAccounts)
@@ -66,7 +66,7 @@ data Command
 data SearchOptions = SearchOptions
   { soQ            :: !Text
   , soItemsPerPage :: !Int
-  , soStartIndex   :: !Int
+  , soPage         :: !Int
   } deriving (Eq, Show)
 
 data ProfileOptions = ProfileOptions
@@ -80,7 +80,7 @@ data OfficersOptions = OfficersOptions
   , ooOrderBy      :: !(Maybe OrderBy)
   , ooRegisterType :: !(Maybe RegisterType)
   , ooItemsPerPage :: !Int
-  , ooStartIndex   :: !Int
+  , ooPage         :: !Int
   } deriving (Eq, Show)
 
 data AccountsOptions = AccountsOptions
@@ -135,8 +135,8 @@ searchOptions = Search <$> (SearchOptions
      <> value 100
      <> help "Capped at 100 items." )
   <*> option auto
-      ( long "start-index"
-     <> short 'i'
+      ( long "page"
+     <> short 'p'
      <> value 0 ))
 
 profileOptions :: Parser Command
@@ -182,8 +182,8 @@ officersOptions = Officers <$> (OfficersOptions
      <> value 100
      <> help "Capped at 100 items." )
   <*> option auto
-      ( long "start-index"
-     <> short 'i'
+      ( long "page"
+     <> short 'p'
      <> value 0 ))
 
 accountsOptions :: Parser Command
@@ -237,7 +237,7 @@ main' opts = do
         Search searchOpts -> do
           companySearch mgr auth (Just $ soQ searchOpts)
                                  (Just $ soItemsPerPage searchOpts)
-                                 (Just $ soStartIndex searchOpts) >>= \case
+                                 (Just $ soPage searchOpts) >>= \case
             Right result -> do
               T.putStrLn $ "Total items available: " <> maybe "n/a" (T.pack . show)
                 (csrTotalResults result)
@@ -258,7 +258,7 @@ main' opts = do
                                      (ooRegisterType officersOpts)
                                      (ooOrderBy officersOpts)
                                      (Just $ ooItemsPerPage officersOpts)
-                                     (Just $ ooStartIndex officersOpts) >>= \case
+                                     (Just $ ooPage officersOpts) >>= \case
               Right result -> do
                 T.putStrLn $ "Total items available: " <> (T.pack . show)
                   (orTotalResults result)
@@ -301,7 +301,7 @@ class Display a where
 instance Display CompanyProfile where
   display cp
     =  cpCompanyName cp <> " (" <> cpCompanyNumber cp <> ")\n"
-    <> "Created: " <> (T.pack . show) (cpDateOfCreation cp)
+    <> "Created: " <> maybe "n/a" (T.pack . show) (maybe' $ cpDateOfCreation cp)
     <> maybe "" ((" Ceased: " <>) . (T.pack . show)) (cpDateOfCessation cp)
     <> "\n"
     <> maybe "" ((\pcn -> "Formerly " <> pcn <> "\n") . T.intercalate ", " . map display)
@@ -332,12 +332,10 @@ instance Display AccountsProfile where
   display ap
     = "ARD: " <> display (apAccountingReferenceDate ap) <> "\n"
    <> maybe "" (\la -> "Last accounts: " <> display la) (apLastAccounts ap)
-   <> "Next accounts: " <> (T.pack . show) (apNextMadeUpTo ap)
+   <> "Next accounts: " <> maybe "n/a" (T.pack . show) (apNextMadeUpTo ap)
    <> maybe "\n" (\d -> " (" <> od <> " " <> (T.pack . show) d <> ")\n") (apNextDue ap)
    where
-    od = if apOverdue ap
-           then "overdue"
-           else "due"
+    od = maybe "n/a" (\o -> if o then "overdue" else "due") (apOverdue ap)
 
 instance Display DayMonth where
   display (DayMonth (d, m))
@@ -345,9 +343,9 @@ instance Display DayMonth where
 
 instance Display LastAccounts where
   display la
-    = (T.pack . show) (laMadeUpTo la) <> " (" <>
-      (T.pack . show) (laPeriodStartOn la) <> " to " <>
-      (T.pack . show) (laPeriodEndOn la) <> ") " <>
+    = maybe "n/a" (T.pack . show) (laMadeUpTo la) <> " (" <>
+      maybe "n/a" (T.pack . show) (laPeriodStartOn la) <> " to " <>
+      maybe "n/a" (T.pack . show) (laPeriodEndOn la) <> ") " <>
       laType la <> "\n"
 
 instance Display BranchCoProfile where
@@ -439,7 +437,7 @@ fetchFilingHistory' mgr auth coNo mCat n fhs ipp p = do
   if startIndex > n
     then pure fhs
     else do
-      filingHistory mgr auth coNo mCat (Just ipp) (Just startIndex) >>= \case
+      filingHistory mgr auth coNo mCat (Just ipp) (Just p) >>= \case
         Right fhr -> do
           let n' = fhrTotalCount fhr
           if  n' /= n

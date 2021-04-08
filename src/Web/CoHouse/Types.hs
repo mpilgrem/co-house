@@ -1,10 +1,13 @@
 {-# LANGUAGE DataKinds                  #-}
 {-# LANGUAGE DeriveGeneric              #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE FlexibleInstances          #-}
+{-# LANGUAGE GeneralisedNewtypeDeriving #-}
+{-# LANGUAGE LambdaCase                 #-}
 {-# LANGUAGE MultiParamTypeClasses      #-}
 {-# LANGUAGE OverloadedStrings          #-}
 {-# LANGUAGE RecordWildCards            #-}
 {-# LANGUAGE TypeOperators              #-}
+{-# LANGUAGE ScopedTypeVariables        #-}
 
 {- |
 Module      : Web.CoHouse.Types
@@ -20,8 +23,9 @@ module Web.CoHouse.Types where
 import Data.Foldable(asum)
 import Text.Read (readMaybe)
 
-import Data.Aeson (FromJSON (..), Options (fieldLabelModifier), (.:), (.:?),
-  camelTo2, defaultOptions, genericParseJSON, withObject)
+import Data.Aeson (FromJSON (..), Options (fieldLabelModifier),
+  (.:), (.:?), camelTo2, defaultOptions, genericParseJSON, withObject,
+  Result (Success), fromJSON)
 import Data.Aeson.Types (withText)
 import Data.ByteString.Lazy (ByteString)
 import Data.Text (Text)
@@ -33,6 +37,8 @@ import Servant.API (type (:>), (:<|>), Accept (..), BasicAuth,
   Capture, Get, JSON, QueryParam, ToHttpApiData (..), MimeUnrender (..))
 
 import Web.CoHouse.Types.Description (Description (..))
+import Control.Applicative (Alternative)
+import Control.Monad (MonadPlus)
 
 type DayOfMonth = Int
 type MonthOfYear = Int
@@ -104,7 +110,7 @@ data CompanyProfile = CompanyProfile
   , cpCompanyStatusDetail                  :: !(Maybe Text)
   , cpConfirmationStatement                :: !(Maybe ConfirmationStatementProfile)
   , cpDateOfCessation                      :: !(Maybe Day)
-  , cpDateOfCreation                       :: !Day
+  , cpDateOfCreation                       :: !(Maybe' Day)
   , cpEtag                                 :: !(Maybe Text)
   , cpForeignCompanyDetails                :: !(Maybe ForeignCoProfile)
   , cpHasBeenLiquidated                    :: !(Maybe Bool)
@@ -128,12 +134,21 @@ instance FromJSON CompanyProfile where
       defaultOptions
       { fieldLabelModifier = camelTo2 '_' . drop 2 }
 
+newtype Maybe' a = Maybe' { maybe' :: Maybe a } deriving
+  (Eq, Ord, Show, Functor, Applicative, Monad, Alternative, MonadPlus)
+
+instance FromJSON a => FromJSON (Maybe' a) where
+  parseJSON v = do
+    case fromJSON v :: Result a of
+      Success a -> pure (Maybe' $ Just a)
+      _         -> pure (Maybe' Nothing)
+
 data AccountsProfile = AccountsProfile
   { apAccountingReferenceDate :: !DayMonth
   , apLastAccounts            :: !(Maybe LastAccounts)
   , apNextDue                 :: !(Maybe Day)
-  , apNextMadeUpTo            :: !Day
-  , apOverdue                 :: !Bool
+  , apNextMadeUpTo            :: !(Maybe Day)
+  , apOverdue                 :: !(Maybe Bool)
   } deriving (Eq, Generic, Show)
 
 instance FromJSON AccountsProfile where
@@ -143,9 +158,9 @@ instance FromJSON AccountsProfile where
       { fieldLabelModifier = camelTo2 '_' . drop 2 }
 
 data LastAccounts = LastAccounts
-  { laPeriodStartOn :: !Day
-  , laMadeUpTo      :: !Day
-  , laPeriodEndOn   :: !Day
+  { laPeriodStartOn :: !(Maybe Day)
+  , laMadeUpTo      :: !(Maybe Day)
+  , laPeriodEndOn   :: !(Maybe Day)
   , laType          :: !Text
   } deriving (Eq, Generic, Show)
 
@@ -286,7 +301,7 @@ data CompanySearch = CompanySearch
   , csDateOfCessation       :: !(Maybe Day)
   , csDateOfCreation        :: !(Maybe Day)
   , csDescription           :: !(Maybe Text)
-  , csDescriptionIdentifier :: ![Text]
+  , csDescriptionIdentifier :: ![Maybe Text]
   , csKind                  :: !Text
   , csLinks                 :: !Links
   , csMatches               :: !(Maybe Matches)

@@ -1,6 +1,5 @@
 {-# LANGUAGE DataKinds         #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards   #-}
 
 {- |
 Module      : Web.CoHouse
@@ -110,35 +109,36 @@ dataApiClientEnv :: Manager -> ClientEnv
 dataApiClientEnv mgr =
   ClientEnv mgr coHousePublicDataApis Nothing defaultMakeClientRequest
 
+runDataApi :: Manager -> ClientM a -> IO (Either ClientError a)
+runDataApi mgr x = runClientM x (dataApiClientEnv mgr)
+
 companyProfile
   :: Manager
   -> BasicAuthData
   -> Text  -- ^ Company number.
   -> IO (Either ClientError CompanyProfile)
-companyProfile mgr auth coNo =
-  runClientM (companyProfile' auth coNo) (dataApiClientEnv mgr)
+companyProfile mgr auth coNo = runDataApi mgr $ companyProfile' auth coNo
+
+startIndex :: Maybe Int -> Maybe Int -> Maybe Int
+startIndex itemsPerPage pageIndex = (*) <$> pageIndex <*> itemsPerPage
 
 companySearch
   :: Manager
   -> BasicAuthData
   -> Maybe Text  -- ^ Query.
   -> Maybe Int  -- ^ Items per page.
-  -> Maybe Int  -- ^ Start index.
+  -> Maybe Int  -- ^ Page index.
   -> IO (Either ClientError CompanySearchResponse)
-companySearch mgr auth q itemsPerPage startIndex
+companySearch mgr auth q itemsPerPage pageIndex
   -- As of 2 Apr 2021, there is a bug in the Companies House API which needs to
   -- be patched. See
   -- https://forum.aws.chdev.org/t/search-companies-pagination-problem-if-items-per-page-1/3774
   | itemsPerPage == Just 1
-  , isNothing startIndex || startIndex == Just 0 = do
-      result <- runClientM
-        (companySearch' auth q (Just 2) startIndex)
-        (dataApiClientEnv mgr)
+  , isNothing pageIndex || pageIndex == Just 0 = do
+      result <- runDataApi mgr $ companySearch' auth q (Just 2) pageIndex
       pure $ fmap patch result
-  | otherwise =
-      runClientM
-        (companySearch' auth q itemsPerPage startIndex)
-        (dataApiClientEnv mgr)
+  | otherwise = runDataApi mgr $
+      companySearch' auth q itemsPerPage (startIndex itemsPerPage pageIndex)
  where
   patch csr = case csrItems csr of
     []    -> csr { csrItemsPerPage = Just 1 }
@@ -151,12 +151,11 @@ filingHistory
   -> Text  -- ^ Company number.
   -> Maybe Category
   -> Maybe Int  -- ^ Items per page.
-  -> Maybe Int  -- ^ Start index.
+  -> Maybe Int  -- ^ Page index.
   -> IO (Either ClientError FilingHistoryResponse)
-filingHistory mgr auth coNo cat itemsPerPage startIndex =
-  runClientM
-    (filingHistory' auth coNo cat itemsPerPage startIndex)
-    (dataApiClientEnv mgr)
+filingHistory mgr auth coNo cat itemsPerPage pageIndex =
+  runDataApi mgr $ filingHistory' auth coNo cat itemsPerPage $
+    startIndex itemsPerPage pageIndex
 
 companyOfficers
   :: Manager
@@ -165,13 +164,13 @@ companyOfficers
   -> Maybe RegisterType
   -> Maybe OrderBy
   -> Maybe Int  -- ^ Items per page.
-  -> Maybe Int  -- ^ Start index.
+  -> Maybe Int  -- ^ Page index.
   -> IO (Either ClientError OfficersResponse)
-companyOfficers mgr auth coNo mRegType mOrderBy itemsPerPage startIndex = do
+companyOfficers mgr auth coNo mRegType mOrderBy itemsPerPage pageIndex = do
   let mRV = const (Just True) =<< mRegType
-  runClientM
-    (companyOfficers' auth coNo mRV mRegType mOrderBy itemsPerPage startIndex)
-    (dataApiClientEnv mgr)
+  runDataApi mgr $
+    companyOfficers' auth coNo mRV mRegType mOrderBy itemsPerPage $
+      startIndex itemsPerPage pageIndex
 
 docMetadata
   :: Manager
